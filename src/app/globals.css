@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07090d;
+  --foreground: #e8eaef;
+  --card: #0c1017;
+  --card-foreground: #e8eaef;
+  --muted: #161c26;
+  --muted-foreground: #8b93a7;
+  --border: #242c3a;
+  --primary: #3ee8a9;
+  --primary-foreground: #05120d;
+  --secondary: #1a2230;
+  --secondary-foreground: #e8eaef;
+  --ring: #3ee8a9;
+  --input-bg: #0c1017;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-syne);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.font-mono-meta {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* subtle grid for “production” feel */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

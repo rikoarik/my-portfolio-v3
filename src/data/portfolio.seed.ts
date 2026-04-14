@@ -2,6 +2,31 @@ import type { PortfolioPayload } from "@/types/portfolio";
 
 const id = (n: string) => `seed-${n}`;
 
+function buildSeedContributions() {
+  const weeks = Array.from({ length: 24 }).map((_, weekIdx) => {
+    const days = Array.from({ length: 7 }).map((__, dayIdx) => {
+      const count = Math.max(0, Math.floor(Math.sin((weekIdx + dayIdx) * 0.55) * 5 + 6) - dayIdx);
+      const level = count === 0 ? 0 : count < 3 ? 1 : count < 6 ? 2 : count < 9 ? 3 : 4;
+      return {
+        date: new Date(Date.now() - (24 - weekIdx) * 7 * 86400000 + dayIdx * 86400000)
+          .toISOString()
+          .slice(0, 10),
+        count,
+        level: level as 0 | 1 | 2 | 3 | 4,
+      };
+    });
+    return { weekStart: days[0]?.date ?? "", days };
+  });
+  return {
+    username: "rikoarik",
+    totalContributions: weeks.flatMap((w) => w.days).reduce((sum, d) => sum + d.count, 0),
+    maxCount: Math.max(...weeks.flatMap((w) => w.days.map((d) => d.count)), 0),
+    weeks,
+    fetchedAt: new Date().toISOString(),
+    isFallback: true,
+  };
+}
+
 export const PORTFOLIO_SEED: PortfolioPayload = {
   source: "seed",
   profile: {
@@ -30,6 +55,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       start_date: "2026-02",
       end_date: null,
       sort_order: 0,
+      status: "published",
       bullets: [
         "Built and maintained a Flutter mobile app for PPOB and digital payment services.",
         "Implemented Clean Architecture and BLoC, improving code maintainability and development consistency across features.",
@@ -47,6 +73,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       start_date: "2025-05",
       end_date: null,
       sort_order: 1,
+      status: "published",
       bullets: [
         "Developed backend services using Laravel and built web applications based on client requirements.",
         "Delivered end-to-end features from API development to frontend integration.",
@@ -64,6 +91,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       start_date: "2025-01",
       end_date: null,
       sort_order: 2,
+      status: "published",
       bullets: [
         "Developed and maintained mobile applications within a multi-tenant fintech ecosystem, contributing to 15+ production apps.",
         "Led migration and redevelopment of merchant applications, improving system stability across releases.",
@@ -81,6 +109,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       start_date: "2024-11",
       end_date: "2025-01",
       sort_order: 3,
+      status: "published",
       bullets: [
         "Developed a mobile attendance application with GPS and selfie verification.",
         "Implemented attendance tracking features (check-in/out, history, notifications) for daily use.",
@@ -96,6 +125,13 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       subtitle: "MyBrawijaya, Sangu Lirboyo, and related apps",
       period_label: "Aug 2025 – Nov 2026",
       stack: ["React Native", "REST API", "Play Store", "App Store"],
+      tags: ["mobile", "fintech", "multi-tenant"],
+      case_study: {
+        problem: "Multiple brands need fast shipping under one ecosystem.",
+        constraints: ["Multi-tenant constraints", "Production stability", "Store releases"],
+        solution: "Reusable modules, consistent state UX, API integration patterns.",
+        results: ["15+ apps shipped/maintained", "Consistent feature delivery across tenants"],
+      },
       bullets: [
         "Developed and maintained multiple mobile apps in a multi-tenant system.",
         "Built features such as QRIS, PPOB, marketplace, and virtual card.",
@@ -106,6 +142,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       demo_url: null,
       sort_order: 0,
       featured: true,
+      status: "published",
     },
     {
       id: id("proj-2"),
@@ -113,6 +150,13 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       subtitle: "PPOB & digital payment",
       period_label: "Feb 2026 – May 2026",
       stack: ["Flutter", "BLoC", "Dio", "Clean Architecture"],
+      tags: ["mobile", "fintech", "flutter"],
+      case_study: {
+        problem: "PPOB flow needs reliable UX across many transaction types.",
+        constraints: ["Real-time transaction reliability", "State consistency", "Maintainability"],
+        solution: "Clean Architecture + BLoC + standardized loading/error/retry patterns.",
+        results: ["More consistent UX across screens", "Scalable structure for new services"],
+      },
       bullets: [
         "Built and maintained a Flutter mobile app for PPOB services (pulsa, data, listrik, e-wallet, games).",
         "Implemented Clean Architecture and BLoC for scalable and maintainable code.",
@@ -123,6 +167,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       demo_url: null,
       sort_order: 1,
       featured: true,
+      status: "published",
     },
     {
       id: id("proj-3"),
@@ -130,6 +175,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       subtitle: "Government attendance",
       period_label: "May 2025 – Aug 2025",
       stack: ["Flutter", "BLoC", "Offline-first"],
+      tags: ["mobile", "flutter", "offline-first"],
       bullets: [
         "Developed a Flutter-based attendance application for government use.",
         "Implemented offline-first architecture with background synchronization.",
@@ -139,6 +185,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       demo_url: null,
       sort_order: 2,
       featured: false,
+      status: "published",
     },
     {
       id: id("proj-4"),
@@ -156,6 +203,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       demo_url: null,
       sort_order: 3,
       featured: true,
+      status: "published",
     },
     {
       id: id("proj-5"),
@@ -172,6 +220,126 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       demo_url: null,
       sort_order: 4,
       featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-6"),
+      title: "Payment Reliability Kit",
+      subtitle: "Internal SDK patterns for transaction UX",
+      period_label: "2025",
+      stack: ["Kotlin", "Android", "Compose", "Coroutines"],
+      tags: ["mobile", "fintech", "sdk"],
+      bullets: [
+        "Standardized loading / error / retry flows across multiple merchant apps.",
+        "Reduced inconsistent UI states during network flaps.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 5,
+      featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-7"),
+      title: "Bluetooth POS Stabilization",
+      subtitle: "Peripheral pairing + reconnect strategy",
+      period_label: "2025",
+      stack: ["Android", "Bluetooth", "POS"],
+      tags: ["mobile", "hardware"],
+      bullets: [
+        "Improved reconnect behavior for POS peripherals under poor RF conditions.",
+        "Added defensive state machine to avoid stuck transaction screens.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 6,
+      featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-8"),
+      title: "NFC Tap-to-Pay Flow",
+      subtitle: "Merchant-side NFC acceptance",
+      period_label: "2025",
+      stack: ["Android", "NFC", "Security"],
+      tags: ["mobile", "nfc", "fintech"],
+      bullets: [
+        "Hardened NFC read paths and error reporting for cashier workflows.",
+        "Added lightweight telemetry hooks for field debugging.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 7,
+      featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-9"),
+      title: "Store Release Pipeline",
+      subtitle: "Play Console + signing hygiene",
+      period_label: "2024–2026",
+      stack: ["Gradle", "Play Console", "CI/CD"],
+      tags: ["tools", "delivery"],
+      bullets: [
+        "Streamlined release checklist for multiple white-label builds.",
+        "Reduced human error during versioning and track promotion.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 8,
+      featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-10"),
+      title: "API Contract Playground",
+      subtitle: "Swagger-first integration spikes",
+      period_label: "2025",
+      stack: ["Laravel", "OpenAPI", "Postman"],
+      tags: ["backend", "integration"],
+      bullets: [
+        "Prototype endpoints quickly before mobile integration commitments.",
+        "Documented edge cases discovered during field testing.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 9,
+      featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-11"),
+      title: "React Native State Toolkit",
+      subtitle: "Shared patterns for multi-tenant RN apps",
+      period_label: "2025",
+      stack: ["React Native", "Zustand", "TypeScript"],
+      tags: ["mobile", "cross-platform"],
+      bullets: [
+        "Created reusable hooks for auth/session + feature flags.",
+        "Improved consistency between apps in the same ecosystem.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 10,
+      featured: false,
+      status: "published",
+    },
+    {
+      id: id("proj-12"),
+      title: "Crash & ANR Triage Dashboard",
+      subtitle: "Lightweight internal reporting",
+      period_label: "2025",
+      stack: ["Firebase", "BigQuery", "Sheets"],
+      tags: ["tools", "quality"],
+      bullets: [
+        "Correlated crash clusters to release trains for faster rollback decisions.",
+        "Prioritized fixes based on merchant impact.",
+      ],
+      repo_url: null,
+      demo_url: null,
+      sort_order: 11,
+      featured: false,
+      status: "published",
     },
   ],
   skill_groups: [
@@ -234,4 +402,120 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       ],
     },
   ],
+  guestbook: [
+    {
+      id: "seed-g-1",
+      name: "Awwwards Bot",
+      message: "This portfolio is absolutely stunning! Love the interactions.",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "seed-g-2",
+      name: "Satya Nadella",
+      message: "The physics here are incredible. Great job!",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "seed-g-3",
+      name: "Design Hunter",
+      message: "The career journey is one of the best I've seen this year.",
+      created_at: new Date().toISOString(),
+    },
+  ],
+  sections: [
+    {
+      id: id("section-hero"),
+      section_key: "hero",
+      title: "Arik Riko Prasetya",
+      subtitle: "Mobile Developer",
+      body: "He didn't wait to be taught.\nHe just started building.",
+      meta: { cta_label: "Explore Work", cta_href: "#projects", brand: "ARP · Portfolio" },
+      status: "published",
+      published_at: null,
+    },
+    {
+      id: id("section-about"),
+      section_key: "about",
+      title: "About Me",
+      subtitle: "Philosophy",
+      body: "I believe in building digital experiences that don't just work, but feel emotional.",
+      meta: {
+        focus_title: "Focus",
+        focus_body:
+          "Specializing in high-end interactive frontend development, combining physics-based animations with editorial design aesthetics.",
+      },
+      status: "published",
+      published_at: null,
+    },
+    {
+      id: id("section-loader"),
+      section_key: "loader",
+      title: "Loader",
+      subtitle: null,
+      body: null,
+      meta: {
+        loader_label: "Loading",
+        loader_messages: ["Preparing scene", "Loading portfolio", "Almost ready"],
+        loader_text_animation: "slide-up",
+      },
+      status: "published",
+      published_at: null,
+    },
+    {
+      id: id("section-contact"),
+      section_key: "contact",
+      title: "Get in touch",
+      subtitle: "Unduh CV atau kirim email — respons cepat.",
+      body: "Akhir cerita ada di sini. Kalau mau mulai proyek berikutnya, kita lanjut lewat email.",
+      meta: { kicker: "Closing chapter", talk_label: "Let's talk", cv_label: "Download CV" },
+      status: "published",
+      published_at: null,
+    },
+    {
+      id: id("section-proof"),
+      section_key: "proof",
+      title: "Proof Strip",
+      subtitle: null,
+      body: null,
+      meta: {
+        stats: [
+          { value: "15+", label: "Production Apps" },
+          { value: "2+ Years", label: "Mobile Experience" },
+          { value: "Ship", label: "Play Store · App Store" },
+          { value: "Fintech", label: "Domain Focus" },
+        ],
+      },
+      status: "published",
+      published_at: null,
+    },
+  ],
+  media_assets: [],
+  seo: {
+    settings: {
+      landing_theme_preset: "ember-night",
+      site_title: "Arik Riko Prasetya — Mobile Developer",
+      title_template: "%s — Portfolio",
+      default_description:
+        "Mobile & cross-platform developer — Kotlin, Flutter, React Native, fintech, clean architecture.",
+      default_og_image_url: null,
+      default_robots: "index,follow",
+      metadata: {},
+      status: "published",
+    },
+    pages: [
+      {
+        id: id("seo-home"),
+        page_key: "home",
+        title: "Arik Riko Prasetya",
+        description:
+          "Mobile & cross-platform developer — Kotlin, Flutter, React Native, fintech, clean architecture.",
+        canonical_url: null,
+        og_image_url: null,
+        robots: "index,follow",
+        metadata: {},
+        status: "published",
+      },
+    ],
+  },
+  github_contributions: buildSeedContributions(),
 };

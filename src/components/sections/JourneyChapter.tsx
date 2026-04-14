@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { useLayoutEffect, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,78 +15,97 @@ function formatPeriod(e: Experience) {
 
 export function JourneyChapter({ experiences }: { experiences: Experience[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion() ?? false;
 
   useLayoutEffect(() => {
+    if (reduce) return;
     registerGsapPlugins();
     const root = rootRef.current;
     if (!root) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
 
     const cards = root.querySelectorAll("[data-exp-card]");
     const ctx = gsap.context(() => {
       gsap.from(cards, {
         opacity: 0,
-        x: 40,
-        duration: 0.5,
-        stagger: 0.08,
-        ease: "power2.out",
+        x: 48,
+        duration: 0.55,
+        stagger: 0.09,
+        ease: "power3.out",
         scrollTrigger: {
           trigger: root,
-          start: "top 75%",
+          start: "top 72%",
           toggleActions: "play none none reverse",
         },
       });
     }, root);
     return () => ctx.revert();
-  }, [experiences]);
+  }, [experiences, reduce]);
 
   return (
     <div
       ref={rootRef}
-      className="flex min-h-full flex-col justify-center px-6 py-28 lg:px-16"
+      className="flex min-h-full flex-col justify-center px-5 py-24 sm:px-8 lg:px-14 xl:px-20"
     >
-      <h2
-        id="chapter-title-path"
-        className="mb-10 max-w-2xl text-3xl font-bold tracking-tight lg:text-4xl"
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-8 max-w-2xl sm:mb-10 lg:mb-12"
       >
-        Jalur kerja
-        <span className="font-mono-meta mt-2 block text-sm font-normal text-[var(--muted-foreground)]">
-          Milestones &amp; shipped responsibilities
+        <h2
+          id="chapter-title-path"
+          className="text-[clamp(1.75rem,4vw,2.75rem)] font-bold tracking-tight"
+        >
+          Jalur kerja
+        </h2>
+        <span className="font-mono-meta mt-2 block text-sm text-[var(--muted-foreground)]">
+          Milestones &amp; dampak di produksi
         </span>
-      </h2>
-      <div className="grid max-w-4xl gap-6">
-        {experiences.map((e) => (
-          <Card
+      </motion.div>
+
+      <div className="grid max-w-4xl gap-5 sm:gap-6">
+        {experiences.map((e, i) => (
+          <motion.div
             key={e.id}
-            data-exp-card
-            className="border-[var(--border)] bg-[var(--card)]"
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ delay: reduce ? 0 : i * 0.05, duration: 0.45 }}
           >
-            <CardHeader>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <CardTitle className="text-xl">{e.role}</CardTitle>
-                  <p className="font-mono-meta mt-1 text-sm text-[var(--primary)]">
-                    {e.company}
-                    {e.location ? ` · ${e.location}` : ""}
+            <Card
+              data-exp-card
+              className="card-lift border-[var(--border)]/90 bg-[var(--card)]/70 backdrop-blur-md"
+            >
+              <CardHeader>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
+                    <CardTitle className="text-lg sm:text-xl">{e.role}</CardTitle>
+                    <p className="font-mono-meta mt-1 text-sm text-[var(--primary)]">
+                      {e.company}
+                      {e.location ? ` · ${e.location}` : ""}
+                    </p>
+                  </div>
+                  <p className="font-mono-meta shrink-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/50 px-2 py-1 text-[10px] text-[var(--muted-foreground)] sm:text-xs">
+                    {formatPeriod(e)}
                   </p>
                 </div>
-                <p className="font-mono-meta shrink-0 text-xs text-[var(--muted-foreground)]">
-                  {formatPeriod(e)}
-                </p>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-inside list-disc space-y-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
-                {e.bullets.map((b) => (
-                  <li key={b.slice(0, 40)} className="pl-1 marker:text-[var(--primary)]">
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5 text-sm leading-relaxed text-[var(--muted-foreground)]">
+                  {e.bullets.map((b, bi) => (
+                    <li key={`${e.id}-${bi}`} className="flex gap-3">
+                      <span
+                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary-glow)]"
+                        aria-hidden
+                      />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </div>

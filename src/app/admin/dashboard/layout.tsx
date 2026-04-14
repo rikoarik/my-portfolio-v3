@@ -2,9 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { signOutAdmin } from "@/app/admin/actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export const dynamic = "force-dynamic";
-import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboardLayout({
@@ -48,29 +48,53 @@ export default async function AdminDashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] px-6 py-4">
-        <nav className="flex flex-wrap items-center gap-4 font-mono-meta text-sm">
-          <Link href="/admin/dashboard" className="font-semibold text-[var(--primary)]">
+    <div className="admin-shell min-h-screen">
+      <aside className="admin-sidebar">
+        <div className="space-y-1">
+          <p className="admin-sidebar-title">CMS Panel</p>
+          <p className="admin-sidebar-subtitle">Content management</p>
+        </div>
+        <nav className="mt-6 grid gap-1 text-sm">
+          <Link href="/admin/dashboard" className="admin-nav-link">
             Dashboard
           </Link>
-          <Link
-            href="/admin/dashboard/profile"
-            className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          >
+          <Link href="/admin/dashboard/profile" className="admin-nav-link">
             Profil situs
           </Link>
-          <Link href="/" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+          <Link href="/admin/dashboard/projects" className="admin-nav-link">
+            Projects
+          </Link>
+          <Link href="/admin/dashboard/experiences" className="admin-nav-link">
+            Experiences
+          </Link>
+          <Link href="/admin/dashboard/guestbook" className="admin-nav-link">
+            Guestbook
+          </Link>
+          <Link href="/admin/dashboard/sections" className="admin-nav-link">
+            Sections
+          </Link>
+          <Link href="/admin/dashboard/media" className="admin-nav-link">
+            Media
+          </Link>
+          <Link href="/admin/dashboard/seo" className="admin-nav-link">
+            SEO
+          </Link>
+          <Link href="/admin/dashboard/loader" className="admin-nav-link">
+            Loader
+          </Link>
+          <Link href="/" className="admin-nav-link">
             Lihat situs
           </Link>
         </nav>
-        <form action={signOutAdmin}>
-          <Button type="submit" variant="outline" size="sm">
+        <form action={signOutAdmin} className="mt-auto pt-6">
+          <SubmitButton variant="outline" size="sm" className="w-full" pendingText="Keluar...">
             Keluar
-          </Button>
+          </SubmitButton>
         </form>
-      </header>
-      <div className="p-6">{children}</div>
+      </aside>
+      <main className="admin-main">
+        <div className="admin-content">{children}</div>
+      </main>
     </div>
   );
 }

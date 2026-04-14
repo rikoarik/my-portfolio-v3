@@ -1,5 +1,5 @@
 import { updateSiteProfile } from "@/app/admin/actions";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,7 +137,7 @@ export default async function AdminProfilePage({
             />
           </div>
         </div>
-        <Button type="submit">Simpan</Button>
+        <SubmitButton pendingText="Menyimpan profil...">Simpan</SubmitButton>
       </form>
     </div>
   );

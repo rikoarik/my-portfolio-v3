@@ -209,7 +209,7 @@ export function IFCareerSection({
             <TextReveal
               as="h2"
               id="career-title"
-              text="Time Journey"
+              text="Career"
               className="ifs-heading !mb-0"
             />
           </div>

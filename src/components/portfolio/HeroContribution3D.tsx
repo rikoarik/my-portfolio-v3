@@ -54,6 +54,8 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
                 gridColumn: cell.weekIndex + 1,
                 gridRow: cell.dayIndex + 1,
                 ["--cell-height" as string]: `${8 + cell.level * 7}px`,
+                ["--col" as string]: String(cell.weekIndex + 1),
+                ["--row" as string]: String(cell.dayIndex + 1),
               }}
               aria-label={`${cell.date}: ${cell.count} contribution`}
             />
@@ -64,6 +66,13 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
       <p className="hero-contrib-tooltip">
         {hovered ? `${hovered.date} · ${hovered.count} contribution` : "Hover blocks to inspect daily contribution"}
       </p>
+      <div className="hero-contrib-legend" aria-hidden>
+        <span>Low</span>
+        {[0, 1, 2, 3, 4].map((lvl) => (
+          <span key={lvl} className={`hero-contrib-legend-dot is-level-${lvl}`} />
+        ))}
+        <span>High</span>
+      </div>
     </div>
   );
 }

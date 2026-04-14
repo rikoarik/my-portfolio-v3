@@ -41,6 +41,11 @@ export async function generateMetadata(): Promise<Metadata> {
       default: seo?.site_title ?? "Arik Riko Prasetya — Mobile Developer",
       template: seo?.title_template ?? "%s — Portfolio",
     },
+    icons: {
+      icon: "/icon.svg",
+      shortcut: "/icon.svg",
+      apple: "/icon.svg",
+    },
     description:
       seo?.default_description ??
       "Mobile & cross-platform developer — Kotlin, Flutter, React Native, fintech, clean architecture.",

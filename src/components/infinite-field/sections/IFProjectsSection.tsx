@@ -337,8 +337,11 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
     >
       <InteractiveGridBackground />
 
-      <div className="max-w-6xl mx-auto px-4 pb-[20vh]">
-        <header className="ifs-projects-header text-center mb-[10vh] pt-[15vh]" aria-labelledby="projects-title">
+      <div className="mx-auto w-full min-w-0 max-w-6xl px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[min(22vh,10rem)] sm:px-6 sm:pb-[20vh]">
+        <header
+          className="ifs-projects-header mb-[min(8vh,4rem)] pt-[min(12vh,5.5rem)] text-center sm:mb-[10vh] sm:pt-[15vh]"
+          aria-labelledby="projects-title"
+        >
           <p className="font-mono-meta text-xs uppercase tracking-[0.28em] text-[var(--muted-foreground)] mb-4">
             Portofolio
           </p>
@@ -366,7 +369,9 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
                       {p.featured && <span className="px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full font-bold uppercase tracking-wider">Unggulan</span>}
                     </div>
                     
-                    <h3 className="ifs-stacking-title text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4">{p.title}</h3>
+                    <h3 className="ifs-stacking-title text-[clamp(1.5rem,6vw+0.5rem,3.75rem)] font-bold tracking-tight md:text-5xl lg:text-6xl mb-4">
+                      {p.title}
+                    </h3>
                     <p className="ifs-stacking-desc text-[var(--muted-foreground)] text-lg leading-relaxed">{p.subtitle}</p>
                     
                     {impactLine && (

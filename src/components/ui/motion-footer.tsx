@@ -290,7 +290,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
         className="relative h-screen w-full"
         style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
       >
-        <footer className="fixed bottom-0 left-0 flex h-screen w-full flex-col justify-between overflow-hidden bg-background text-foreground cinematic-footer-wrapper">
+        <footer className="fixed bottom-0 left-0 flex h-screen w-full max-w-full flex-col justify-between overflow-x-hidden overflow-y-hidden bg-background text-foreground cinematic-footer-wrapper">
           
           <div className="footer-aurora absolute left-1/2 top-1/2 h-[60vh] w-[80vw] -translate-x-1/2 -translate-y-1/2 animate-footer-breathe rounded-[50%] blur-[80px] pointer-events-none z-0" />
           <div className="footer-bg-grid absolute inset-0 z-0 pointer-events-none" />
@@ -302,7 +302,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
             {profile.full_name}
           </div>
 
-          <div className="absolute top-12 left-0 w-full overflow-hidden border-y border-border/50 bg-background/60 backdrop-blur-md py-4 z-10 -rotate-2 scale-110 shadow-2xl pointer-events-none">
+          <div className="pointer-events-none absolute left-0 top-12 z-10 w-full max-w-full overflow-hidden border-y border-border/50 bg-background/60 py-4 shadow-2xl backdrop-blur-md max-sm:-rotate-1 max-sm:scale-105 sm:-rotate-2 sm:scale-110">
             <div className="flex w-max animate-footer-scroll-marquee text-xs md:text-sm font-bold tracking-[0.3em] text-muted-foreground uppercase">
               <MarqueeItem items={marqueeChunk} />
               <MarqueeItem items={marqueeChunk} />
@@ -310,12 +310,17 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
             </div>
           </div>
 
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-20 w-full max-w-5xl mx-auto">
-            <p className="text-xs md:text-sm font-bold tracking-[0.26em] text-muted-foreground uppercase mb-5">{kicker}</p>
-            <h2 ref={headingRef} className="text-5xl md:text-8xl font-black footer-text-glow tracking-tighter mb-5 text-center">
+          <div className="relative z-10 mx-auto mt-16 flex w-full min-w-0 max-w-5xl flex-1 flex-col items-center justify-center px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:mt-20 sm:px-6">
+            <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground sm:mb-5 md:text-sm md:tracking-[0.26em]">
+              {kicker}
+            </p>
+            <h2
+              ref={headingRef}
+              className="footer-text-glow mb-4 text-center text-[clamp(1.85rem,8vw+0.35rem,4.5rem)] font-black tracking-tighter sm:mb-5 md:text-7xl lg:text-8xl"
+            >
               {heading}
             </h2>
-            <p className="max-w-xl text-center text-sm md:text-base text-muted-foreground mb-10">{lead}</p>
+            <p className="mb-8 max-w-xl px-1 text-center text-sm text-muted-foreground sm:mb-10 md:text-base">{lead}</p>
 
             <div ref={linksRef} className="flex flex-col items-center gap-6 w-full pointer-events-auto">
               <div className="flex flex-wrap justify-center gap-4 w-full">
@@ -358,7 +363,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
             </div>
           </div>
 
-          <div className="relative z-20 w-full pb-8 px-6 md:px-12 flex items-center justify-center pointer-events-auto">
+          <div className="pointer-events-auto relative z-20 flex w-full max-w-full items-center justify-center px-[max(1rem,env(safe-area-inset-left))] pb-[max(1.5rem,env(safe-area-inset-bottom))] pr-[max(1rem,env(safe-area-inset-right))] pt-2 md:px-12">
             <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase text-center">
               © {new Date().getFullYear()} {profile.full_name}. All rights reserved.
             </div>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import type { GuestMessage } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
+import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
 import { CommentModal } from "./CommentModal";
 
 /** Keep visible cap reasonable so screen isn't cluttered, but readable */
@@ -196,11 +197,14 @@ export function IFGuestbookSection({
     <section
       ref={rootRef}
       id="guestbook"
-      className="relative w-full min-h-screen bg-[var(--background)] overflow-hidden flex items-center justify-center py-24"
+      className="ifs-guestbook-section relative z-[2] flex min-h-screen w-full items-center justify-center overflow-visible bg-[var(--background)] py-24 pb-28 sm:pb-32"
     >
+      <InteractiveGridBackground />
+
+      {/* Clip bubbles only; section stays overflow-visible so bottom shadow + radius render */}
       <div
         ref={driftContainerRef}
-        className="absolute inset-0 z-[1] pointer-events-none md:pointer-events-auto"
+        className="ifs-guestbook-drift-clip pointer-events-none absolute inset-0 z-[1] overflow-hidden md:pointer-events-auto"
       >
         {visibleMessages.map((m) => {
           const isHovered = hoveredBubbleId === m.id;
@@ -219,11 +223,11 @@ export function IFGuestbookSection({
               onPointerLeave={() => setHoveredBubbleId(null)}
             >
               <div className="ifs-guest-bubble-sway will-change-transform cursor-pointer">
-                <div className="ifs-guest-bubble-inner origin-center whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-xl px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-medium shadow-[0_8px_32px_color-mix(in_srgb,var(--foreground)_15%,transparent)] transition-all duration-500 ease-out group-hover:scale-[1.15] group-hover:bg-[var(--foreground)] group-hover:text-[var(--background)] group-hover:border-[var(--foreground)] group-hover:shadow-[0_15px_40px_color-mix(in_srgb,var(--primary)_40%,transparent)]">
-                  <span className="font-bold text-[var(--primary)] group-hover:text-[var(--primary)] mr-3 transition-colors">
+                <div className="ifs-guest-bubble-inner origin-center max-w-[min(92vw,22rem)] rounded-2xl border border-[var(--border)] bg-[var(--background)]/80 px-4 py-3 text-left text-sm font-medium shadow-[0_8px_32px_color-mix(in_srgb,var(--foreground)_15%,transparent)] backdrop-blur-xl transition-all duration-500 ease-out sm:max-w-none sm:rounded-full sm:px-8 sm:py-4 sm:text-base sm:whitespace-nowrap group-hover:scale-[1.15] group-hover:bg-[var(--foreground)] group-hover:text-[var(--background)] group-hover:border-[var(--foreground)] group-hover:shadow-[0_15px_40px_color-mix(in_srgb,var(--primary)_40%,transparent)]">
+                  <span className="block font-bold text-[var(--primary)] group-hover:text-[var(--primary)] sm:mr-3 sm:inline transition-colors">
                     {m.name}
                   </span>
-                  <span className="text-[var(--muted-foreground)] group-hover:text-[var(--background)] transition-colors">
+                  <span className="mt-1 block text-[var(--muted-foreground)] group-hover:text-[var(--background)] transition-colors sm:mt-0 sm:inline">
                     {m.message}
                   </span>
                 </div>
@@ -234,11 +238,11 @@ export function IFGuestbookSection({
       </div>
 
       {/* Foreground Hero */}
-      <div className="relative z-20 w-full max-w-xl mx-auto p-10 sm:p-14 rounded-[3rem] bg-[var(--background)]/70 backdrop-blur-2xl border border-[var(--border)] shadow-2xl flex flex-col items-center justify-center text-center mx-4 pointer-events-auto">
+      <div className="ifs-guestbook-glass-panel z-20 mx-auto flex w-[min(100%,28rem)] max-w-xl flex-col items-center justify-center rounded-[2rem] p-8 text-center sm:mx-auto sm:w-full sm:rounded-[3rem] sm:p-14 max-[380px]:px-5 pointer-events-auto">
         <TextReveal
           as="h2"
           text="Guest Messages"
-          className="text-4xl sm:text-6xl font-sans font-black tracking-tighter uppercase mb-6"
+          className="text-[clamp(1.75rem,8vw,2.25rem)] font-sans font-black uppercase tracking-tighter sm:text-6xl mb-6"
         />
         <div className="mb-10 max-w-sm mx-auto space-y-4">
           <p className="text-[var(--muted-foreground)] text-base font-medium leading-relaxed">
@@ -253,7 +257,7 @@ export function IFGuestbookSection({
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="group relative px-10 py-5 bg-transparent text-[var(--foreground)] border border-[var(--border)] rounded-full font-bold uppercase tracking-widest overflow-hidden transition-all duration-300 hover:border-[var(--foreground)] hover:scale-[1.03] active:scale-[0.97]"
+          className="group relative w-full max-w-xs px-6 py-4 text-[var(--foreground)] sm:w-auto sm:max-w-none sm:px-10 sm:py-5 bg-transparent border border-[var(--border)] rounded-full font-bold uppercase tracking-widest overflow-hidden transition-all duration-300 hover:border-[var(--foreground)] hover:scale-[1.03] active:scale-[0.97]"
         >
           <span className="relative z-10 flex items-center gap-3 transition-colors group-hover:text-[var(--background)]">
             Write Message

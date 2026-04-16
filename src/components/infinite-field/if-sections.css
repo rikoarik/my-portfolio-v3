@@ -9,17 +9,18 @@
   width: 100%;
   max-width: 72rem;
   margin: 0 auto;
-  padding: 5rem 1.5rem;
+  box-sizing: border-box;
+  padding: 4rem max(1rem, env(safe-area-inset-left)) 4rem max(1rem, env(safe-area-inset-right));
 }
 
 @media (min-width: 640px) {
   .ifs-section {
-    padding: 6rem 2rem;
+    padding: 6rem max(1.25rem, env(safe-area-inset-left)) 6rem max(1.25rem, env(safe-area-inset-right));
   }
 }
 @media (min-width: 1024px) {
   .ifs-section {
-    padding: 8rem 3.5rem;
+    padding: 8rem max(2rem, env(safe-area-inset-left)) 8rem max(2rem, env(safe-area-inset-right));
   }
 }
 
@@ -39,7 +40,7 @@
 
 .ifs-heading {
   font-family: var(--font-if-display), system-ui, sans-serif;
-  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+  font-size: clamp(0.7rem, 0.65rem + 1.1vw, 0.85rem);
   font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -83,6 +84,9 @@
 
 .ifs-proof-strip {
   display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   padding: 4rem 0;
@@ -124,6 +128,31 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+@media (max-width: 639px) {
+  .ifs-proof-strip {
+    padding: 2.5rem 0;
+  }
+
+  .ifs-proof-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 0 1.25rem;
+  }
+
+  .ifs-proof-value {
+    font-size: clamp(2.5rem, 11vw, 3.75rem);
+    line-height: 0.95;
+  }
+
+  .ifs-proof-label {
+    font-size: 0.58rem;
+    max-width: 12rem;
+    white-space: normal;
+    line-height: 1.35;
+  }
 }
 
 /* ── Projects (editorial showcase) ───────────────────────── */
@@ -225,9 +254,12 @@
 
 .ifs-stacking-card-inner {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   height: 100%;
   min-height: 70vh;
-  padding: 2.5rem;
+  padding: 1.25rem max(1rem, env(safe-area-inset-left)) 1.5rem max(1rem, env(safe-area-inset-right));
   background: var(--background);
   border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   border-radius: 2.5rem;
@@ -237,11 +269,32 @@
   transition: box-shadow 0.3s ease;
 }
 
+@media (max-width: 639px) {
+  .ifs-stacking-card {
+    min-height: auto;
+  }
+
+  .ifs-stacking-card-inner {
+    min-height: min(70vh, 720px);
+    border-radius: 1.35rem;
+  }
+}
+
 @media (min-width: 768px) {
   .ifs-stacking-card-inner {
     flex-direction: row;
     padding: 3.5rem;
+    min-height: 70vh;
   }
+}
+
+.ifs-stacking-card-content {
+  min-width: 0;
+}
+
+.ifs-stacking-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ifs-stacking-card-visual {
@@ -1510,6 +1563,8 @@
 #main {
   padding-bottom: 0;
   background-color: color-mix(in srgb, var(--background) 90%, var(--muted));
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 .portfolio-main-column > * {
@@ -1531,6 +1586,90 @@
   margin-right: 0;
   overflow: visible;
   background-color: color-mix(in srgb, var(--background) 90%, var(--muted));
+}
+
+/* Bottom edge: same radius token on section + inner clip (avoids sub-pixel “peek” under corners) */
+#main #guestbook {
+  --ifs-guestbook-bottom-r: clamp(1.25rem, 4vw, 2.25rem);
+  isolation: isolate;
+  transform: translateZ(0);
+  border-bottom-left-radius: var(--ifs-guestbook-bottom-r);
+  border-bottom-right-radius: var(--ifs-guestbook-bottom-r);
+  box-shadow:
+    0 40px 80px -16px color-mix(in srgb, var(--foreground) 28%, transparent),
+    0 22px 48px -12px color-mix(in srgb, var(--foreground) 18%, transparent),
+    0 10px 24px -6px color-mix(in srgb, var(--foreground) 12%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--border) 55%, transparent);
+  margin-bottom: 0;
+}
+
+#main #guestbook .ifs-guestbook-drift-clip {
+  border-bottom-left-radius: var(--ifs-guestbook-bottom-r);
+  border-bottom-right-radius: var(--ifs-guestbook-bottom-r);
+  /* Fills hairline gaps between rounded section and inner overflow rect */
+  background-color: var(--background);
+}
+
+/* Guestbook center card — glass: comments behind stay visible (blurred) */
+#main #guestbook .ifs-guestbook-glass-panel {
+  position: relative;
+  transform: translateZ(0);
+  isolation: isolate;
+  background:
+    linear-gradient(
+      172deg,
+      color-mix(in srgb, var(--card) 14%, transparent) 0%,
+      color-mix(in srgb, var(--background) 7%, transparent) 42%,
+      color-mix(in srgb, var(--muted) 6%, transparent) 100%
+    );
+  background-color: color-mix(in srgb, var(--card) 7%, transparent);
+  border: none;
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
+  backdrop-filter: blur(14px) saturate(145%);
+  box-shadow: none;
+}
+
+#main #guestbook .ifs-guestbook-glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    125deg,
+    rgb(255 255 255 / 0.22) 0%,
+    transparent 52%,
+    transparent 100%
+  );
+  opacity: 0.72;
+}
+
+#main #guestbook .ifs-guestbook-glass-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+#main #guestbook .ifs-guestbook-glass-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+#main #guestbook .ifs-guestbook-glass-panel h2 {
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--background) 45%, transparent),
+    0 0 28px color-mix(in srgb, var(--background) 72%, transparent);
+}
+
+#main #guestbook .ifs-guestbook-glass-panel p {
+  text-shadow: 0 0 20px color-mix(in srgb, var(--background) 65%, transparent);
 }
 
 #main #contact.ifs-section {
@@ -1829,6 +1968,13 @@
 
 
 /* ── Vertical Winding Journey Layout ── */
+.ifs-horizontal-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 .ifs-vertical-journey {
   display: flex;
   flex-direction: column;
@@ -2063,10 +2209,14 @@
 
 @media (max-width: 480px) {
   .ifs-nav {
-    top: 0.65rem;
+    top: max(0.65rem, env(safe-area-inset-top));
+    left: max(0.5rem, env(safe-area-inset-left));
+    right: max(0.5rem, env(safe-area-inset-right));
     bottom: auto;
     width: auto;
-    max-width: calc(100vw - 1rem);
+    max-width: none;
+    transform: none;
+    margin-inline: auto;
     padding: 0.28rem 0.34rem;
     justify-content: flex-start;
     flex-wrap: nowrap;

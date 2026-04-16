@@ -106,13 +106,13 @@ export function CommentModal({
   return createPortal(
     <div
       ref={backdropRef}
-      className="ifs-comment-backdrop fixed inset-0 z-[100] flex items-center justify-center p-6"
+      className="ifs-comment-backdrop fixed inset-0 z-[100] flex items-center justify-center px-[max(1rem,env(safe-area-inset-left),env(safe-area-inset-right))] py-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8 sm:py-8"
       onClick={closeWithAnim}
       role="presentation"
     >
       <div
         ref={panelRef}
-        className="ifs-comment-modal relative w-full max-w-md rounded-2xl p-8 shadow-2xl"
+        className="ifs-comment-modal relative w-full max-w-md rounded-2xl p-6 shadow-2xl sm:p-8"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

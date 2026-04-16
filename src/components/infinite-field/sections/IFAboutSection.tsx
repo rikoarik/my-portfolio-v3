@@ -54,7 +54,7 @@ function StatBlock({
         <span
           ref={numRef}
           data-stat-value={value}
-          className="ifs-stat-num font-black text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] leading-none tracking-tighter text-[var(--foreground)]"
+          className="ifs-stat-num font-black text-[clamp(2.25rem,12vw,3.75rem)] leading-none tracking-tighter text-[var(--foreground)] sm:text-7xl md:text-8xl lg:text-[6.5rem]"
         >
           0
         </span>
@@ -238,7 +238,7 @@ export function IFAboutSection({
       <InteractiveGridBackground />
 
       {/* ── PART 1: Hero Statement ── */}
-      <div className="ifs-about-hero relative w-full pt-32 sm:pt-40 md:pt-52 pb-20 sm:pb-28 md:pb-36 px-4 sm:px-8 lg:px-16">
+      <div className="ifs-about-hero relative w-full min-w-0 pt-28 sm:pt-40 md:pt-52 pb-16 sm:pb-28 md:pb-36 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-8 lg:px-16">
         <div className="max-w-[85rem] mx-auto">
           {/* Section Label */}
           <div className="mb-12 md:mb-20">
@@ -250,7 +250,7 @@ export function IFAboutSection({
           {/* Massive Headline */}
           <h2
             id="about-title"
-            className="font-sans font-black text-[clamp(2.5rem,8vw,8rem)] leading-[0.88] tracking-[-0.04em] text-[var(--foreground)] uppercase max-w-[20ch]"
+            className="font-sans font-black text-[clamp(1.85rem,7vw+0.25rem,8rem)] leading-[0.92] tracking-[-0.04em] text-[var(--foreground)] uppercase max-w-[20ch] break-words hyphens-auto"
           >
             <SplitChars text={headline} />
           </h2>
@@ -277,7 +277,7 @@ export function IFAboutSection({
       </div>
 
       {/* ── PART 3: Body Content ── */}
-      <div className="ifs-about-body relative w-full py-24 sm:py-32 md:py-40 px-4 sm:px-8 lg:px-16">
+      <div className="ifs-about-body relative w-full min-w-0 py-20 sm:py-32 md:py-40 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-8 lg:px-16">
         <div className="max-w-[85rem] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-12">
 
           {/* LEFT: Subline */}
@@ -304,7 +304,7 @@ export function IFAboutSection({
         <div className="ifs-about-grid max-w-[85rem] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
 
           {/* Card A — Philosophy */}
-          <div className="ifs-about-card relative p-8 sm:p-10 rounded-[2rem] border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_80%,transparent)] backdrop-blur-sm group hover:border-[var(--foreground)] transition-colors duration-500">
+          <div className="ifs-about-card relative p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_80%,transparent)] backdrop-blur-sm group hover:border-[var(--foreground)] transition-colors duration-500">
             <div className="absolute top-8 right-8 w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] group-hover:bg-[var(--foreground)] group-hover:text-[var(--background)] group-hover:border-[var(--foreground)] transition-all duration-500">
               <span className="text-xl leading-none group-hover:rotate-45 transition-transform duration-500">↗</span>
             </div>
@@ -320,7 +320,7 @@ export function IFAboutSection({
           </div>
 
           {/* Card B — Focus (offset down for asymmetry) */}
-          <div className="ifs-about-card relative p-8 sm:p-10 rounded-[2rem] border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_80%,transparent)] backdrop-blur-sm sm:mt-16 group hover:border-[var(--foreground)] transition-colors duration-500">
+          <div className="ifs-about-card relative p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_80%,transparent)] backdrop-blur-sm sm:mt-16 group hover:border-[var(--foreground)] transition-colors duration-500">
             <div className="absolute top-8 right-8 w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] group-hover:bg-[var(--foreground)] group-hover:text-[var(--background)] group-hover:border-[var(--foreground)] transition-all duration-500">
               <span className="text-xl leading-none group-hover:rotate-45 transition-transform duration-500">↗</span>
             </div>
@@ -336,7 +336,7 @@ export function IFAboutSection({
           </div>
 
           {/* Card C — Craft (bonus card for visual balance) */}
-          <div className="ifs-about-card relative p-8 sm:p-10 rounded-[2rem] border border-[var(--border)] bg-[var(--foreground)] text-[var(--background)] sm:col-span-2 lg:col-span-1 group">
+          <div className="ifs-about-card relative p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] border border-[var(--border)] bg-[var(--foreground)] text-[var(--background)] sm:col-span-2 lg:col-span-1 group">
             <div className="absolute top-8 right-8 w-10 h-10 rounded-full border border-[var(--background)]/30 flex items-center justify-center text-[var(--background)] group-hover:bg-[var(--background)] group-hover:text-[var(--foreground)] transition-all duration-500">
               <span className="text-xl leading-none group-hover:rotate-45 transition-transform duration-500">↗</span>
             </div>

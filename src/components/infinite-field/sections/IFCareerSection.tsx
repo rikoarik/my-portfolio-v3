@@ -206,7 +206,7 @@ export function IFCareerSection({
     >
       <InteractiveGridBackground />
 
-      <div className="mx-auto mb-16 max-w-6xl px-3 sm:px-5 lg:px-6 relative z-10">
+      <div className="relative z-10 mx-auto mb-16 w-full min-w-0 max-w-6xl px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] sm:px-5 lg:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex max-w-xl flex-col gap-3">
             <TextReveal
@@ -219,7 +219,7 @@ export function IFCareerSection({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-5xl px-3 sm:px-5 lg:px-6 relative">
+      <div className="relative mx-auto w-full min-w-0 max-w-5xl px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] sm:px-5 lg:px-6">
         <div className="ifs-vertical-journey">
           {allCards.map((item, i) => {
             const isLeft = i % 2 === 0;

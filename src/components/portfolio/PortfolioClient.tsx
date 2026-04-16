@@ -105,7 +105,9 @@ export function PortfolioClient({
         </div>
       ) : null}
 
-      <div className={`relative transition-opacity duration-700 ease-in-out ${loading ? "opacity-0" : "opacity-100"}`}>
+      <div
+        className={`relative min-w-0 max-w-full overflow-x-clip transition-opacity duration-700 ease-in-out ${loading ? "opacity-0" : "opacity-100"}`}
+      >
         <IFNav brand={brand} items={navItems} />
         <PastelHero
           profile={data.profile}
@@ -114,7 +116,7 @@ export function PortfolioClient({
         />
 
         {/* pointer-events-none + child auto = klik tembus ke footer/back-to-top di area kosong; section tetap bisa diklik */}
-        <div className="portfolio-main-column relative z-[1] bg-transparent pointer-events-none [&>*]:pointer-events-auto">
+        <div className="portfolio-main-column relative z-[1] min-w-0 max-w-full bg-transparent pointer-events-none [&>*]:pointer-events-auto">
           <IFProofStrip section={proofSection} />
           <IFProjectsSection projects={data.projects} />
           <IFAboutSection section={aboutSection} />

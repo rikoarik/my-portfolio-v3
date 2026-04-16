@@ -145,10 +145,10 @@ export function PastelHero({
       className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-transparent"
     >
       <Meteors number={25} />
-      <div className="flex min-h-0 relative z-10 flex-1 flex-col px-5 pb-10 pt-[max(4.5rem,env(safe-area-inset-top))] sm:px-[36px]">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col pb-10 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(4.5rem,env(safe-area-inset-top))] sm:px-[36px]">
         <div className="grid min-h-0 flex-1 grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
-          <div className="max-w-[min(100%,520px)]">
-            <h1 className="text-left text-[clamp(2.4rem,10vw,3.5rem)] font-bold leading-none tracking-[-0.03em] text-[var(--foreground)] sm:text-[clamp(3rem,8vw,5.5rem)]">
+          <div className="w-full min-w-0 max-w-[min(100%,520px)]">
+            <h1 className="text-left text-[clamp(2rem,9vw+0.5rem,3.5rem)] font-bold leading-[1.02] tracking-[-0.03em] text-[var(--foreground)] sm:text-[clamp(3rem,8vw,5.5rem)]">
               <span ref={nameLine1Ref} className="block">
                 {firstLine}
               </span>
@@ -170,7 +170,7 @@ export function PastelHero({
               {roleText}
             </p>
 
-            <div className="mt-6 max-w-[340px] space-y-1">
+            <div className="mt-6 w-full min-w-0 max-w-[min(340px,100%)] space-y-1">
               <p
                 ref={taglineLine1Ref}
                 className="text-[0.9rem] italic text-[var(--muted-foreground)]"
@@ -187,7 +187,7 @@ export function PastelHero({
           </div>
         </div>
 
-        <div className="mt-10 max-w-[min(100%,520px)] shrink-0 sm:mt-12">
+        <div className="mt-10 w-full min-w-0 max-w-[min(100%,520px)] shrink-0 sm:mt-12">
           <a
             href={ctaHref}
             className="inline-block rounded-full font-mono-meta uppercase transition-transform duration-200 hover:scale-[1.03]"
@@ -210,8 +210,8 @@ export function PastelHero({
         ref={scrollIndicatorRef}
         className="pointer-events-none absolute z-10 flex flex-col items-center gap-2"
         style={{
-          bottom: 28,
-          right: 36,
+          bottom: "max(1.25rem, env(safe-area-inset-bottom))",
+          right: "max(1rem, env(safe-area-inset-right))",
           color: "color-mix(in srgb, var(--muted-foreground) 40%, transparent)",
         }}
         aria-hidden

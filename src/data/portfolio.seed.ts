@@ -421,6 +421,25 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       message: "The career journey is one of the best I've seen this year.",
       created_at: new Date().toISOString(),
     },
+    ...(process.env.NEXT_PUBLIC_NODE_ENV !== "production"
+      ? Array.from({ length: 42 }).map((_, i) => ({
+          id: `seed-g-dummy-${i + 1}`,
+          name: `Visitor ${String(i + 1).padStart(2, "0")}`,
+          message:
+            i % 6 === 0
+              ? "Keren parah. Physics bubble-nya satisfying."
+              : i % 6 === 1
+                ? "UI clean, animasi halus, dan responsif."
+                : i % 6 === 2
+                  ? "Gaskeun! Ini portfolio unik banget."
+                  : i % 6 === 3
+                    ? "Nice work. Semangat terus bangun produk."
+                    : i % 6 === 4
+                      ? "Detail kecilnya berasa premium."
+                      : "Mantap! Ini enak dilihat.",
+          created_at: new Date(Date.now() - (i + 1) * 60_000).toISOString(),
+        }))
+      : []),
   ],
   sections: [
     {

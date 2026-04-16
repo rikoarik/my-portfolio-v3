@@ -16,6 +16,11 @@ export function SmoothScroller() {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
+    const ua = navigator.userAgent;
+    const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+    // Safari: Lenis transform scrolling + ScrollTrigger proxy often breaks pins/animations.
+    if (isSafari) return;
+
     registerGsapPlugins();
 
     const lenis = new Lenis({
@@ -52,7 +57,9 @@ export function SmoothScroller() {
     lenis.on("scroll", ScrollTrigger.update);
 
     let rafId: number;
+    let running = true;
     const raf = (time: number) => {
+      if (!running) return;
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     };
@@ -64,6 +71,36 @@ export function SmoothScroller() {
     };
     window.addEventListener("resize", onRefresh);
 
+    // Some sections change height after first paint (fonts, images, content-visibility, GSAP).
+    // Keep Lenis scroll limits in sync to avoid "stuck" scroll near mid-page.
+    let roRaf = 0;
+    const scheduleRefresh = () => {
+      if (roRaf) return;
+      roRaf = requestAnimationFrame(() => {
+        roRaf = 0;
+        onRefresh();
+      });
+    };
+    const roTarget = (document.getElementById("main") ?? document.body) as HTMLElement | null;
+    const ro =
+      typeof ResizeObserver !== "undefined" && roTarget
+        ? new ResizeObserver(() => scheduleRefresh())
+        : null;
+    ro?.observe(roTarget);
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        running = false;
+        cancelAnimationFrame(rafId);
+        return;
+      }
+      if (!running) {
+        running = true;
+        rafId = requestAnimationFrame(raf);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     requestAnimationFrame(() => {
       ScrollTrigger.refresh();
     });
@@ -71,6 +108,9 @@ export function SmoothScroller() {
     return () => {
       delete (window as Window & { __portfolioLenis?: typeof lenis }).__portfolioLenis;
       window.removeEventListener("resize", onRefresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+      ro?.disconnect();
+      if (roRaf) cancelAnimationFrame(roRaf);
       cancelAnimationFrame(rafId);
       lenis.destroy();
       ScrollTrigger.scrollerProxy(el, undefined);

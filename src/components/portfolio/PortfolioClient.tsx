@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { gsap, registerGsapPlugins } from "@/lib/gsap";
+import { registerGsapPlugins } from "@/lib/gsap";
 import { IFAboutSection } from "@/components/infinite-field/sections/IFAboutSection";
 import { IFCareerSection } from "@/components/infinite-field/sections/IFCareerSection";
 import { IFGuestbookSection } from "@/components/infinite-field/sections/IFGuestbookSection";
@@ -27,12 +27,6 @@ export function PortfolioClient({
   offlineBanner: boolean;
 }) {
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Artificial delay to show off the loader and ensure styles process
-    const t = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     if (loading) return;
@@ -82,6 +76,7 @@ export function PortfolioClient({
       <SmoothScroller />
       <PageLoader
         isLoading={loading}
+        onDone={() => setLoading(false)}
         config={{
           label: loaderLabel,
           messages: loaderMessages.length ? loaderMessages : ["Preparing scene", "Loading portfolio"],

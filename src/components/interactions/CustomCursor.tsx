@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * Custom cursor — dot + trailing ring.
@@ -12,21 +12,20 @@ export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
   const pos = useRef({ x: -100, y: -100 });
   const ringPos = useRef({ x: -100, y: -100 });
-  const [mounted, setMounted] = useState(false);
-  const [isTouch, setIsTouch] = useState(true); // assume touch until proven otherwise
-
-  // Mount guard for SSR
-  useEffect(() => {
-    setMounted(true);
-    setIsTouch(window.matchMedia("(pointer: coarse)").matches);
-  }, []);
 
   useEffect(() => {
-    if (!mounted || isTouch) return;
-
     const dot = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;
+
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const ua = navigator.userAgent;
+    const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+    if (isTouch || isSafari) {
+      dot.style.display = "none";
+      ring.style.display = "none";
+      return;
+    }
 
     // Hide native cursor
     document.documentElement.style.cursor = "none";
@@ -38,6 +37,7 @@ export function CustomCursor() {
     let hovering = false;
     let cursorText = "";
     let rafId = 0;
+    let running = false;
 
     // Smooth ring follow via lerp
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -51,83 +51,137 @@ export function CustomCursor() {
 
       rafId = requestAnimationFrame(tick);
     };
-    rafId = requestAnimationFrame(tick);
+    const start = () => {
+      if (running) return;
+      running = true;
+      rafId = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
 
     const show = () => {
       if (visible) return;
       visible = true;
       dot.style.opacity = "1";
       ring.style.opacity = "1";
+      start();
     };
 
     const hide = () => {
       visible = false;
       dot.style.opacity = "0";
       ring.style.opacity = "0";
+      stop();
+    };
+
+    const setCursorText = (nextText: string) => {
+      if (nextText === cursorText) return;
+      cursorText = nextText;
+      const textEl = ring.querySelector(".cc-text") as HTMLElement | null;
+      if (textEl) {
+        textEl.textContent = cursorText;
+        textEl.style.opacity = cursorText ? "1" : "0";
+      }
+    };
+
+    const setHoverMode = (mode: "data" | "clickable" | "none") => {
+      if (mode === "data") {
+        hovering = true;
+        dot.style.opacity = cursorText ? "0" : "0.4";
+        ring.style.borderColor = "var(--primary)";
+        ring.style.background = "rgba(74, 157, 110, 0.12)";
+        return;
+      }
+      if (mode === "clickable") {
+        hovering = true;
+        setCursorText("");
+        dot.style.opacity = "1";
+        dot.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%) scale(0.5)`;
+        ring.style.borderColor = "var(--primary)";
+        ring.style.background = "rgba(74, 157, 110, 0.08)";
+        return;
+      }
+      hovering = false;
+      setCursorText("");
+      dot.style.opacity = "1";
+      ring.style.borderColor = "color-mix(in srgb, var(--foreground) 25%, transparent)";
+      ring.style.background = "transparent";
     };
 
     const onMove = (e: MouseEvent) => {
       pos.current.x = e.clientX;
       pos.current.y = e.clientY;
       show();
-
-      // Check what we're hovering
-      const target = document.elementFromPoint(e.clientX, e.clientY);
-      const clickable = target?.closest("a, button, input, textarea, select, [role='button'], label");
-      const dataCursor = target?.closest("[data-cursor]") as HTMLElement | null;
-
-      if (dataCursor) {
-        hovering = true;
-        const newText = dataCursor.getAttribute("data-cursor-text") || "";
-        if (newText !== cursorText) {
-          cursorText = newText;
-          const textEl = ring.querySelector(".cc-text") as HTMLElement;
-          if (textEl) {
-            textEl.textContent = cursorText;
-            textEl.style.opacity = cursorText ? "1" : "0";
-          }
-        }
-        dot.style.opacity = cursorText ? "0" : "0.4";
-        ring.style.borderColor = "var(--primary)";
-        ring.style.background = "rgba(74, 157, 110, 0.12)";
-      } else if (clickable) {
-        hovering = true;
-        cursorText = "";
-        const textEl = ring.querySelector(".cc-text") as HTMLElement;
-        if (textEl) textEl.style.opacity = "0";
-        dot.style.opacity = "1";
-        dot.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%) scale(0.5)`;
-        ring.style.borderColor = "var(--primary)";
-        ring.style.background = "rgba(74, 157, 110, 0.08)";
-      } else {
-        hovering = false;
-        cursorText = "";
-        const textEl = ring.querySelector(".cc-text") as HTMLElement;
-        if (textEl) textEl.style.opacity = "0";
-        dot.style.opacity = "1";
-        ring.style.borderColor = "color-mix(in srgb, var(--foreground) 25%, transparent)";
-        ring.style.background = "transparent";
-      }
     };
 
     const onLeave = () => hide();
     const onEnter = () => show();
 
+    // Event delegation: compute hover mode on pointerover/focusin, not every mousemove
+    const computeHover = (t: EventTarget | null) => {
+      const target = t instanceof Element ? t : null;
+      const dataCursor = target?.closest("[data-cursor]") as HTMLElement | null;
+      if (dataCursor) {
+        setCursorText(dataCursor.getAttribute("data-cursor-text") || "");
+        setHoverMode("data");
+        return;
+      }
+      const clickable = target?.closest(
+        "a, button, input, textarea, select, [role='button'], label",
+      );
+      setHoverMode(clickable ? "clickable" : "none");
+    };
+
+    const onOver = (e: PointerEvent) => computeHover(e.target);
+    const onFocusIn = (e: FocusEvent) => computeHover(e.target);
+    const onOut = (e: PointerEvent) => {
+      const to = (e.relatedTarget instanceof Element ? e.relatedTarget : null) as Element | null;
+      computeHover(to);
+    };
+    let hoverRaf = 0;
+    const refreshHover = () => {
+      if (!visible || hoverRaf) return;
+      hoverRaf = requestAnimationFrame(() => {
+        hoverRaf = 0;
+        const t = document.elementFromPoint(pos.current.x, pos.current.y);
+        computeHover(t);
+      });
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") stop();
+      else if (visible) start();
+    };
+
     window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("scroll", refreshHover, { passive: true });
+    window.addEventListener("resize", refreshHover, { passive: true });
     document.addEventListener("mouseleave", onLeave);
     document.addEventListener("mouseenter", onEnter);
+    document.addEventListener("pointerover", onOver, { capture: true, passive: true });
+    document.addEventListener("pointerout", onOut, { capture: true, passive: true });
+    document.addEventListener("focusin", onFocusIn, true);
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      stop();
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("scroll", refreshHover);
+      window.removeEventListener("resize", refreshHover);
       document.removeEventListener("mouseleave", onLeave);
       document.removeEventListener("mouseenter", onEnter);
+      document.removeEventListener("pointerover", onOver, true);
+      document.removeEventListener("pointerout", onOut, true);
+      document.removeEventListener("focusin", onFocusIn, true);
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (hoverRaf) cancelAnimationFrame(hoverRaf);
       document.documentElement.style.cursor = "";
       styleEl.remove();
     };
-  }, [mounted, isTouch]);
-
-  if (!mounted || isTouch) return null;
+  }, []);
 
   return (
     <>

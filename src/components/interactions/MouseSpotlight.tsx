@@ -11,6 +11,10 @@ export function MouseSpotlight() {
   const spotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const ua = navigator.userAgent;
+    const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+    if (isSafari) return;
+
     const el = spotRef.current;
     if (!el) return;
 
@@ -44,6 +48,10 @@ export function MouseSpotlight() {
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
+
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+  if (isSafari) return null;
 
   return (
     <div

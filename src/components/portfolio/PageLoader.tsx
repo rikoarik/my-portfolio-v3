@@ -34,9 +34,11 @@ const DEFAULT_LOADER_CONFIG: LoaderConfig = {
 export function PageLoader({
   isLoading,
   config,
+  onDone,
 }: {
   isLoading: boolean;
   config?: LoaderConfig;
+  onDone?: () => void;
 }) {
   const resolvedConfig = config ?? DEFAULT_LOADER_CONFIG;
   const [mounted, setMounted] = useState(false);
@@ -70,6 +72,7 @@ export function PageLoader({
       const tlExit = gsap.timeline({
         onComplete: () => {
           overlayEl.style.display = "none";
+          onDone?.();
         },
       });
       tlExit.to(contentEl, {
@@ -122,7 +125,7 @@ export function PageLoader({
     return () => {
       tl.kill();
     };
-  }, [isLoading, mounted]);
+  }, [isLoading, mounted, onDone]);
 
   useEffect(() => {
     if (!mounted || !isLoading) return;
@@ -132,46 +135,6 @@ export function PageLoader({
     }, 900);
     return () => window.clearInterval(timer);
   }, [isLoading, mounted, resolvedConfig.messages.length]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    if (isLoading) return;
-
-    const overlayEl = overlayRef.current;
-    const contentEl = contentRef.current;
-    if (!overlayEl || !contentEl) return;
-    if (exitPlayedRef.current) return;
-    exitPlayedRef.current = true;
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        overlayEl.style.display = "none";
-      },
-    });
-
-    tl.to(contentEl, {
-      opacity: 0,
-      y: -20,
-      duration: 0.4,
-      ease: "power2.inOut",
-    });
-
-    tl.to(
-      overlayEl,
-      {
-        yPercent: -100,
-        borderBottomLeftRadius: "50% 10%",
-        borderBottomRightRadius: "50% 10%",
-        duration: 1,
-        ease: "power4.inOut",
-      },
-      "-=0.1"
-    );
-
-    return () => {
-      tl.kill();
-    };
-  }, [isLoading, mounted]);
 
   if (!mounted) return null;
 

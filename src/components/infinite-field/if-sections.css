@@ -13,6 +13,24 @@
   padding: 4rem max(1rem, env(safe-area-inset-left)) 4rem max(1rem, env(safe-area-inset-right));
 }
 
+/* Perf: skip rendering offscreen sections until needed.
+   Keeps animations identical once section enters viewport. */
+#main #projects.ifs-section,
+#main #about.ifs-section,
+#main #career.ifs-section,
+#main #guestbook.ifs-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}
+
+#main #projects.ifs-section {
+  contain-intrinsic-size: 1600px;
+}
+
+#main #career.ifs-section {
+  contain-intrinsic-size: 1400px;
+}
+
 @media (min-width: 640px) {
   .ifs-section {
     padding: 6rem max(1.25rem, env(safe-area-inset-left)) 6rem max(1.25rem, env(safe-area-inset-right));
@@ -260,7 +278,9 @@
   height: 100%;
   min-height: 70vh;
   padding: 1.25rem max(1rem, env(safe-area-inset-left)) 1.5rem max(1rem, env(safe-area-inset-right));
-  background: var(--background);
+  /* Solid card surface so stacked cards behind don't show through */
+  background: var(--card);
+  background: color-mix(in srgb, var(--card) 92%, var(--background));
   border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   border-radius: 2.5rem;
   display: flex;
@@ -2645,6 +2665,47 @@
   }
   #main #guestbook .ifs-guestbook-glass-panel::after {
     display: none;
+  }
+  /* Perf: moving backdrop-filter in Safari expensive */
+  .ifs-guest-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--card) 34%, transparent);
+  }
+
+  /* Safari: avoid blend + heavy 3D transforms in Projects (ghost text) */
+  .ifs-projects-section {
+    background-color: var(--background);
+  }
+  .ifs-aurora-bg {
+    mix-blend-mode: normal;
+    opacity: 0.35;
+  }
+  .ifs-aurora-glow {
+    filter: blur(60px);
+  }
+  .ifs-project-scroll-item[data-side] {
+    transform: none !important;
+  }
+
+  /* Safari: 3D contribution grid expensive / glitchy */
+  .hero-contrib-stage {
+    perspective: none;
+    animation: none;
+  }
+  .hero-contrib-grid {
+    transform: none;
+    transform-style: flat;
+    animation: none;
+  }
+  .hero-contrib-cell,
+  .hero-contrib-cell:hover {
+    transform: none;
+    animation: none;
+  }
+
+  .ifs-winding-path {
+    filter: none;
   }
 }
 

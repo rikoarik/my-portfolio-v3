@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, registerGsapPlugins } from "@/lib/gsap";
+import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import type { SectionContent } from "@/types/portfolio";
 
 const stats = [
@@ -28,27 +28,45 @@ export function IFProofStrip({ section }: { section?: SectionContent }) {
       const marquees = root.querySelectorAll(".ifs-proof-marquee");
 
       // Infinite Marquee setup
-      gsap.to(marquees, {
+      const marqueeTween = gsap.to(marquees, {
         xPercent: -1000,
         repeat: -1,
         duration: PROOF_MARQUEE_DURATION,
         ease: "linear",
-      });
-
-      // Outline morphing trigger
-      ScrollTrigger.create({
-        trigger: root,
-        start: "top 75%",
-        onEnter: () => {
-          root.querySelectorAll('.ifs-proof-value').forEach(el => el.classList.remove('ifs-stroke-text'));
-        },
-        onLeaveBack: () => {
-          root.querySelectorAll('.ifs-proof-value').forEach(el => el.classList.add('ifs-stroke-text'));
-        }
+        paused: true,
       });
       
-      // Initialize outline
-      root.querySelectorAll('.ifs-proof-value').forEach(el => el.classList.add('ifs-stroke-text'));
+      // Always outline-only (stroke text)
+      root.querySelectorAll(".ifs-proof-value").forEach((el) => el.classList.add("ifs-stroke-text"));
+
+      // Pause marquee offscreen / tab hidden (saves CPU + allocations)
+      let inView = false;
+      const setRunning = (next: boolean) => {
+        if (document.visibilityState === "hidden") {
+          marqueeTween.pause();
+          return;
+        }
+        if (next) marqueeTween.play();
+        else marqueeTween.pause();
+      };
+
+      const io = new IntersectionObserver(
+        ([e]) => {
+          inView = Boolean(e?.isIntersecting);
+          setRunning(inView);
+        },
+        { threshold: 0.05 },
+      );
+      io.observe(root);
+
+      const onVis = () => setRunning(inView);
+      document.addEventListener("visibilitychange", onVis);
+
+      return () => {
+        document.removeEventListener("visibilitychange", onVis);
+        io.disconnect();
+        marqueeTween.kill();
+      };
     }, root);
 
     return () => ctx.revert();

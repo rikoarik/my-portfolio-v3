@@ -298,6 +298,10 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
     const root = rootRef.current;
     if (!root) return;
 
+    const ua = navigator.userAgent;
+    const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+    if (isSafari) return;
+
     registerGsapPlugins();
 
     const ctx = gsap.context(() => {

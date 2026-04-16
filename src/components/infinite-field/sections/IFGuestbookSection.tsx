@@ -91,6 +91,10 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
   const isVisibleRef = useRef(false);
 
   const visible = useMemo(() => pickVisible(messages ?? [], VISIBLE_CAP), [messages]);
+  const isSafari = useMemo(() => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    return /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+  }, []);
 
   // Build body configs from messages (no DOM yet)
   const bodyConfigs = useMemo(() =>
@@ -160,14 +164,15 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
     if (!container || !root) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const observer = new IntersectionObserver(
-      ([e]) => { isVisibleRef.current = e.isIntersecting; },
-      { threshold: 0.05 }
-    );
-    observer.observe(root);
-
     let last = performance.now();
+    let running = false;
+
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
 
     const step = (dt: number) => {
       const W = container.clientWidth;
@@ -209,22 +214,45 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
     };
 
     const tick = (now: number) => {
-      rafRef.current = requestAnimationFrame(tick);
-      if (!isVisibleRef.current || reduced) return;
+      if (!running) return;
+      if (!isVisibleRef.current || reduced) {
+        last = now;
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
 
       const dt = Math.min(40, now - last) / 16.67;
       last = now;
 
-      for (let s = 0; s < SUBSTEPS; s++) step(dt / SUBSTEPS);
+      const substeps = isSafari ? 1 : SUBSTEPS;
+      for (let s = 0; s < substeps; s++) step(dt / substeps);
       for (const b of bodiesRef.current) applyTransform(b);
+
+      rafRef.current = requestAnimationFrame(tick);
     };
 
-    rafRef.current = requestAnimationFrame(tick);
+    const start = () => {
+      if (running || reduced) return;
+      running = true;
+      last = performance.now();
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver(
+      ([e]) => {
+        isVisibleRef.current = e.isIntersecting;
+        if (e.isIntersecting) start();
+        else stop();
+      },
+      { threshold: 0.05 },
+    );
+    observer.observe(root);
+
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      stop();
       observer.disconnect();
     };
-  }, []);
+  }, [isSafari]);
 
   // Scroll impulse
   useEffect(() => {

@@ -32,9 +32,20 @@ export function IFCareerSection({
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const ua = navigator.userAgent;
+    const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+
     registerGsapPlugins();
 
-    const ctx = gsap.context(() => {
+    let cleanup: (() => void) | null = null;
+    let raf = 0;
+    let started = false;
+
+    const start = () => {
+      if (started) return;
+      started = true;
+      raf = requestAnimationFrame(() => {
+        const ctx = gsap.context(() => {
 
       // ─── 4. Directional Slide: left cards from x:-60, right from x:+60 ───
       root.querySelectorAll<HTMLElement>(".ifs-card-animated").forEach((el) => {
@@ -161,29 +172,55 @@ export function IFCareerSection({
       });
 
       // ─── SVG path draw on scroll ───
-      gsap.utils.toArray<SVGPathElement>(".ifs-winding-path").forEach((path) => {
-        const drawnLength = path.getTotalLength() || 2000;
-        gsap.fromTo(
-          path,
-          {
-            strokeDasharray: drawnLength + 10,
-            strokeDashoffset: drawnLength + 10,
-          },
-          {
-            strokeDashoffset: 0,
-            ease: "power2.inOut",
-            scrollTrigger: {
-              trigger: path.closest(".ifs-career-row"),
-              start: "top 65%",
-              end: "bottom 35%",
-              scrub: 1.5,
+      if (isSafari) {
+        // Safari: keep route visible (avoid dashoffset stuck -> invisible)
+        gsap.utils.toArray<SVGPathElement>(".ifs-winding-path").forEach((path) => {
+          path.style.strokeDasharray = "none";
+          path.style.strokeDashoffset = "0";
+        });
+      } else {
+        gsap.utils.toArray<SVGPathElement>(".ifs-winding-path").forEach((path) => {
+          const drawnLength = path.getTotalLength() || 2000;
+          gsap.fromTo(
+            path,
+            {
+              strokeDasharray: drawnLength + 10,
+              strokeDashoffset: drawnLength + 10,
             },
-          }
-        );
-      });
-    }, root);
+            {
+              strokeDashoffset: 0,
+              ease: "power2.inOut",
+              scrollTrigger: {
+                trigger: path.closest(".ifs-career-row"),
+                start: "top 65%",
+                end: "bottom 35%",
+                scrub: 1.5,
+              },
+            }
+          );
+        });
+      }
 
-    return () => ctx.revert();
+        }, root);
+        cleanup = () => ctx.revert();
+      });
+    };
+
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        start();
+        io.disconnect();
+      },
+      { rootMargin: "400px 0px", threshold: 0.01 },
+    );
+    io.observe(root);
+
+    return () => {
+      io.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+      cleanup?.();
+    };
   }, []);
 
   // Combine all cards into one array for sequential timeline rendering

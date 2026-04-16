@@ -836,6 +836,15 @@ body.hide-system-cursor * {
   }
 }
 
+/* Safari: backdrop-filter on moving cards can ghost / hide surfaces */
+@supports (-webkit-touch-callout: none) {
+  .card-lift {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background-color: var(--card) !important;
+  }
+}
+
 /* Mobile dock safe area */
 .pb-safe {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));

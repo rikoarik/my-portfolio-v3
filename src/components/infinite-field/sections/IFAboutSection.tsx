@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useLayoutEffect } from "react";
+import { useEffect, useRef } from "react";
 import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap";
 import type { SectionContent } from "@/types/portfolio";
 
@@ -101,130 +101,165 @@ export function IFAboutSection({
       ? section.meta.focus_body
       : "Specializing in high-end interactive frontend. I combine brutalist editorial aesthetics with creative engineering to craft award-winning, immersive digital products.";
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     registerGsapPlugins();
 
-    const ctx = gsap.context(() => {
-      /* ── 1. Hero char reveal ────────────────────── */
-      const chars = root.querySelectorAll(".ifs-about-char");
-      gsap.set(chars, { y: "120%", opacity: 0, rotateZ: 8 });
-      gsap.to(chars, {
-        y: "0%",
-        opacity: 1,
-        rotateZ: 0,
-        duration: 1.2,
-        stagger: 0.02,
-        ease: "expo.out",
-        scrollTrigger: {
-          trigger: root.querySelector(".ifs-about-hero"),
-          start: "top 80%",
-        },
-      });
+    let cleanup: (() => void) | null = null;
+    let raf = 0;
+    let started = false;
 
-      /* ── 2. Mask-line reveals ────────────────────── */
-      const lines = root.querySelectorAll(".ifs-about-line");
-      gsap.set(lines, { y: "100%", opacity: 0 });
-      gsap.to(lines, {
-        y: "0%",
-        opacity: 1,
-        duration: 1.4,
-        stagger: 0.15,
-        ease: "power4.out",
-        scrollTrigger: {
-          trigger: root.querySelector(".ifs-about-body"),
-          start: "top 82%",
-        },
-      });
-
-      /* ── 3. Horizontal marquee text (parallax) ── */
-      const marquee = root.querySelector(".ifs-about-marquee");
-      if (marquee) {
-        gsap.to(marquee, {
-          xPercent: -30,
-          ease: "none",
-          scrollTrigger: {
-            trigger: marquee,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 0.5,
-          },
-        });
-      }
-
-      /* ── 4. Parallax divider line (scrub draw) ── */
-      const divider = root.querySelector(".ifs-about-divider");
-      if (divider) {
-        gsap.fromTo(
-          divider,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            transformOrigin: "left center",
-            ease: "none",
+    const start = () => {
+      if (started) return;
+      started = true;
+      raf = requestAnimationFrame(() => {
+        const ctx = gsap.context(() => {
+          /* ── 1. Hero char reveal ────────────────────── */
+          const chars = root.querySelectorAll(".ifs-about-char");
+          gsap.set(chars, { y: "120%", opacity: 0, rotateZ: 8 });
+          gsap.to(chars, {
+            y: "0%",
+            opacity: 1,
+            rotateZ: 0,
+            duration: 1.2,
+            stagger: 0.02,
+            ease: "expo.out",
             scrollTrigger: {
-              trigger: divider,
-              start: "top 90%",
-              end: "top 40%",
-              scrub: true,
+              trigger: root.querySelector(".ifs-about-hero"),
+              start: "top 80%",
             },
+          });
+
+          /* ── 2. Mask-line reveals ────────────────────── */
+          const lines = root.querySelectorAll(".ifs-about-line");
+          gsap.set(lines, { y: "100%", opacity: 0 });
+          gsap.to(lines, {
+            y: "0%",
+            opacity: 1,
+            duration: 1.4,
+            stagger: 0.15,
+            ease: "power4.out",
+            scrollTrigger: {
+              trigger: root.querySelector(".ifs-about-body"),
+              start: "top 82%",
+            },
+          });
+
+          /* ── 3. Horizontal marquee text (parallax) ── */
+          const marquee = root.querySelector(".ifs-about-marquee");
+          if (marquee) {
+            gsap.to(marquee, {
+              xPercent: -30,
+              ease: "none",
+              scrollTrigger: {
+                trigger: marquee,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.5,
+              },
+            });
           }
-        );
-      }
 
-      /* ── 5. Stat counter animation ────────────── */
-      const statNums = root.querySelectorAll<HTMLElement>(".ifs-stat-num");
-      statNums.forEach((el) => {
-        const target = parseInt(el.dataset.statValue ?? "0");
-        const obj = { val: 0 };
-        gsap.to(obj, {
-          val: target,
-          duration: 2.5,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 85%",
-          },
-          onUpdate() {
-            el.textContent = Math.round(obj.val).toString();
-          },
-        });
+          /* ── 4. Parallax divider line (scrub draw) ── */
+          const divider = root.querySelector(".ifs-about-divider");
+          if (divider) {
+            gsap.fromTo(
+              divider,
+              { scaleX: 0 },
+              {
+                scaleX: 1,
+                transformOrigin: "left center",
+                ease: "none",
+                scrollTrigger: {
+                  trigger: divider,
+                  start: "top 90%",
+                  end: "top 40%",
+                  scrub: true,
+                },
+              },
+            );
+          }
+
+          /* ── 5. Stat counter animation ────────────── */
+          const statNums = root.querySelectorAll<HTMLElement>(".ifs-stat-num");
+          statNums.forEach((el) => {
+            const target = parseInt(el.dataset.statValue ?? "0");
+            const obj = { val: 0 };
+            gsap.to(obj, {
+              val: target,
+              duration: 2.5,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 85%",
+              },
+              onUpdate() {
+                el.textContent = Math.round(obj.val).toString();
+              },
+            });
+          });
+
+          /* ── 6. Grid cards stagger ─────────────────── */
+          const gridCards = root.querySelectorAll(".ifs-about-card");
+          gsap.set(gridCards, { y: 80, opacity: 0, scale: 0.96 });
+          gsap.to(gridCards, {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 1.2,
+            stagger: 0.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: root.querySelector(".ifs-about-grid"),
+              start: "top 80%",
+            },
+          });
+
+          /* ── 7. Stat blocks stagger ────────────────── */
+          const statBlocks = root.querySelectorAll(".ifs-stat-block");
+          gsap.set(statBlocks, { y: 60, opacity: 0 });
+          gsap.to(statBlocks, {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: root.querySelector(".ifs-about-stats"),
+              start: "top 85%",
+            },
+          });
+        }, root);
+
+        cleanup = () => ctx.revert();
       });
+    };
 
-      /* ── 6. Grid cards stagger ─────────────────── */
-      const gridCards = root.querySelectorAll(".ifs-about-card");
-      gsap.set(gridCards, { y: 80, opacity: 0, scale: 0.96 });
-      gsap.to(gridCards, {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 1.2,
-        stagger: 0.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: root.querySelector(".ifs-about-grid"),
-          start: "top 80%",
-        },
-      });
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        start();
+        io.disconnect();
+      },
+      // pre-init slightly before entering viewport; avoids jank
+      { rootMargin: "300px 0px", threshold: 0.01 },
+    );
+    io.observe(root);
 
-      /* ── 7. Stat blocks stagger ────────────────── */
-      const statBlocks = root.querySelectorAll(".ifs-stat-block");
-      gsap.set(statBlocks, { y: 60, opacity: 0 });
-      gsap.to(statBlocks, {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        stagger: 0.15,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: root.querySelector(".ifs-about-stats"),
-          start: "top 85%",
-        },
-      });
-    }, root);
+    const onVis = () => {
+      if (document.visibilityState !== "hidden") ScrollTrigger.refresh();
+    };
+    document.addEventListener("visibilitychange", onVis);
 
-    return () => ctx.revert();
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      io.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+      cleanup?.();
+    };
   }, [headline]);
 
   return (

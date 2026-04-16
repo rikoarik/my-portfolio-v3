@@ -2598,6 +2598,8 @@
 
 .ifs-guest-glass {
   position: relative;
+  isolation: isolate;
+  contain: paint;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--border) 62%, rgb(255 255 255 / 0.2));
   background:
@@ -2633,7 +2635,17 @@
   pointer-events: none;
   opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
+  mix-blend-mode: normal;
+}
+
+/* Safari compositing bug: backdrop-filter + blend noise can ghost text */
+@supports (-webkit-touch-callout: none) {
+  .ifs-guest-glass::after {
+    display: none;
+  }
+  #main #guestbook .ifs-guestbook-glass-panel::after {
+    display: none;
+  }
 }
 
 .ifs-guest-bubble.is-active .ifs-guest-bubble-inner {

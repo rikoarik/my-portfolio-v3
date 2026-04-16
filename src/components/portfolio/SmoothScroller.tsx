@@ -81,12 +81,12 @@ export function SmoothScroller() {
         onRefresh();
       });
     };
-    const roTarget = (document.getElementById("main") ?? document.body) as HTMLElement | null;
+    const roTarget = document.getElementById("main") ?? document.body;
     const ro =
       typeof ResizeObserver !== "undefined" && roTarget
         ? new ResizeObserver(() => scheduleRefresh())
         : null;
-    ro?.observe(roTarget);
+    if (ro && roTarget) ro.observe(roTarget);
 
     const onVisibility = () => {
       if (document.visibilityState === "hidden") {

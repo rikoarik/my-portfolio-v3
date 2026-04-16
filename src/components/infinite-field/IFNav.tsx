@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type Lenis from "lenis";
-import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import { MagneticHover } from "@/components/interactions/MagneticHover";
 
 const DEFAULT_NAV_ITEMS = [
@@ -29,7 +29,7 @@ function setNavBackdrop(el: HTMLElement, value: string) {
   el.style.setProperty("-webkit-backdrop-filter", value);
 }
 
-const stickyBarVars: gsap.TweenVars = {
+const stickyBarVars: Record<string, unknown> = {
   position: "fixed",
   top: 0,
   left: 0,
@@ -42,7 +42,7 @@ const stickyBarVars: gsap.TweenVars = {
   padding: "0.75rem max(1.25rem, env(safe-area-inset-left)) 0.75rem max(1.25rem, env(safe-area-inset-right))",
 };
 
-const floatingBarVars: gsap.TweenVars = {
+const floatingBarVars: Record<string, unknown> = {
   position: "fixed",
   top: 16,
   left: "50%",
@@ -141,7 +141,16 @@ export function IFNav({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reduced) {
-      gsap.set(pill, floatingBarVars);
+      pill.style.position = "fixed";
+      pill.style.top = "16px";
+      pill.style.left = "50%";
+      pill.style.right = "auto";
+      pill.style.width = "fit-content";
+      pill.style.transform = "translateX(-50%)";
+      pill.style.borderRadius = "999px";
+      pill.style.backgroundColor = "transparent";
+      pill.style.boxShadow = "none";
+      pill.style.padding = "0.4rem 0.5rem";
       setNavBackdrop(pill, BACKDROP_FLOAT);
       pill.style.setProperty("border", "1px solid var(--border)");
       isFloatingRef.current = true;
@@ -149,111 +158,120 @@ export function IFNav({
       return;
     }
 
-    registerGsapPlugins();
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
 
-    const applySticky = () => {
-      if (!isFloatingRef.current) return;
-      isFloatingRef.current = false;
-      setBarMode("hero");
-      gsap.to(pill, {
-        ...stickyBarVars,
-        duration: 0.4,
-        ease: "power2.inOut",
-        overwrite: "auto",
-        onStart: () => {
-          setNavBackdrop(pill, BACKDROP_HERO);
-          pill.style.setProperty("border", "none");
-        },
-      });
-    };
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap, ScrollTrigger } = await loadGsap();
+      if (!mounted) return;
 
-    const applyFloating = () => {
-      if (isFloatingRef.current) return;
-      isFloatingRef.current = true;
-      setBarMode("float");
-      gsap.to(pill, {
-        ...floatingBarVars,
-        duration: 0.5,
-        ease: "power2.inOut",
-        overwrite: "auto",
-        onStart: () => {
-          setNavBackdrop(pill, BACKDROP_FLOAT);
-          pill.style.setProperty("border", "1px solid var(--border)");
-        },
-      });
-    };
-
-    gsap.set(pill, stickyBarVars);
-    setNavBackdrop(pill, BACKDROP_HERO);
-    pill.style.setProperty("border", "none");
-    isFloatingRef.current = false;
-    queueMicrotask(() => setBarMode("hero"));
-
-    const syncActiveFromViewport = () => {
-      const mid = getCurrentScrollY() + window.innerHeight * 0.5;
-      for (const item of navItems) {
-        const el = document.getElementById(item.id);
-        if (!el) continue;
-        const r = el.getBoundingClientRect();
-        const top = r.top + getCurrentScrollY();
-        const bottom = top + r.height;
-        if (mid >= top && mid <= bottom) {
-          setActive(item.id);
-          return;
-        }
-      }
-    };
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: heroEl,
-        scroller: SCROLLER,
-        start: "bottom top",
-        onEnter: applyFloating,
-        onLeaveBack: applySticky,
-      });
-
-      navItems.forEach((item, index) => {
-        const el = document.getElementById(item.id);
-        if (!el) return;
-
-        const isLast = index === navItems.length - 1;
-
-        ScrollTrigger.create({
-          trigger: el,
-          scroller: SCROLLER,
-          start: isLast ? "top 80%" : "top 55%", // Trigger last section earlier
-          end: isLast ? "bottom bottom" : "bottom 45%",
-          onToggle: (self) => {
-            if (self.isActive) setActive(item.id);
+      const applySticky = () => {
+        if (!isFloatingRef.current) return;
+        isFloatingRef.current = false;
+        setBarMode("hero");
+        gsap.to(pill, {
+          ...(stickyBarVars as Record<string, unknown>),
+          duration: 0.4,
+          ease: "power2.inOut",
+          overwrite: "auto",
+          onStart: () => {
+            setNavBackdrop(pill, BACKDROP_HERO);
+            pill.style.setProperty("border", "none");
           },
-          // Extra check for at-bottom
-          onUpdate: (self) => {
-            if (isLast && self.progress > 0.5 && ScrollTrigger.maxScroll(window) - self.scroll() < 10) {
-              setActive(item.id);
-            }
-          }
         });
-      });
+      };
 
-      ScrollTrigger.refresh();
+      const applyFloating = () => {
+        if (isFloatingRef.current) return;
+        isFloatingRef.current = true;
+        setBarMode("float");
+        gsap.to(pill, {
+          ...(floatingBarVars as Record<string, unknown>),
+          duration: 0.5,
+          ease: "power2.inOut",
+          overwrite: "auto",
+          onStart: () => {
+            setNavBackdrop(pill, BACKDROP_FLOAT);
+            pill.style.setProperty("border", "1px solid var(--border)");
+          },
+        });
+      };
 
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-        const rect = heroEl.getBoundingClientRect();
-        if (rect.bottom <= 0) {
-          gsap.set(pill, floatingBarVars);
-          setNavBackdrop(pill, BACKDROP_FLOAT);
-          pill.style.setProperty("border", "1px solid var(--border)");
-          isFloatingRef.current = true;
-          queueMicrotask(() => setBarMode("float"));
+      gsap.set(pill, stickyBarVars as Record<string, unknown>);
+      setNavBackdrop(pill, BACKDROP_HERO);
+      pill.style.setProperty("border", "none");
+      isFloatingRef.current = false;
+      queueMicrotask(() => setBarMode("hero"));
+
+      const syncActiveFromViewport = () => {
+        const mid = getCurrentScrollY() + window.innerHeight * 0.5;
+        for (const item of navItems) {
+          const el = document.getElementById(item.id);
+          if (!el) continue;
+          const r = el.getBoundingClientRect();
+          const top = r.top + getCurrentScrollY();
+          const bottom = top + r.height;
+          if (mid >= top && mid <= bottom) {
+            setActive(item.id);
+            return;
+          }
         }
-        syncActiveFromViewport();
-      });
-    }, pill);
+      };
+
+      ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: heroEl,
+          scroller: SCROLLER,
+          start: "bottom top",
+          onEnter: applyFloating,
+          onLeaveBack: applySticky,
+        });
+
+        navItems.forEach((item, index) => {
+          const el = document.getElementById(item.id);
+          if (!el) return;
+
+          const isLast = index === navItems.length - 1;
+
+          ScrollTrigger.create({
+            trigger: el,
+            scroller: SCROLLER,
+            start: isLast ? "top 80%" : "top 55%", // Trigger last section earlier
+            end: isLast ? "bottom bottom" : "bottom 45%",
+            onToggle: (self) => {
+              if (self.isActive) setActive(item.id);
+            },
+            // Extra check for at-bottom
+            onUpdate: (self) => {
+              if (isLast && self.progress > 0.5 && ScrollTrigger.maxScroll(window) - self.scroll() < 10) {
+                setActive(item.id);
+              }
+            },
+          });
+        });
+
+        ScrollTrigger.refresh();
+
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          const rect = heroEl.getBoundingClientRect();
+          if (rect.bottom <= 0) {
+            gsap.set(pill, floatingBarVars as Record<string, unknown>);
+            setNavBackdrop(pill, BACKDROP_FLOAT);
+            pill.style.setProperty("border", "1px solid var(--border)");
+            isFloatingRef.current = true;
+            queueMicrotask(() => setBarMode("float"));
+          }
+          syncActiveFromViewport();
+        });
+      }, pill);
+    })();
 
     return () => {
-      ctx.revert();
+      mounted = false;
+      ctx?.revert();
       pill.style.removeProperty("border");
     };
   }, [getCurrentScrollY, navItems]);
@@ -271,11 +289,14 @@ export function IFNav({
     const link = nav.querySelector<HTMLElement>(`a[href="#${active}"]`);
     if (!link) return;
 
-    gsap.fromTo(
-      link,
-      { scale: 0.8, transformOrigin: "50% 50%" },
-      { scale: 1, duration: 0.35, ease: "back.out(1.4)", overwrite: "auto" }
-    );
+    void (async () => {
+      const { gsap } = await loadGsap();
+      gsap.fromTo(
+        link,
+        { scale: 0.8, transformOrigin: "50% 50%" },
+        { scale: 1, duration: 0.35, ease: "back.out(1.4)", overwrite: "auto" }
+      );
+    })();
   }, [active]);
 
   const heroVisual = barMode === "hero" && isDesktopLayout;

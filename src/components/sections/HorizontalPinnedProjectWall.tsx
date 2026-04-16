@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { registerGsapPlugins, gsap } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Project } from "@/types/portfolio";
 
 function byFeaturedThenOrder(projects: Project[]) {
@@ -36,87 +36,99 @@ export function HorizontalPinnedProjectWall({ projects }: { projects: Project[] 
 
   useLayoutEffect(() => {
     if (reduce) return;
-    registerGsapPlugins();
     const root = rootRef.current;
     const track = trackRef.current;
     if (!root || !track) return;
 
     if (!window.matchMedia("(min-width: 1024px)").matches) return;
 
-    const ctx = gsap.context(() => {
-      const cards = track.querySelectorAll("[data-wall-card]");
-      const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-      const snapTo = () => {
-        const steps = Math.max(1, cards.length - 1);
-        return 1 / steps;
-      };
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
 
-      const layers = root.querySelectorAll("[data-wall-layer]");
-      if (layers.length) {
-        gsap.fromTo(
-          layers,
-          { y: 18, opacity: 0.7 },
-          {
-            y: -18,
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: root,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 0.55,
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap } = await loadGsap();
+      if (!mounted) return;
+
+      ctx = gsap.context(() => {
+        const cards = track.querySelectorAll("[data-wall-card]");
+        const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
+        const snapTo = () => {
+          const steps = Math.max(1, cards.length - 1);
+          return 1 / steps;
+        };
+
+        const layers = root.querySelectorAll("[data-wall-layer]");
+        if (layers.length) {
+          gsap.fromTo(
+            layers,
+            { y: 18, opacity: 0.7 },
+            {
+              y: -18,
+              opacity: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: root,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.55,
+              },
             },
-          },
-        );
-      }
+          );
+        }
 
-      if (cards.length) {
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 28 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.06,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: root,
-              start: "top 70%",
-              end: "top 30%",
-              scrub: 0.6,
+        if (cards.length) {
+          gsap.fromTo(
+            cards,
+            { opacity: 0, y: 28 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              stagger: 0.06,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: root,
+                start: "top 70%",
+                end: "top 30%",
+                scrub: 0.6,
+              },
             },
+          );
+        }
+
+        const distNow = dist();
+        if (!distNow) {
+          gsap.set(track, { x: 0 });
+          return;
+        }
+
+        gsap.to(track, {
+          x: () => -dist(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "top top",
+            end: () => `+=${dist()}`,
+            pin: true,
+            scrub: 0.65,
+            snap: {
+              snapTo: snapTo,
+              duration: { min: 0.12, max: 0.35 },
+              delay: 0.05,
+              ease: "power2.out",
+            },
+            invalidateOnRefresh: true,
           },
-        );
-      }
+        });
+      }, root);
+    })();
 
-      const distNow = dist();
-      if (!distNow) {
-        gsap.set(track, { x: 0 });
-        return;
-      }
-
-      gsap.to(track, {
-        x: () => -dist(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: root,
-          start: "top top",
-          end: () => `+=${dist()}`,
-          pin: true,
-          scrub: 0.65,
-          snap: {
-            snapTo: snapTo,
-            duration: { min: 0.12, max: 0.35 },
-            delay: 0.05,
-            ease: "power2.out",
-          },
-          invalidateOnRefresh: true,
-        },
-      });
-    }, root);
-
-    return () => ctx.revert();
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, [ordered, reduce]);
 
   return (

@@ -12,7 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { registerGsapPlugins, gsap, ScrollTrigger } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 
 import { STORY_CHAPTERS, type ChapterId } from "./story-meta";
 
@@ -32,7 +32,13 @@ function mobilePanelId(i: number) {
 export function StoryShell({ children, offlineBanner }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const stRef = useRef<ScrollTrigger | null>(null);
+  type ScrollTriggerLike = {
+    animation?: unknown;
+    start: number;
+    end: number;
+    kill: () => void;
+  };
+  const stRef = useRef<ScrollTriggerLike | null>(null);
   const [active, setActive] = useState<ChapterId>("open");
   const [progressPct, setProgressPct] = useState(0);
   const panels = Array.isArray(children) ? children : [children];
@@ -74,106 +80,118 @@ export function StoryShell({ children, offlineBanner }: Props) {
   );
 
   useLayoutEffect(() => {
-    registerGsapPlugins();
     const root = rootRef.current;
     const track = trackRef.current;
     if (!root || !track) return;
 
-    const ctx = gsap.context(() => {
-      const isLg = () => window.matchMedia("(min-width: 1024px)").matches;
-      const reduced = () =>
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
 
-      const clearSt = () => {
-        stRef.current?.kill();
-        stRef.current = null;
-        ScrollTrigger.getAll().forEach((t) => {
-          if (t.trigger === root) t.kill();
-        });
-        gsap.killTweensOf(track);
-        gsap.set(track, { clearProps: "transform" });
-      };
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap, ScrollTrigger } = await loadGsap();
+      if (!mounted) return;
 
-      const build = () => {
-        clearSt();
-        if (!isLg()) {
-          setProgressPct(0);
-          return;
-        }
+      ctx = gsap.context(() => {
+        const isLg = () => window.matchMedia("(min-width: 1024px)").matches;
+        const reduced = () =>
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        if (reduced()) {
-          track.classList.add(
+        const clearSt = () => {
+          stRef.current?.kill();
+          stRef.current = null;
+          ScrollTrigger.getAll().forEach((t) => {
+            if (t.trigger === root) t.kill();
+          });
+          gsap.killTweensOf(track);
+          gsap.set(track, { clearProps: "transform" });
+        };
+
+        const build = () => {
+          clearSt();
+          if (!isLg()) {
+            setProgressPct(0);
+            return;
+          }
+
+          if (reduced()) {
+            track.classList.add(
+              "overflow-x-auto",
+              "snap-x",
+              "snap-mandatory",
+            );
+            Array.from(track.children).forEach((el) => {
+              el.classList.add("snap-center");
+            });
+            return;
+          }
+
+          track.classList.remove(
             "overflow-x-auto",
             "snap-x",
             "snap-mandatory",
           );
           Array.from(track.children).forEach((el) => {
-            el.classList.add("snap-center");
+            el.classList.remove("snap-center");
           });
-          return;
-        }
 
-        track.classList.remove(
-          "overflow-x-auto",
-          "snap-x",
-          "snap-mandatory",
-        );
-        Array.from(track.children).forEach((el) => {
-          el.classList.remove("snap-center");
-        });
+          const scrollDist = () => Math.max(0, track.scrollWidth - window.innerWidth);
 
-        const scrollDist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-
-        const tween = gsap.to(track, {
-          x: () => -scrollDist(),
-          ease: "none",
-          scrollTrigger: {
-            trigger: root,
-            start: "top top",
-            end: () => `+=${scrollDist()}`,
-            pin: true,
-            scrub: 0.65,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              setProgressPct(Math.round(self.progress * 1000) / 10);
-              const idx = Math.min(
-                STORY_CHAPTERS.length - 1,
-                Math.round(self.progress * (STORY_CHAPTERS.length - 1)),
-              );
-              setActive(STORY_CHAPTERS[idx].id);
+          const tween = gsap.to(track, {
+            x: () => -scrollDist(),
+            ease: "none",
+            scrollTrigger: {
+              trigger: root,
+              start: "top top",
+              end: () => `+=${scrollDist()}`,
+              pin: true,
+              scrub: 0.65,
+              invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                setProgressPct(Math.round(self.progress * 1000) / 10);
+                const idx = Math.min(
+                  STORY_CHAPTERS.length - 1,
+                  Math.round(self.progress * (STORY_CHAPTERS.length - 1)),
+                );
+                setActive(STORY_CHAPTERS[idx].id);
+              },
             },
-          },
-        });
+          });
 
-        stRef.current = tween.scrollTrigger ?? null;
-        ScrollTrigger.refresh();
-      };
+          stRef.current = tween.scrollTrigger ?? null;
+          ScrollTrigger.refresh();
+        };
 
-      build();
+        build();
 
-      const onResize = () => build();
-      const onMq = () => build();
-      window.addEventListener("resize", onResize);
-      window
-        .matchMedia("(min-width: 1024px)")
-        .addEventListener("change", onMq);
-      window
-        .matchMedia("(prefers-reduced-motion: reduce)")
-        .addEventListener("change", onMq);
-
-      return () => {
-        window.removeEventListener("resize", onResize);
+        const onResize = () => build();
+        const onMq = () => build();
+        window.addEventListener("resize", onResize);
         window
           .matchMedia("(min-width: 1024px)")
-          .removeEventListener("change", onMq);
+          .addEventListener("change", onMq);
         window
           .matchMedia("(prefers-reduced-motion: reduce)")
-          .removeEventListener("change", onMq);
-        clearSt();
-      };
-    }, root);
+          .addEventListener("change", onMq);
 
-    return () => ctx.revert();
+        return () => {
+          window.removeEventListener("resize", onResize);
+          window
+            .matchMedia("(min-width: 1024px)")
+            .removeEventListener("change", onMq);
+          window
+            .matchMedia("(prefers-reduced-motion: reduce)")
+            .removeEventListener("change", onMq);
+          clearSt();
+        };
+      }, root);
+    })();
+
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, [children]);
 
   useLayoutEffect(() => {

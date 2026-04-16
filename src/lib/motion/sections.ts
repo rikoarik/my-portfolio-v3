@@ -1,6 +1,6 @@
 "use client";
 
-import { gsap, registerGsapPlugins } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 
 type SectionEl = HTMLElement & { dataset: { section?: string; accent?: string } };
 
@@ -32,66 +32,77 @@ function setAmbient(accent: string | undefined) {
 export function setupSectionCinematics(root: HTMLElement) {
   if (prefersReducedMotion()) return () => {};
 
-  registerGsapPlugins();
-
   const sections = Array.from(root.querySelectorAll("[data-section]")).filter(
     (n): n is SectionEl => n instanceof HTMLElement,
   );
   if (!sections.length) return () => {};
 
-  const ctx = gsap.context(() => {
-    sections.forEach((section) => {
-      const accent = section.dataset.accent;
+  let ctx: { revert: () => void } | null = null;
+  let mounted = true;
 
-      // Mask-ish reveal: clipPath + fade + lift + blur.
-      gsap.fromTo(
-        section,
-        {
-          opacity: 0,
-          y: 22,
-          filter: "blur(10px)",
-          clipPath: "inset(12% 0% 18% 0% round 28px)",
-        },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          clipPath: "inset(0% 0% 0% 0% round 28px)",
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: section,
-            start: "top 78%",
-            end: "top 45%",
-            scrub: 0.55,
-            onEnter: () => setAmbient(accent),
-            onEnterBack: () => setAmbient(accent),
-          },
-        },
-      );
+  void (async () => {
+    await registerGsapPlugins();
+    if (!mounted) return;
+    const { gsap } = await loadGsap();
+    if (!mounted) return;
 
-      // Subtle background parallax inside each section (optional).
-      const parallax = section.querySelector("[data-parallax]");
-      if (parallax instanceof HTMLElement) {
+    ctx = gsap.context(() => {
+      sections.forEach((section) => {
+        const accent = section.dataset.accent;
+
+        // Mask-ish reveal: clipPath + fade + lift + blur.
         gsap.fromTo(
-          parallax,
-          { y: 18, opacity: 0.75 },
+          section,
           {
-            y: -18,
+            opacity: 0,
+            y: 22,
+            filter: "blur(10px)",
+            clipPath: "inset(12% 0% 18% 0% round 28px)",
+          },
+          {
             opacity: 1,
-            ease: "none",
+            y: 0,
+            filter: "blur(0px)",
+            clipPath: "inset(0% 0% 0% 0% round 28px)",
+            duration: 0.9,
+            ease: "power3.out",
             scrollTrigger: {
               trigger: section,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 0.5,
+              start: "top 78%",
+              end: "top 45%",
+              scrub: 0.55,
+              onEnter: () => setAmbient(accent),
+              onEnterBack: () => setAmbient(accent),
             },
           },
         );
-      }
-    });
-  }, root);
 
-  return () => ctx.revert();
+        // Subtle background parallax inside each section (optional).
+        const parallax = section.querySelector("[data-parallax]");
+        if (parallax instanceof HTMLElement) {
+          gsap.fromTo(
+            parallax,
+            { y: 18, opacity: 0.75 },
+            {
+              y: -18,
+              opacity: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.5,
+              },
+            },
+          );
+        }
+      });
+    }, root);
+  })();
+
+  return () => {
+    mounted = false;
+    ctx?.revert();
+  };
 }
 

@@ -6,7 +6,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { registerGsapPlugins, gsap } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Project } from "@/types/portfolio";
 
 export function ProjectsChapter({ projects }: { projects: Project[] }) {
@@ -16,27 +16,40 @@ export function ProjectsChapter({ projects }: { projects: Project[] }) {
 
   useLayoutEffect(() => {
     if (reduce) return;
-    registerGsapPlugins();
     const root = rootRef.current;
     if (!root) return;
 
     const cards = root.querySelectorAll("[data-proj-card]");
-    const ctx = gsap.context(() => {
-      gsap.from(cards, {
-        opacity: 0,
-        y: 40,
-        scale: 0.98,
-        duration: 0.5,
-        stagger: 0.07,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: root,
-          start: "top 78%",
-          toggleActions: "play none none reverse",
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
+
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap } = await loadGsap();
+      if (!mounted) return;
+
+      ctx = gsap.context(() => {
+        gsap.from(cards, {
+          opacity: 0,
+          y: 40,
+          scale: 0.98,
+          duration: 0.5,
+          stagger: 0.07,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: root,
+            start: "top 78%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }, root);
+    })();
+
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, [projects, reduce]);
 
   const featured = projects.filter((p) => p.featured);

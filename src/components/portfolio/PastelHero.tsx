@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import { HeroContribution3D } from "@/components/portfolio/HeroContribution3D";
 import { Meteors } from "@/components/ui/meteors";
 import type { GitHubContributionSummary, SectionContent, SiteProfile } from "@/types/portfolio";
@@ -57,15 +57,21 @@ export function PastelHero({
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
-      gsap.set([n1, n2, role, t1, t2], { opacity: 1, y: 0 });
+      const reveal = (el: HTMLElement) => {
+        el.style.opacity = "1";
+        el.style.transform = "translateY(0px)";
+      };
+      reveal(n1);
+      reveal(n2);
+      reveal(role);
+      reveal(t1);
+      reveal(t2);
       if (scrollInd) {
         const y = SCROLLER?.scrollTop ?? window.scrollY;
-        gsap.set(scrollInd, { autoAlpha: y > SCROLL_FADE_PX ? 0 : 1 });
+        scrollInd.style.opacity = y > SCROLL_FADE_PX ? "0" : "1";
       }
       return;
     }
-
-    registerGsapPlugins();
 
     const sentinel = document.createElement("div");
     sentinel.setAttribute("aria-hidden", "true");
@@ -74,67 +80,78 @@ export function PastelHero({
     sentinel.style.height = `${SCROLL_FADE_PX}px`;
     section.prepend(sentinel);
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        [n1, n2],
-        { opacity: 0, y: 24 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.08,
-          delay: 0.3,
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
+
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap, ScrollTrigger } = await loadGsap();
+      if (!mounted) return;
+
+      ctx = gsap.context(() => {
+        gsap.fromTo(
+          [n1, n2],
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.08,
+            delay: 0.3,
+          }
+        );
+
+        gsap.fromTo(
+          role,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", delay: 0.5 }
+        );
+
+        gsap.fromTo(
+          [t1, t2],
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.06,
+            delay: 0.7,
+          }
+        );
+
+        if (scrollInd && SCROLLER) {
+          const syncIndicator = () => {
+            const y = SCROLLER.scrollTop || window.scrollY;
+            gsap.set(scrollInd, { autoAlpha: y > SCROLL_FADE_PX ? 0 : 1 });
+          };
+
+          ScrollTrigger.create({
+            trigger: sentinel,
+            scroller: SCROLLER,
+            start: "bottom top",
+            onEnter: () => {
+              gsap.to(scrollInd, { autoAlpha: 0, duration: 0.35, ease: "power2.out", overwrite: "auto" });
+            },
+            onLeaveBack: () => {
+              gsap.to(scrollInd, { autoAlpha: 1, duration: 0.35, ease: "power2.inOut", overwrite: "auto" });
+            },
+          });
+
+          requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+            syncIndicator();
+          });
         }
-      );
-
-      gsap.fromTo(
-        role,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", delay: 0.5 }
-      );
-
-      gsap.fromTo(
-        [t1, t2],
-        { opacity: 0, y: 24 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.06,
-          delay: 0.7,
-        }
-      );
-
-      if (scrollInd && SCROLLER) {
-        const syncIndicator = () => {
-          const y = SCROLLER.scrollTop || window.scrollY;
-          gsap.set(scrollInd, { autoAlpha: y > SCROLL_FADE_PX ? 0 : 1 });
-        };
-
-        ScrollTrigger.create({
-          trigger: sentinel,
-          scroller: SCROLLER,
-          start: "bottom top",
-          onEnter: () => {
-            gsap.to(scrollInd, { autoAlpha: 0, duration: 0.35, ease: "power2.out", overwrite: "auto" });
-          },
-          onLeaveBack: () => {
-            gsap.to(scrollInd, { autoAlpha: 1, duration: 0.35, ease: "power2.inOut", overwrite: "auto" });
-          },
-        });
-
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-          syncIndicator();
-        });
-      }
-    }, section);
+      }, section);
+    })();
 
     return () => {
+      mounted = false;
       sentinel.remove();
-      ctx.revert();
+      ctx?.revert();
     };
   }, []);
 

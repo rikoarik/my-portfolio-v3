@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap";
+import Image from "next/image";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Project } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
@@ -68,15 +69,18 @@ function ProjectModal({
       onClose();
       return;
     }
-    const tl = gsap.timeline({
-      defaults: { ease: "power3.in" },
-      onComplete: onClose,
-    });
-    tl.to(modalEl, { opacity: 0, y: 28, scale: 0.98, duration: 0.28 }).to(
-      backdrop,
-      { opacity: 0, duration: 0.22 },
-      "<0.05",
-    );
+    void (async () => {
+      const { gsap } = await loadGsap();
+      const tl = gsap.timeline({
+        defaults: { ease: "power3.in" },
+        onComplete: onClose,
+      });
+      tl.to(modalEl, { opacity: 0, y: 28, scale: 0.98, duration: 0.28 }).to(
+        backdrop,
+        { opacity: 0, duration: 0.22 },
+        "<0.05",
+      );
+    })();
   }, [onClose]);
 
   useEffect(() => {
@@ -100,19 +104,27 @@ function ProjectModal({
     const modalEl = modalRef.current;
     if (!backdrop || !modalEl) return;
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.28 }).fromTo(
-      modalEl,
-      { opacity: 0, y: 40, scale: 0.96 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.35)" },
-      "<+0.04",
-    );
+    let tl: GSAPTimeline | null = null;
+    let mountedNow = true;
+
+    void (async () => {
+      const { gsap } = await loadGsap();
+      if (!mountedNow) return;
+      tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.28 }).fromTo(
+        modalEl,
+        { opacity: 0, y: 40, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.35)" },
+        "<+0.04",
+      );
+    })();
 
     const t = window.setTimeout(() => closeBtnRef.current?.focus(), 80);
 
     return () => {
+      mountedNow = false;
       window.clearTimeout(t);
-      tl.kill();
+      tl?.kill();
     };
   }, []);
 
@@ -157,7 +169,14 @@ function ProjectModal({
         <div className="ifs-modal__scroll">
           {project.cover_url ? (
             <div className="ifs-modal-cover">
-              <img src={project.cover_url} alt="" className="ifs-modal-cover-img" />
+              <Image
+                src={project.cover_url}
+                alt=""
+                fill
+                sizes="(min-width: 768px) 720px, 100vw"
+                className="ifs-modal-cover-img"
+                loading="lazy"
+              />
             </div>
           ) : null}
 
@@ -272,7 +291,14 @@ function ProjectCoverFrame({ project, index }: { project: Project; index: number
   if (src) {
     return (
       <div className="ifs-project-cover-frame">
-        <img src={src} alt="" className="ifs-project-cover-img" loading="lazy" decoding="async" />
+        <Image
+          src={src}
+          alt=""
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="ifs-project-cover-img"
+          loading="lazy"
+        />
         <div className="ifs-project-cover-shine" aria-hidden />
       </div>
     );
@@ -302,34 +328,45 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
     const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
     if (isSafari) return;
 
-    registerGsapPlugins();
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
 
-    const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>("[data-project-card]");
-      
-      cards.forEach((card, i) => {
-        const isLast = i === cards.length - 1;
-        if (isLast) return;
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap, ScrollTrigger } = await loadGsap();
+      if (!mounted) return;
 
-        // When the NEXT card enters and scrolls up,
-        // it pushes THIS card into the background (scaling it down and dimming)
-        ScrollTrigger.create({
-          trigger: cards[i + 1],
-          start: `top bottom-=10%`,
-          end: `top top+=15vh`, // Approximating sticky stop
-          scrub: true,
-          animation: gsap.to(card, {
-            scale: 0.92 - (0.01 * i),
-            opacity: 0.4,
-            y: -20, // push it up slightly into the distance
-            transformOrigin: "top center",
-            ease: "none",
-          }),
+      ctx = gsap.context(() => {
+        const cards = gsap.utils.toArray<HTMLElement>("[data-project-card]");
+
+        cards.forEach((card, i) => {
+          const isLast = i === cards.length - 1;
+          if (isLast) return;
+
+          // When the NEXT card enters and scrolls up,
+          // it pushes THIS card into the background (scaling it down and dimming)
+          ScrollTrigger.create({
+            trigger: cards[i + 1],
+            start: `top bottom-=10%`,
+            end: `top top+=15vh`, // Approximating sticky stop
+            scrub: true,
+            animation: gsap.to(card, {
+              scale: 0.92 - (0.01 * i),
+              opacity: 0.4,
+              y: -20, // push it up slightly into the distance
+              transformOrigin: "top center",
+              ease: "none",
+            }),
+          });
         });
-      });
-    }, root);
+      }, root);
+    })();
 
-    return () => ctx.revert();
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, [ordered]);
 
   return (

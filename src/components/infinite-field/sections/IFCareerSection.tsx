@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsapPlugins } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Education, Experience, SkillGroup } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
@@ -35,17 +35,22 @@ export function IFCareerSection({
     const ua = navigator.userAgent;
     const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
 
-    registerGsapPlugins();
-
     let cleanup: (() => void) | null = null;
     let raf = 0;
     let started = false;
+    let mounted = true;
 
     const start = () => {
       if (started) return;
       started = true;
       raf = requestAnimationFrame(() => {
-        const ctx = gsap.context(() => {
+        void (async () => {
+          await registerGsapPlugins();
+          if (!mounted) return;
+          const { gsap } = await loadGsap();
+          if (!mounted) return;
+
+          const ctx = gsap.context(() => {
 
       // ─── 4. Directional Slide: left cards from x:-60, right from x:+60 ───
       root.querySelectorAll<HTMLElement>(".ifs-card-animated").forEach((el) => {
@@ -201,8 +206,9 @@ export function IFCareerSection({
         });
       }
 
-        }, root);
-        cleanup = () => ctx.revert();
+          }, root);
+          cleanup = () => ctx.revert();
+        })();
       });
     };
 
@@ -217,6 +223,7 @@ export function IFCareerSection({
     io.observe(root);
 
     return () => {
+      mounted = false;
       io.disconnect();
       if (raf) cancelAnimationFrame(raf);
       cleanup?.();

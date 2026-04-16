@@ -32,7 +32,7 @@ export function PortfolioClient({
     if (loading) return;
     if (typeof window === "undefined") return;
 
-    registerGsapPlugins();
+    void registerGsapPlugins();
   }, [loading]);
 
   const sections = data.sections ?? [];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsapPlugins } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { SectionContent } from "@/types/portfolio";
 
 const stats = [
@@ -22,54 +22,65 @@ export function IFProofStrip({ section }: { section?: SectionContent }) {
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    registerGsapPlugins();
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
 
-    const ctx = gsap.context(() => {
-      const marquees = root.querySelectorAll(".ifs-proof-marquee");
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap } = await loadGsap();
+      if (!mounted) return;
 
-      // Infinite Marquee setup
-      const marqueeTween = gsap.to(marquees, {
-        xPercent: -1000,
-        repeat: -1,
-        duration: PROOF_MARQUEE_DURATION,
-        ease: "linear",
-        paused: true,
-      });
-      
-      // Always outline-only (stroke text)
-      root.querySelectorAll(".ifs-proof-value").forEach((el) => el.classList.add("ifs-stroke-text"));
+      ctx = gsap.context(() => {
+        const marquees = root.querySelectorAll(".ifs-proof-marquee");
 
-      // Pause marquee offscreen / tab hidden (saves CPU + allocations)
-      let inView = false;
-      const setRunning = (next: boolean) => {
-        if (document.visibilityState === "hidden") {
-          marqueeTween.pause();
-          return;
-        }
-        if (next) marqueeTween.play();
-        else marqueeTween.pause();
-      };
+        // Infinite Marquee setup
+        const marqueeTween = gsap.to(marquees, {
+          xPercent: -1000,
+          repeat: -1,
+          duration: PROOF_MARQUEE_DURATION,
+          ease: "linear",
+          paused: true,
+        });
 
-      const io = new IntersectionObserver(
-        ([e]) => {
-          inView = Boolean(e?.isIntersecting);
-          setRunning(inView);
-        },
-        { threshold: 0.05 },
-      );
-      io.observe(root);
+        // Always outline-only (stroke text)
+        root.querySelectorAll(".ifs-proof-value").forEach((el) => el.classList.add("ifs-stroke-text"));
 
-      const onVis = () => setRunning(inView);
-      document.addEventListener("visibilitychange", onVis);
+        // Pause marquee offscreen / tab hidden (saves CPU + allocations)
+        let inView = false;
+        const setRunning = (next: boolean) => {
+          if (document.visibilityState === "hidden") {
+            marqueeTween.pause();
+            return;
+          }
+          if (next) marqueeTween.play();
+          else marqueeTween.pause();
+        };
 
-      return () => {
-        document.removeEventListener("visibilitychange", onVis);
-        io.disconnect();
-        marqueeTween.kill();
-      };
-    }, root);
+        const io = new IntersectionObserver(
+          ([e]) => {
+            inView = Boolean(e?.isIntersecting);
+            setRunning(inView);
+          },
+          { threshold: 0.05 },
+        );
+        io.observe(root);
 
-    return () => ctx.revert();
+        const onVis = () => setRunning(inView);
+        document.addEventListener("visibilitychange", onVis);
+
+        return () => {
+          document.removeEventListener("visibilitychange", onVis);
+          io.disconnect();
+          marqueeTween.kill();
+        };
+      }, root);
+    })();
+
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, []);
 
   const sourceStats = Array.isArray(section?.meta?.stats)

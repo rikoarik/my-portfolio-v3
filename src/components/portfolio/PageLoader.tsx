@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
 
 type LoaderTextAnimation =
   | "fade"
@@ -62,68 +61,87 @@ export function PageLoader({
     if (!counterEl || !progressEl) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const playExit = () => {
+    const playExitInstant = () => {
       const overlayEl = overlayRef.current;
       const contentEl = contentRef.current;
       if (!overlayEl || !contentEl) return;
       if (exitPlayedRef.current) return;
       exitPlayedRef.current = true;
-
-      const tlExit = gsap.timeline({
-        onComplete: () => {
-          overlayEl.style.display = "none";
-          onDone?.();
-        },
-      });
-      tlExit.to(contentEl, {
-        opacity: 0,
-        y: -20,
-        duration: 0.4,
-        ease: "power2.inOut",
-      });
-      tlExit.to(
-        overlayEl,
-        {
-          yPercent: -100,
-          borderBottomLeftRadius: "50% 10%",
-          borderBottomRightRadius: "50% 10%",
-          duration: 1,
-          ease: "power4.inOut",
-        },
-        "-=0.1"
-      );
+      overlayEl.style.display = "none";
+      onDone?.();
     };
 
     if (reduced) {
       counterEl.textContent = "100";
-      gsap.set(progressEl, { width: "100%" });
-      playExit();
+      progressEl.style.width = "100%";
+      playExitInstant();
       return;
     }
 
-    const proxy = { value: 0 };
-    const tl = gsap.timeline({
-      defaults: { ease: "power2.inOut" },
-      onComplete: playExit,
-    });
+    let tl: any = null;
+    let mountedNow = true;
 
-    tl.to(proxy, {
-      value: 100,
-      duration: 2,
-      onUpdate: () => {
-        counterEl.textContent = String(Math.round(proxy.value));
-      },
-    }).to(
-      progressEl,
-      {
-        width: "100%",
+    void (async () => {
+      const { default: gsap } = await import("gsap");
+      if (!mountedNow) return;
+
+      const playExit = () => {
+        const overlayEl = overlayRef.current;
+        const contentEl = contentRef.current;
+        if (!overlayEl || !contentEl) return;
+        if (exitPlayedRef.current) return;
+        exitPlayedRef.current = true;
+
+        const tlExit = gsap.timeline({
+          onComplete: () => {
+            overlayEl.style.display = "none";
+            onDone?.();
+          },
+        });
+        tlExit.to(contentEl, {
+          opacity: 0,
+          y: -20,
+          duration: 0.4,
+          ease: "power2.inOut",
+        });
+        tlExit.to(
+          overlayEl,
+          {
+            yPercent: -100,
+            borderBottomLeftRadius: "50% 10%",
+            borderBottomRightRadius: "50% 10%",
+            duration: 1,
+            ease: "power4.inOut",
+          },
+          "-=0.1"
+        );
+      };
+
+      const proxy = { value: 0 };
+      tl = gsap.timeline({
+        defaults: { ease: "power2.inOut" },
+        onComplete: playExit,
+      });
+
+      tl.to(proxy, {
+        value: 100,
         duration: 2,
-      },
-      0
-    );
+        onUpdate: () => {
+          counterEl.textContent = String(Math.round(proxy.value));
+        },
+      }).to(
+        progressEl,
+        {
+          width: "100%",
+          duration: 2,
+        },
+        0
+      );
+    })();
 
     return () => {
-      tl.kill();
+      mountedNow = false;
+      tl?.kill();
     };
   }, [isLoading, mounted, onDone]);
 

@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useLayoutEffect, useRef } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { registerGsapPlugins, gsap } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { SkillGroup } from "@/types/portfolio";
 
 export function SkillsChapter({ groups }: { groups: SkillGroup[] }) {
@@ -13,26 +13,39 @@ export function SkillsChapter({ groups }: { groups: SkillGroup[] }) {
 
   useLayoutEffect(() => {
     if (reduce) return;
-    registerGsapPlugins();
     const root = rootRef.current;
     if (!root) return;
 
     const blocks = root.querySelectorAll("[data-skill-block]");
-    const ctx = gsap.context(() => {
-      gsap.from(blocks, {
-        opacity: 0,
-        y: 32,
-        duration: 0.5,
-        stagger: 0.12,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: root,
-          start: "top 75%",
-          toggleActions: "play none none reverse",
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
+
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap } = await loadGsap();
+      if (!mounted) return;
+
+      ctx = gsap.context(() => {
+        gsap.from(blocks, {
+          opacity: 0,
+          y: 32,
+          duration: 0.5,
+          stagger: 0.12,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: root,
+            start: "top 75%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }, root);
+    })();
+
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, [groups, reduce]);
 
   return (

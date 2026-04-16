@@ -3,7 +3,7 @@
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { postGuestMessage } from "@/app/guestbook/actions";
-import { gsap } from "@/lib/gsap";
+import { loadGsap } from "@/lib/gsap";
 
 export function CommentModal({
   isOpen,
@@ -33,18 +33,21 @@ export function CommentModal({
       onClose();
       return;
     }
-    const tl = gsap.timeline({
-      defaults: { ease: "power3.in" },
-      onComplete: () => {
-        closingRef.current = false;
-        onClose();
-      },
-    });
-    tl.to(panel, { opacity: 0, y: 18, scale: 0.97, duration: 0.26 }).to(
-      backdrop,
-      { opacity: 0, duration: 0.2 },
-      "<0.04",
-    );
+    void (async () => {
+      const { gsap } = await loadGsap();
+      const tl = gsap.timeline({
+        defaults: { ease: "power3.in" },
+        onComplete: () => {
+          closingRef.current = false;
+          onClose();
+        },
+      });
+      tl.to(panel, { opacity: 0, y: 18, scale: 0.97, duration: 0.26 }).to(
+        backdrop,
+        { opacity: 0, duration: 0.2 },
+        "<0.04",
+      );
+    })();
   }, [onClose]);
 
   useEffect(() => {
@@ -65,19 +68,28 @@ export function CommentModal({
     const panel = panelRef.current;
     if (!backdrop || !panel) return;
 
-    gsap.set(backdrop, { opacity: 0 });
-    gsap.set(panel, { opacity: 0, y: 28, scale: 0.96 });
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.to(backdrop, { opacity: 1, duration: 0.26 }).to(
-      panel,
-      { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.25)" },
-      "<+0.04",
-    );
+    let tl: any = null;
+    let mountedNow = true;
+
+    void (async () => {
+      const { gsap } = await loadGsap();
+      if (!mountedNow) return;
+
+      gsap.set(backdrop, { opacity: 0 });
+      gsap.set(panel, { opacity: 0, y: 28, scale: 0.96 });
+      tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.to(backdrop, { opacity: 1, duration: 0.26 }).to(
+        panel,
+        { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.25)" },
+        "<+0.04",
+      );
+    })();
 
     const t = window.setTimeout(() => closeBtnRef.current?.focus(), 60);
     return () => {
+      mountedNow = false;
       window.clearTimeout(t);
-      tl.kill();
+      tl?.kill();
     };
   }, [isOpen, mounted]);
 

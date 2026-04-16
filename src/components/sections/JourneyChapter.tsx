@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useLayoutEffect, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { registerGsapPlugins, gsap } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Experience } from "@/types/portfolio";
 
 function formatPeriod(e: Experience) {
@@ -19,26 +19,39 @@ export function JourneyChapter({ experiences }: { experiences: Experience[] }) {
 
   useLayoutEffect(() => {
     if (reduce) return;
-    registerGsapPlugins();
     const root = rootRef.current;
     if (!root) return;
 
     const cards = root.querySelectorAll("[data-exp-card]");
-    const ctx = gsap.context(() => {
-      gsap.from(cards, {
-        opacity: 0,
-        x: 48,
-        duration: 0.55,
-        stagger: 0.09,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: root,
-          start: "top 72%",
-          toggleActions: "play none none reverse",
-        },
-      });
-    }, root);
-    return () => ctx.revert();
+    let ctx: { revert: () => void } | null = null;
+    let mounted = true;
+
+    void (async () => {
+      await registerGsapPlugins();
+      if (!mounted) return;
+      const { gsap } = await loadGsap();
+      if (!mounted) return;
+
+      ctx = gsap.context(() => {
+        gsap.from(cards, {
+          opacity: 0,
+          x: 48,
+          duration: 0.55,
+          stagger: 0.09,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: root,
+            start: "top 72%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }, root);
+    })();
+
+    return () => {
+      mounted = false;
+      ctx?.revert();
+    };
   }, [experiences, reduce]);
 
   return (

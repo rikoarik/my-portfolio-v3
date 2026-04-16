@@ -9,6 +9,12 @@ export const LANDING_THEME_PRESETS = [
   "ocean-paper",
   "amber-fog",
   "pine-smoke",
+  "tyrian-banana",
+  "moss-cloud",
+  "golden-parchment",
+  "amber-mirage",
+  "pistachio-espresso",
+  "matcha-coal",
 ] as const;
 
 export type LandingThemePreset = (typeof LANDING_THEME_PRESETS)[number];

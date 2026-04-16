@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap";
 import { HeroContribution3D } from "@/components/portfolio/HeroContribution3D";
+import { Meteors } from "@/components/ui/meteors";
 import type { GitHubContributionSummary, SectionContent, SiteProfile } from "@/types/portfolio";
 
 const SCROLLER = typeof document !== "undefined" ? document.documentElement : null;
@@ -141,9 +142,10 @@ export function PastelHero({
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex min-h-[100svh] w-full flex-col bg-transparent"
+      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-transparent"
     >
-      <div className="flex min-h-0 flex-1 flex-col px-5 pb-10 pt-[max(4.5rem,env(safe-area-inset-top))] sm:px-[36px]">
+      <Meteors number={25} />
+      <div className="flex min-h-0 relative z-10 flex-1 flex-col px-5 pb-10 pt-[max(4.5rem,env(safe-area-inset-top))] sm:px-[36px]">
         <div className="grid min-h-0 flex-1 grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
           <div className="max-w-[min(100%,520px)]">
             <h1 className="text-left text-[clamp(2.4rem,10vw,3.5rem)] font-bold leading-none tracking-[-0.03em] text-[var(--foreground)] sm:text-[clamp(3rem,8vw,5.5rem)]">

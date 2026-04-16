@@ -213,17 +213,26 @@ export function IFNav({
         onLeaveBack: applySticky,
       });
 
-      navItems.forEach((item) => {
+      navItems.forEach((item, index) => {
         const el = document.getElementById(item.id);
         if (!el) return;
+
+        const isLast = index === navItems.length - 1;
+
         ScrollTrigger.create({
           trigger: el,
           scroller: SCROLLER,
-          start: "top 55%",
-          end: "bottom 45%",
+          start: isLast ? "top 80%" : "top 55%", // Trigger last section earlier
+          end: isLast ? "bottom bottom" : "bottom 45%",
           onToggle: (self) => {
             if (self.isActive) setActive(item.id);
           },
+          // Extra check for at-bottom
+          onUpdate: (self) => {
+            if (isLast && self.progress > 0.5 && ScrollTrigger.maxScroll(window) - self.scroll() < 10) {
+              setActive(item.id);
+            }
+          }
         });
       });
 

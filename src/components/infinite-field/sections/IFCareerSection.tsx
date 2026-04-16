@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Education, Experience, SkillGroup } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
+import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
 
 function fmtPeriod(e: { start_date: string | null; end_date: string | null }) {
   const s = e.start_date ?? "";
@@ -203,6 +204,8 @@ export function IFCareerSection({
       aria-labelledby="career-title"
       className="ifs-section ifs-career-route pb-24"
     >
+      <InteractiveGridBackground />
+
       <div className="mx-auto mb-16 max-w-6xl px-3 sm:px-5 lg:px-6 relative z-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex max-w-xl flex-col gap-3">

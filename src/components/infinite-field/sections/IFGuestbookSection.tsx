@@ -6,8 +6,9 @@ import type { GuestMessage } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { CommentModal } from "./CommentModal";
 
-/** Max floating labels — keeps orbit readable; rest stay in data + modal list semantics */
-const VISIBLE_CAP = 18;
+/** Keep visible cap reasonable so screen isn't cluttered, but readable */
+const VISIBLE_CAP = 15;
+
 function hashId(id: string): number {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = Math.imul(31, h) + id.charCodeAt(i) || 0;
@@ -26,27 +27,28 @@ function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
-/** Keep bubbles out of center band where heading + CTA sit (drift can still skim edge) */
+/** Keep bubbles out of center band where heading + CTA sit */
 function nudgeOutOfHeroBand(
   left: number,
   top: number,
   rnd: () => number
 ): { left: number; top: number } {
-  const h0 = 12;
-  const h1 = 88;
-  const v0 = 28;
-  const v1 = 76;
+  const h0 = 15;
+  const h1 = 85;
+  const v0 = 25;
+  const v1 = 75;
+  // If outside the danger zone, leave it
   if (left < h0 || left > h1 || top < v0 || top > v1) return { left, top };
 
+  // Nudge it to the edges
   if (rnd() > 0.5) {
-    left = rnd() > 0.5 ? 4 + rnd() * 10 : 86 + rnd() * 10;
+    left = rnd() > 0.5 ? 2 + rnd() * 10 : 88 + rnd() * 10;
   } else {
-    top = rnd() > 0.5 ? 6 + rnd() * 14 : 80 + rnd() * 12;
+    top = rnd() > 0.5 ? 4 + rnd() * 12 : 84 + rnd() * 12;
   }
-  return { left: clamp(left, 4, 96), top: clamp(top, 5, 94) };
+  return { left: clamp(left, 2, 98), top: clamp(top, 5, 95) };
 }
 
-/** Evenly sample across full list so newer/older both get a chance */
 function pickVisibleMessages(all: GuestMessage[], cap: number): GuestMessage[] {
   if (all.length <= cap) return all;
   const out: GuestMessage[] = [];
@@ -62,16 +64,14 @@ type BubbleLayout = {
   top: number;
   scale: number;
   opacity: number;
-  /** Full round-trip seconds (right→left or left→right) */
   cycleDuration: number;
-  /** Horizontal travel in px one way */
   commutePx: number;
   startGoingRight: boolean;
 };
 
 function layoutBubbles(messages: GuestMessage[]): BubbleLayout[] {
   const cols = 5;
-  const rows = 4;
+  const rows = 3;
   const zones = cols * rows;
 
   return messages.map((m, index) => {
@@ -79,22 +79,25 @@ function layoutBubbles(messages: GuestMessage[]): BubbleLayout[] {
     const zone = (index * 11 + hashId(m.id)) % zones;
     const col = zone % cols;
     const row = Math.floor(zone / cols);
-    const jx = (rnd() - 0.5) * (70 / cols);
-    const jy = (rnd() - 0.5) * (75 / rows);
+    const jx = (rnd() - 0.5) * (80 / cols);
+    const jy = (rnd() - 0.5) * (80 / rows);
     let left = 6 + ((col + 0.5) / cols) * 88 + jx;
     let top = 5 + ((row + 0.5) / rows) * 90 + jy;
+    
     const nudged = nudgeOutOfHeroBand(clamp(left, 4, 96), clamp(top, 4, 96), rnd);
     left = nudged.left;
     top = nudged.top;
-    const depth = 0.5 + rnd() * 0.5;
+    
+    // Create depth, but keep OPACITY HIGH so it is readable.
+    const depth = rnd(); 
 
     return {
       left,
       top,
-      scale: 0.42 + depth * 0.22,
-      opacity: 0.38 + depth * 0.18,
-      cycleDuration: 22 + rnd() * 18,
-      commutePx: 72 + rnd() * 100,
+      scale: 0.85 + depth * 0.35, // range: 0.85 to 1.2
+      opacity: 0.65 + depth * 0.35, // range: 0.65 to 1.0 (highly readable)
+      cycleDuration: 40 + rnd() * 30, // Slow, elegant movement
+      commutePx: 60 + rnd() * 60, // Shorter drift footprint so UI stays balanced
       startGoingRight: rnd() > 0.5,
     };
   });
@@ -114,21 +117,16 @@ export function IFGuestbookSection({
     () => pickVisibleMessages(messages ?? [], VISIBLE_CAP),
     [messages]
   );
-
   const layouts = useMemo(() => layoutBubbles(visibleMessages), [visibleMessages]);
 
   const pauseBubbleMotion = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const bubble = e.currentTarget;
-    gsap.getTweensOf(bubble).forEach((t) => {
-      t.pause();
-    });
+    gsap.getTweensOf(bubble).forEach((t) => t.pause());
   }, []);
 
   const resumeBubbleMotion = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const bubble = e.currentTarget;
-    gsap.getTweensOf(bubble).forEach((t) => {
-      t.resume();
-    });
+    gsap.getTweensOf(bubble).forEach((t) => t.resume());
   }, []);
 
   useEffect(() => {
@@ -144,7 +142,7 @@ export function IFGuestbookSection({
         const layout = layouts[index];
         if (!layout) return;
 
-        const delay = index * 0.35;
+        const delay = index * 0.2;
         const half = layout.cycleDuration / 2;
         const { commutePx } = layout;
         const out = layout.startGoingRight ? `+=${commutePx}` : `-=${commutePx}`;
@@ -162,19 +160,29 @@ export function IFGuestbookSection({
 
         gsap.to(item, {
           opacity: layout.opacity,
-          duration: 1.6,
+          duration: 2,
           delay,
           ease: "sine.out",
         });
 
-        /* Horizontal commute: one way → return (clear “pergi–pulang”, bukan melayang random) */
+        // Slow horizontal commute
         gsap.to(item, {
           keyframes: [
-            { x: out, duration: half, ease: "power1.inOut" },
-            { x: back, duration: half, ease: "power1.inOut" },
+            { x: out, duration: half, ease: "sine.inOut" },
+            { x: back, duration: half, ease: "sine.inOut" },
           ],
           repeat: -1,
           delay,
+        });
+
+        // Add a gentle floating Y effect (bobbing up and down)
+        gsap.to(item, {
+          y: `${Math.random() > 0.5 ? '+' : '-'}=${15 + Math.random() * 15}px`,
+          duration: 3 + Math.random() * 4,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          delay: Math.random() * 2
         });
       });
     }, root);
@@ -182,70 +190,78 @@ export function IFGuestbookSection({
     return () => ctx.revert();
   }, [visibleMessages, layouts]);
 
-  /** Keep section transitions plain: no fold/snap reveal effect */
-  useEffect(() => {
-    return;
-  }, []);
-
   const hiddenCount = Math.max(0, (messages?.length ?? 0) - visibleMessages.length);
 
   return (
     <section
       ref={rootRef}
       id="guestbook"
-      className={`ifs-section ifs-guestbook-section relative isolate z-[2] min-h-[80vh] flex flex-col items-center justify-center ${
-        hoveredBubbleId ? "ifs-guest-focus" : ""
-      }`}
+      className="relative w-full min-h-screen bg-[var(--background)] overflow-hidden flex items-center justify-center py-24"
     >
       <div
         ref={driftContainerRef}
-        className="absolute inset-0 z-[1] pointer-events-none select-none md:pointer-events-auto"
+        className="absolute inset-0 z-[1] pointer-events-none md:pointer-events-auto"
       >
-        {visibleMessages.map((m) => (
-          <div
-            key={m.id}
-            className={`ifs-guest-bubble group absolute ${
-              hoveredBubbleId === m.id ? "is-active" : hoveredBubbleId ? "is-inactive" : ""
-            }`}
-            onMouseEnter={pauseBubbleMotion}
-            onMouseLeave={resumeBubbleMotion}
-            onPointerEnter={() => setHoveredBubbleId(m.id)}
-            onPointerLeave={() => setHoveredBubbleId((curr) => (curr === m.id ? null : curr))}
-          >
-            <div className="ifs-guest-bubble-sway will-change-transform">
-              <div className="ifs-guest-bubble-inner origin-center whitespace-nowrap rounded-full border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_88%,var(--muted))] px-4 py-2 text-xs shadow-sm transition-[transform,box-shadow,opacity,border-color,padding,font-size,background,filter,backdrop-filter] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.3] group-hover:border-[color-mix(in_srgb,var(--primary)_74%,white)] group-hover:bg-[color-mix(in_srgb,var(--card)_58%,var(--primary)_42%)] group-hover:px-6 group-hover:py-3 group-hover:text-sm group-hover:opacity-100 group-hover:shadow-[0_22px_55px_-14px_rgb(0_0_0_/_0.62),0_0_0_1px_var(--primary-glow)]">
-                <span className="font-bold text-[var(--primary)] mr-2">{m.name}:</span>
-                <span className="text-[var(--foreground)]">{m.message}</span>
+        {visibleMessages.map((m) => {
+          const isHovered = hoveredBubbleId === m.id;
+          const isFaded = hoveredBubbleId && hoveredBubbleId !== m.id;
+          
+          return (
+            <div
+              key={m.id}
+              className={`ifs-guest-bubble group absolute transition-opacity duration-300 ${
+                isFaded ? "opacity-20 saturate-0" : ""
+              }`}
+              style={{ zIndex: isHovered ? 50 : 10 }}
+              onMouseEnter={pauseBubbleMotion}
+              onMouseLeave={resumeBubbleMotion}
+              onPointerEnter={() => setHoveredBubbleId(m.id)}
+              onPointerLeave={() => setHoveredBubbleId(null)}
+            >
+              <div className="ifs-guest-bubble-sway will-change-transform cursor-pointer">
+                <div className="ifs-guest-bubble-inner origin-center whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-xl px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-medium shadow-[0_8px_32px_color-mix(in_srgb,var(--foreground)_15%,transparent)] transition-all duration-500 ease-out group-hover:scale-[1.15] group-hover:bg-[var(--foreground)] group-hover:text-[var(--background)] group-hover:border-[var(--foreground)] group-hover:shadow-[0_15px_40px_color-mix(in_srgb,var(--primary)_40%,transparent)]">
+                  <span className="font-bold text-[var(--primary)] group-hover:text-[var(--primary)] mr-3 transition-colors">
+                    {m.name}
+                  </span>
+                  <span className="text-[var(--muted-foreground)] group-hover:text-[var(--background)] transition-colors">
+                    {m.message}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Hero — above bubbles; matte so orbit never reads over CTA */}
-      <div className="relative z-20 mx-auto max-w-xl text-center px-6 py-10 sm:px-10 sm:py-12 rounded-[2rem] border border-[color-mix(in_srgb,var(--border)_72%,transparent)] bg-[color-mix(in_srgb,var(--card)_90%,transparent)] shadow-[0_18px_44px_-24px_rgb(0_0_0_/_0.55),inset_0_1px_0_rgb(255_255_255_/_0.06)] backdrop-blur-md pointer-events-auto">
+      {/* Foreground Hero */}
+      <div className="relative z-20 w-full max-w-xl mx-auto p-10 sm:p-14 rounded-[3rem] bg-[var(--background)]/70 backdrop-blur-2xl border border-[var(--border)] shadow-2xl flex flex-col items-center justify-center text-center mx-4 pointer-events-auto">
         <TextReveal
           as="h2"
           text="Guest Messages"
-          className="ifs-heading text-center mb-4"
+          className="text-4xl sm:text-6xl font-sans font-black tracking-tighter uppercase mb-6"
         />
-        <div className="mb-12 max-w-lg mx-auto space-y-3">
-          <p className="text-[color-mix(in_srgb,var(--foreground)_76%,var(--muted-foreground))]">
-            Leave a mark on this infinite field. No login, just vibes.
+        <div className="mb-10 max-w-sm mx-auto space-y-4">
+          <p className="text-[var(--muted-foreground)] text-base font-medium leading-relaxed">
+            Leave a mark on this infinite field. No login, just raw vibes.
           </p>
-          {hiddenCount > 0 ? (
-            <p className="text-[var(--muted-foreground)]/85 font-mono-meta text-xs tracking-wide">
-              Menampilkan {visibleMessages.length} dari {messages.length} pesan di orbit agar tetap mudah dibaca.
+          {hiddenCount > 0 && (
+            <p className="text-[var(--muted-foreground)]/60 font-mono-meta text-xs tracking-wide">
+              {visibleMessages.length} of {messages.length} messages orbiting
             </p>
-          ) : null}
+          )}
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="group relative px-8 py-4 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-full font-bold overflow-hidden border border-[color-mix(in_srgb,var(--primary)_70%,transparent)] shadow-[0_14px_34px_-18px_var(--primary-glow)] transition-all hover:scale-105 active:scale-95"
+          className="group relative px-10 py-5 bg-transparent text-[var(--foreground)] border border-[var(--border)] rounded-full font-bold uppercase tracking-widest overflow-hidden transition-all duration-300 hover:border-[var(--foreground)] hover:scale-[1.03] active:scale-[0.97]"
         >
-          <span className="relative z-10">Leave a Message</span>
-          <div className="absolute inset-0 bg-[color-mix(in_srgb,var(--primary)_78%,black)] translate-y-full transition-transform group-hover:translate-y-0" />
+          <span className="relative z-10 flex items-center gap-3 transition-colors group-hover:text-[var(--background)]">
+            Write Message
+            <span className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300">
+              ↗
+            </span>
+          </span>
+          <div className="absolute inset-0 bg-[var(--foreground)] translate-y-[110%] transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0" />
         </button>
       </div>
 

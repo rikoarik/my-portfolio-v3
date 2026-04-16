@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import { IFAboutSection } from "@/components/infinite-field/sections/IFAboutSection";
 import { IFCareerSection } from "@/components/infinite-field/sections/IFCareerSection";
-import { IFContactSection } from "@/components/infinite-field/sections/IFContactSection";
 import { IFGuestbookSection } from "@/components/infinite-field/sections/IFGuestbookSection";
 import { IFProofStrip } from "@/components/infinite-field/sections/IFProofStrip";
 import { IFNav } from "@/components/infinite-field/IFNav";
 import { IFProjectsSection } from "@/components/infinite-field/sections/IFProjectsSection";
 import { CustomCursor } from "@/components/interactions/CustomCursor";
+import { MouseSpotlight } from "@/components/interactions/MouseSpotlight";
 import { BackToTopButton } from "@/components/portfolio/BackToTopButton";
+import { CinematicFooter } from "@/components/ui/motion-footer";
 import { PageLoader } from "@/components/portfolio/PageLoader";
 import { PastelHero } from "@/components/portfolio/PastelHero";
 import { SmoothScroller } from "@/components/portfolio/SmoothScroller";
@@ -32,12 +34,19 @@ export function PortfolioClient({
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    if (loading) return;
+    if (typeof window === "undefined") return;
+
+    registerGsapPlugins();
+  }, [loading]);
+
   const sections = data.sections ?? [];
   const getSection = (key: string) => sections.find((section) => section.section_key === key);
   const heroSection = getSection("hero");
   const navSection = getSection("nav");
   const aboutSection = getSection("about");
-  const contactSection = getSection("contact");
+  const mainfooterSection = getSection("mainfooter");
   const proofSection = getSection("proof");
   const loaderConfigRaw =
     data.seo?.settings?.metadata &&
@@ -69,6 +78,7 @@ export function PortfolioClient({
   return (
     <>
       <CustomCursor />
+      <MouseSpotlight />
       <SmoothScroller />
       <PageLoader
         isLoading={loading}
@@ -104,7 +114,7 @@ export function PortfolioClient({
         />
 
         {/* pointer-events-none + child auto = klik tembus ke footer/back-to-top di area kosong; section tetap bisa diklik */}
-        <div className="portfolio-main-column relative z-[1] bg-transparent pointer-events-none">
+        <div className="portfolio-main-column relative z-[1] bg-transparent pointer-events-none [&>*]:pointer-events-auto">
           <IFProofStrip section={proofSection} />
           <IFProjectsSection projects={data.projects} />
           <IFAboutSection section={aboutSection} />
@@ -114,7 +124,10 @@ export function PortfolioClient({
             education={data.education}
           />
           <IFGuestbookSection messages={data.guestbook} />
-          <IFContactSection profile={data.profile} section={contactSection} />
+        </div>
+
+        <div className="pointer-events-auto">
+          <CinematicFooter profile={data.profile} section={mainfooterSection} />
         </div>
 
         <BackToTopButton />

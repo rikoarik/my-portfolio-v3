@@ -17,7 +17,13 @@ type SeoSettingsRow = {
     | "rose-clay"
     | "ocean-paper"
     | "amber-fog"
-    | "pine-smoke";
+    | "pine-smoke"
+    | "tyrian-banana"
+    | "moss-cloud"
+    | "golden-parchment"
+    | "amber-mirage"
+    | "pistachio-espresso"
+    | "matcha-coal";
   site_title: string;
   title_template: string;
   default_description: string | null;
@@ -99,6 +105,12 @@ export default async function AdminSeoPage({
                 <option value="ocean-paper">Ocean Paper (light calm blue)</option>
                 <option value="amber-fog">Amber Fog (light warm neutral)</option>
                 <option value="pine-smoke">Pine Smoke (deep calm green)</option>
+                <option value="tyrian-banana">Tyrian + Banana Cream (deep plum / cream)</option>
+                <option value="moss-cloud">Moss Velvet + Cloud Milk (forest / cream)</option>
+                <option value="golden-parchment">Goldenrod + Parchment (warm light)</option>
+                <option value="amber-mirage">Amber Smoke + Blue Mirage (peach / dusty blue)</option>
+                <option value="pistachio-espresso">Pistachio Frost + Midnight espresso (lime / espresso)</option>
+                <option value="matcha-coal">Matcha Mist + Dusty Coal (sage / charcoal)</option>
               </select>
             </label>
             <input name="site_title" defaultValue={setting?.site_title ?? ""} placeholder="Site title" className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm" required />

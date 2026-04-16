@@ -12,6 +12,12 @@ const landingThemePresetSchema = z.enum([
   "ocean-paper",
   "amber-fog",
   "pine-smoke",
+  "tyrian-banana",
+  "moss-cloud",
+  "golden-parchment",
+  "amber-mirage",
+  "pistachio-espresso",
+  "matcha-coal",
 ]);
 const loaderAnimationSchema = z.enum([
   "fade",

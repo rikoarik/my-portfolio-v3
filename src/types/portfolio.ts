@@ -117,7 +117,13 @@ export type SeoSettings = {
     | "rose-clay"
     | "ocean-paper"
     | "amber-fog"
-    | "pine-smoke";
+    | "pine-smoke"
+    | "tyrian-banana"
+    | "moss-cloud"
+    | "golden-parchment"
+    | "amber-mirage"
+    | "pistachio-espresso"
+    | "matcha-coal";
   site_title: string;
   title_template: string;
   default_description: string | null;

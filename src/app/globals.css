@@ -304,11 +304,191 @@
   --ifs-modal-backdrop: rgb(10 13 12 / 0.66);
 }
 
+#main[data-landing-theme="tyrian-banana"] {
+  --background: #700143;
+  --foreground: #f8edad;
+  --card: #5a0136;
+  --card-foreground: #f8edad;
+  --muted: #480226;
+  --muted-foreground: #d4c4a8;
+  --border: #6a2c52;
+  --primary: #f8edad;
+  --primary-foreground: #3a021f;
+  --accent: #c76b98;
+  --ring: #f8edad;
+  --input-bg: #480226;
+  --primary-50: rgb(248 237 173 / 0.22);
+  --ifs-background: #700143;
+  --ifs-foreground: #f8edad;
+  --ifs-card: #5a0136;
+  --ifs-muted: #480226;
+  --ifs-muted-foreground: #d4c4a8;
+  --ifs-border: #6a2c52;
+  --ifs-primary: #f8edad;
+  --ifs-primary-foreground: #3a021f;
+  --ifs-accent: #c76b98;
+  --ifs-nav-bg: rgb(90 1 54 / 0.88);
+  --ifs-modal-backdrop: rgb(32 0 20 / 0.68);
+}
+
+#main[data-landing-theme="moss-cloud"] {
+  --background: #385144;
+  --foreground: #f8f5f2;
+  --card: #2e4338;
+  --card-foreground: #f8f5f2;
+  --muted: #2a3d36;
+  --muted-foreground: #b8c9bf;
+  --border: #4a6b58;
+  --primary: #f8f5f2;
+  --primary-foreground: #385144;
+  --accent: #5d8a6e;
+  --ring: #f8f5f2;
+  --input-bg: #2a3d36;
+  --primary-50: rgb(248 245 242 / 0.2);
+  --ifs-background: #385144;
+  --ifs-foreground: #f8f5f2;
+  --ifs-card: #2e4338;
+  --ifs-muted: #2a3d36;
+  --ifs-muted-foreground: #b8c9bf;
+  --ifs-border: #4a6b58;
+  --ifs-primary: #f8f5f2;
+  --ifs-primary-foreground: #385144;
+  --ifs-accent: #5d8a6e;
+  --ifs-nav-bg: rgb(46 67 56 / 0.88);
+  --ifs-modal-backdrop: rgb(20 30 25 / 0.66);
+}
+
+#main[data-landing-theme="golden-parchment"] {
+  --background: #faefd9;
+  --foreground: #3a3018;
+  --card: #fff7e4;
+  --card-foreground: #3a3018;
+  --muted: #f3e6c8;
+  --muted-foreground: #756648;
+  --border: #e8d4a8;
+  --primary: #e8a736;
+  --primary-foreground: #2a2008;
+  --accent: #c4922e;
+  --ring: #e8a736;
+  --input-bg: #fffdf5;
+  --primary-50: rgb(232 167 54 / 0.22);
+  --ifs-background: #faefd9;
+  --ifs-foreground: #3a3018;
+  --ifs-card: #fff7e4;
+  --ifs-muted: #f3e6c8;
+  --ifs-muted-foreground: #756648;
+  --ifs-border: #e8d4a8;
+  --ifs-primary: #e8a736;
+  --ifs-primary-foreground: #2a2008;
+  --ifs-accent: #c4922e;
+  --ifs-nav-bg: rgb(255 247 228 / 0.92);
+  --ifs-modal-backdrop: rgb(90 72 40 / 0.28);
+}
+
+#main[data-landing-theme="amber-mirage"] {
+  --background: #f2e0d0;
+  --foreground: #3a4a62;
+  --card: #faf3ea;
+  --card-foreground: #3a4a62;
+  --muted: #ead8c8;
+  --muted-foreground: #5c6678;
+  --border: #d4c2b4;
+  --primary: #6e88b0;
+  --primary-foreground: #f8fafc;
+  --accent: #8fa3c4;
+  --ring: #6e88b0;
+  --input-bg: #ffffff;
+  --primary-50: rgb(110 136 176 / 0.2);
+  --ifs-background: #f2e0d0;
+  --ifs-foreground: #3a4a62;
+  --ifs-card: #faf3ea;
+  --ifs-muted: #ead8c8;
+  --ifs-muted-foreground: #5c6678;
+  --ifs-border: #d4c2b4;
+  --ifs-primary: #6e88b0;
+  --ifs-primary-foreground: #f8fafc;
+  --ifs-accent: #8fa3c4;
+  --ifs-nav-bg: rgb(250 243 234 / 0.92);
+  --ifs-modal-backdrop: rgb(58 74 98 / 0.28);
+}
+
+#main[data-landing-theme="pistachio-espresso"] {
+  --background: #200f07;
+  --foreground: #f4efe8;
+  --card: #2a1610;
+  --card-foreground: #f4efe8;
+  --muted: #341a12;
+  --muted-foreground: #c9bdb4;
+  --border: #4d2e22;
+  --primary: #c5e384;
+  --primary-foreground: #140a06;
+  --accent: #9bbf5a;
+  --ring: #c5e384;
+  --input-bg: #2a1610;
+  --primary-50: rgb(197 227 132 / 0.22);
+  --ifs-background: #200f07;
+  --ifs-foreground: #f4efe8;
+  --ifs-card: #2a1610;
+  --ifs-muted: #341a12;
+  --ifs-muted-foreground: #c9bdb4;
+  --ifs-border: #4d2e22;
+  --ifs-primary: #c5e384;
+  --ifs-primary-foreground: #140a06;
+  --ifs-accent: #9bbf5a;
+  --ifs-nav-bg: rgb(42 22 16 / 0.88);
+  --ifs-modal-backdrop: rgb(12 6 4 / 0.7);
+}
+
+#main[data-landing-theme="matcha-coal"] {
+  --background: #222222;
+  --foreground: #dfece3;
+  --card: #2c2c2c;
+  --card-foreground: #dfece3;
+  --muted: #333333;
+  --muted-foreground: #9bb0a3;
+  --border: #444444;
+  --primary: #c2d8c4;
+  --primary-foreground: #1a1a1a;
+  --accent: #8faf95;
+  --ring: #c2d8c4;
+  --input-bg: #2a2a2a;
+  --primary-50: rgb(194 216 196 / 0.22);
+  --ifs-background: #222222;
+  --ifs-foreground: #dfece3;
+  --ifs-card: #2c2c2c;
+  --ifs-muted: #333333;
+  --ifs-muted-foreground: #9bb0a3;
+  --ifs-border: #444444;
+  --ifs-primary: #c2d8c4;
+  --ifs-primary-foreground: #1a1a1a;
+  --ifs-accent: #8faf95;
+  --ifs-nav-bg: rgb(44 44 44 / 0.88);
+  --ifs-modal-backdrop: rgb(10 10 10 / 0.68);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-syne);
   --font-mono: var(--font-geist-mono);
+}
+
+@keyframes meteor {
+  0% {
+    transform: rotate(135deg) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(135deg) translateX(1200px);
+    opacity: 0;
+  }
+}
+
+.animate-meteor-effect {
+  animation: meteor 5s linear infinite;
 }
 
 html {
@@ -319,6 +499,70 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+/* ── Mouse-Following Spotlight ───────────────────────────── */
+.mouse-spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    color-mix(in srgb, var(--primary) 18%, transparent),
+    transparent 70%
+  );
+  transition: background 0.15s ease;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 768px) {
+  .mouse-spotlight {
+    display: none; /* No cursor on mobile */
+  }
+}
+
+/* ── Section Ambient Spotlights (Static Glow) ────────────── */
+.ifs-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* Each section gets a unique ambient glow position */
+#projects::before {
+  background: radial-gradient(
+    ellipse 60% 50% at 80% 20%,
+    color-mix(in srgb, var(--primary) 15%, transparent),
+    transparent 70%
+  );
+}
+
+#about::before {
+  background: radial-gradient(
+    ellipse 50% 60% at 15% 70%,
+    color-mix(in srgb, var(--accent) 15%, transparent),
+    transparent 65%
+  );
+}
+
+#career::before {
+  background: radial-gradient(
+    ellipse 55% 45% at 85% 60%,
+    color-mix(in srgb, var(--primary) 12%, transparent),
+    transparent 70%
+  );
+}
+
+#guestbook::before {
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 30%,
+    color-mix(in srgb, var(--primary) 12%, transparent),
+    transparent 65%
+  );
 }
 
 body.hide-system-cursor,

@@ -103,6 +103,8 @@ export const sectionFormSchema = z.object({
   body: z.string().optional(),
   about_headline: z.string().optional(),
   about_intro: z.string().optional(),
+  focus_title: z.string().optional(),
+  focus_body: z.string().optional(),
   meta: z.string().optional(),
   status: publicationStatusSchema.default("published"),
 });

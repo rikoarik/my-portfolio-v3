@@ -62,6 +62,17 @@ export default async function AdminSectionsPage({
               rows={3}
               className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2"
             />
+            <input
+              name="focus_title"
+              placeholder="Focus title (khusus section_key=about)"
+              className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2"
+            />
+            <textarea
+              name="focus_body"
+              placeholder="Focus body (khusus section_key=about)"
+              rows={3}
+              className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2"
+            />
             <textarea name="meta" placeholder='{"cta_label":"Explore Work"}' rows={3} className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2" />
             <select name="status" defaultValue="published" className="h-10 rounded-md border border-[var(--border)] bg-transparent px-3 text-sm">
               <option value="draft">Draft</option>
@@ -80,6 +91,10 @@ export default async function AdminSectionsPage({
               typeof meta.about_headline === "string" ? meta.about_headline : "";
             const aboutIntro =
               typeof meta.about_intro === "string" ? meta.about_intro : "";
+            const focusTitle =
+              typeof meta.focus_title === "string" ? meta.focus_title : "";
+            const focusBody =
+              typeof meta.focus_body === "string" ? meta.focus_body : "";
             return (
           <Card key={row.id} className="border-[var(--border)]/90 bg-[var(--card)]/60">
             <CardHeader>
@@ -102,6 +117,19 @@ export default async function AdminSectionsPage({
                   name="about_intro"
                   defaultValue={aboutIntro}
                   placeholder="About intro paragraph (khusus section_key=about)"
+                  rows={3}
+                  className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2"
+                />
+                <input
+                  name="focus_title"
+                  defaultValue={focusTitle}
+                  placeholder="Focus title (khusus section_key=about)"
+                  className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2"
+                />
+                <textarea
+                  name="focus_body"
+                  defaultValue={focusBody}
+                  placeholder="Focus body (khusus section_key=about)"
                   rows={3}
                   className="rounded-md border border-[var(--border)] bg-transparent p-2 text-sm sm:col-span-2"
                 />

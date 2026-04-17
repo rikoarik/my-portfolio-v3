@@ -151,6 +151,64 @@ export async function deleteProject(formData: FormData) {
   redirect("/admin/dashboard/projects?deleted=1");
 }
 
+export async function reorderProject(formData: FormData) {
+  const { supabase, user } = await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const direction = String(formData.get("direction") ?? "").trim();
+
+  if (!id) throw new Error("Missing id");
+  if (direction !== "up" && direction !== "down") {
+    throw new Error("Direction invalid");
+  }
+
+  const { data: rows, error: listError } = await supabase
+    .from("projects")
+    .select("id, sort_order")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (listError) throw new Error(listError.message);
+
+  const ordered = rows ?? [];
+  const currentIndex = ordered.findIndex((row) => row.id === id);
+  if (currentIndex < 0) throw new Error("Project tidak ditemukan");
+
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  const current = ordered[currentIndex];
+  const target = ordered[targetIndex];
+
+  if (!target) {
+    redirect("/admin/dashboard/projects");
+  }
+
+  const now = new Date().toISOString();
+  const currentSortOrder = current.sort_order ?? 0;
+  const targetSortOrder = target.sort_order ?? 0;
+
+  const { error: currentError } = await supabase
+    .from("projects")
+    .update({
+      sort_order: targetSortOrder,
+      updated_by: user.id,
+      updated_at: now,
+    })
+    .eq("id", current.id);
+  if (currentError) throw new Error(currentError.message);
+
+  const { error: targetError } = await supabase
+    .from("projects")
+    .update({
+      sort_order: currentSortOrder,
+      updated_by: user.id,
+      updated_at: now,
+    })
+    .eq("id", target.id);
+  if (targetError) throw new Error(targetError.message);
+
+  await revalidatePortfolio();
+  redirect("/admin/dashboard/projects?moved=1");
+}
+
 export async function upsertExperience(formData: FormData) {
   const { supabase, user } = await requireAdmin();
   const input = experienceFormSchema.parse({
@@ -206,6 +264,64 @@ export async function deleteExperience(formData: FormData) {
   redirect("/admin/dashboard/experiences?deleted=1");
 }
 
+export async function reorderExperience(formData: FormData) {
+  const { supabase, user } = await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const direction = String(formData.get("direction") ?? "").trim();
+
+  if (!id) throw new Error("Missing id");
+  if (direction !== "up" && direction !== "down") {
+    throw new Error("Direction invalid");
+  }
+
+  const { data: rows, error: listError } = await supabase
+    .from("experiences")
+    .select("id, sort_order")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (listError) throw new Error(listError.message);
+
+  const ordered = rows ?? [];
+  const currentIndex = ordered.findIndex((row) => row.id === id);
+  if (currentIndex < 0) throw new Error("Experience tidak ditemukan");
+
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  const current = ordered[currentIndex];
+  const target = ordered[targetIndex];
+
+  if (!target) {
+    redirect("/admin/dashboard/experiences");
+  }
+
+  const now = new Date().toISOString();
+  const currentSortOrder = current.sort_order ?? 0;
+  const targetSortOrder = target.sort_order ?? 0;
+
+  const { error: currentError } = await supabase
+    .from("experiences")
+    .update({
+      sort_order: targetSortOrder,
+      updated_by: user.id,
+      updated_at: now,
+    })
+    .eq("id", current.id);
+  if (currentError) throw new Error(currentError.message);
+
+  const { error: targetError } = await supabase
+    .from("experiences")
+    .update({
+      sort_order: currentSortOrder,
+      updated_by: user.id,
+      updated_at: now,
+    })
+    .eq("id", target.id);
+  if (targetError) throw new Error(targetError.message);
+
+  await revalidatePortfolio();
+  redirect("/admin/dashboard/experiences?moved=1");
+}
+
 export async function updateGuestbookStatus(formData: FormData) {
   const { supabase, user } = await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
@@ -251,6 +367,8 @@ export async function upsertSectionContent(formData: FormData) {
     body: String(formData.get("body") ?? ""),
     about_headline: String(formData.get("about_headline") ?? ""),
     about_intro: String(formData.get("about_intro") ?? ""),
+    focus_title: String(formData.get("focus_title") ?? ""),
+    focus_body: String(formData.get("focus_body") ?? ""),
     meta: String(formData.get("meta") ?? ""),
     status: String(formData.get("status") ?? "published"),
   });
@@ -266,6 +384,16 @@ export async function upsertSectionContent(formData: FormData) {
     meta.about_intro = input.about_intro.trim();
   } else {
     delete meta.about_intro;
+  }
+  if (input.focus_title?.trim()) {
+    meta.focus_title = input.focus_title.trim();
+  } else {
+    delete meta.focus_title;
+  }
+  if (input.focus_body?.trim()) {
+    meta.focus_body = input.focus_body.trim();
+  } else {
+    delete meta.focus_body;
   }
   const payload = {
     section_key: input.section_key,

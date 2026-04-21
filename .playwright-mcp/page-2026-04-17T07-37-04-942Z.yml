@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - img [ref=e3]
+  - generic:
+    - img
+  - main [ref=e5]:
+    - generic [ref=e7]:
+      - heading "404" [level=1] [ref=e8]
+      - generic [ref=e15]: "404"
+      - paragraph [ref=e16]: Oops... even the zombies can't find this page.
+      - link "Take me home" [ref=e17] [cursor=pointer]:
+        - /url: /
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e23] [cursor=pointer]:
+    - img [ref=e24]
+  - alert [ref=e27]

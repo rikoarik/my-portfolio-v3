@@ -1,0 +1,515 @@
+- generic [active] [ref=e1]:
+  - img [ref=e3]
+  - generic:
+    - img
+  - main [ref=e5]:
+    - link "Lewati ke konten" [ref=e6] [cursor=pointer]:
+      - /url: "#hero-title"
+    - generic [ref=e7]:
+      - navigation "Site navigation":
+        - generic [ref=e8]:
+          - button "Scroll to top" [ref=e11] [cursor=pointer]: My Portfolio
+          - link "Work" [ref=e14] [cursor=pointer]:
+            - /url: "#projects"
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: "#about"
+          - link "Career" [ref=e20] [cursor=pointer]:
+            - /url: "#career"
+          - link "Guestbook" [ref=e23] [cursor=pointer]:
+            - /url: "#guestbook"
+          - link "Contact" [ref=e26] [cursor=pointer]:
+            - /url: "#contact"
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]:
+              - heading "Arik Riko Prasetya" [level=1] [ref=e31]:
+                - generic [ref=e32]: Arik Riko
+                - generic [ref=e33]: Prasetya
+              - paragraph [ref=e34]: Mobile Developer
+              - generic [ref=e35]:
+                - paragraph [ref=e36]: He did not wait to be taught. He just started building.
+                - paragraph [ref=e37]: never surrender
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - generic [ref=e41]:
+                  - paragraph [ref=e42]: GitHub Contributions
+                  - paragraph [ref=e43]:
+                    - text: "686"
+                    - generic [ref=e44]: / @rikoarik
+                - paragraph [ref=e45]: Hover to inspect timeline
+              - generic [ref=e721]:
+                - generic [ref=e722]: Less
+                - generic [ref=e728]: More
+          - link "Explore Work" [ref=e730] [cursor=pointer]:
+            - /url: "#projects"
+        - generic:
+          - generic: scroll
+      - generic:
+        - region "Key statistics" [ref=e731]:
+          - generic [ref=e732]:
+            - generic [ref=e733]:
+              - generic [ref=e734]: 15+
+              - generic [ref=e735]: Production Apps
+            - generic [ref=e736]:
+              - generic [ref=e737]: 2+ Years
+              - generic [ref=e738]: Mobile Experience
+            - generic [ref=e739]:
+              - generic [ref=e740]: Ship
+              - generic [ref=e741]: Play Store · App Store
+            - generic [ref=e742]:
+              - generic [ref=e743]: Fintech
+              - generic [ref=e744]: Domain Focus
+            - generic [ref=e745]:
+              - generic [ref=e746]: 15+
+              - generic [ref=e747]: Production Apps
+            - generic [ref=e748]:
+              - generic [ref=e749]: 2+ Years
+              - generic [ref=e750]: Mobile Experience
+            - generic [ref=e751]:
+              - generic [ref=e752]: Ship
+              - generic [ref=e753]: Play Store · App Store
+            - generic [ref=e754]:
+              - generic [ref=e755]: Fintech
+              - generic [ref=e756]: Domain Focus
+            - generic [ref=e757]:
+              - generic [ref=e758]: 15+
+              - generic [ref=e759]: Production Apps
+            - generic [ref=e760]:
+              - generic [ref=e761]: 2+ Years
+              - generic [ref=e762]: Mobile Experience
+            - generic [ref=e763]:
+              - generic [ref=e764]: Ship
+              - generic [ref=e765]: Play Store · App Store
+            - generic [ref=e766]:
+              - generic [ref=e767]: Fintech
+              - generic [ref=e768]: Domain Focus
+            - generic [ref=e769]:
+              - generic [ref=e770]: 15+
+              - generic [ref=e771]: Production Apps
+            - generic [ref=e772]:
+              - generic [ref=e773]: 2+ Years
+              - generic [ref=e774]: Mobile Experience
+            - generic [ref=e775]:
+              - generic [ref=e776]: Ship
+              - generic [ref=e777]: Play Store · App Store
+            - generic [ref=e778]:
+              - generic [ref=e779]: Fintech
+              - generic [ref=e780]: Domain Focus
+          - generic [ref=e781]:
+            - generic [ref=e782]:
+              - generic [ref=e783]: 15+
+              - generic [ref=e784]: Production Apps
+            - generic [ref=e785]:
+              - generic [ref=e786]: 2+ Years
+              - generic [ref=e787]: Mobile Experience
+            - generic [ref=e788]:
+              - generic [ref=e789]: Ship
+              - generic [ref=e790]: Play Store · App Store
+            - generic [ref=e791]:
+              - generic [ref=e792]: Fintech
+              - generic [ref=e793]: Domain Focus
+            - generic [ref=e794]:
+              - generic [ref=e795]: 15+
+              - generic [ref=e796]: Production Apps
+            - generic [ref=e797]:
+              - generic [ref=e798]: 2+ Years
+              - generic [ref=e799]: Mobile Experience
+            - generic [ref=e800]:
+              - generic [ref=e801]: Ship
+              - generic [ref=e802]: Play Store · App Store
+            - generic [ref=e803]:
+              - generic [ref=e804]: Fintech
+              - generic [ref=e805]: Domain Focus
+            - generic [ref=e806]:
+              - generic [ref=e807]: 15+
+              - generic [ref=e808]: Production Apps
+            - generic [ref=e809]:
+              - generic [ref=e810]: 2+ Years
+              - generic [ref=e811]: Mobile Experience
+            - generic [ref=e812]:
+              - generic [ref=e813]: Ship
+              - generic [ref=e814]: Play Store · App Store
+            - generic [ref=e815]:
+              - generic [ref=e816]: Fintech
+              - generic [ref=e817]: Domain Focus
+            - generic [ref=e818]:
+              - generic [ref=e819]: 15+
+              - generic [ref=e820]: Production Apps
+            - generic [ref=e821]:
+              - generic [ref=e822]: 2+ Years
+              - generic [ref=e823]: Mobile Experience
+            - generic [ref=e824]:
+              - generic [ref=e825]: Ship
+              - generic [ref=e826]: Play Store · App Store
+            - generic [ref=e827]:
+              - generic [ref=e828]: Fintech
+              - generic [ref=e829]: Domain Focus
+        - region "Selected Works" [ref=e830]:
+          - generic [ref=e831]:
+            - generic "Selected Works" [ref=e832]:
+              - paragraph [ref=e833]: Portofolio
+              - heading "Selected Works" [level=2] [ref=e834]:
+                - generic [ref=e836]: Selected
+                - generic [ref=e838]: Works
+            - generic [ref=e839]:
+              - generic [ref=e841]:
+                - generic [ref=e842]:
+                  - generic [ref=e843]:
+                    - generic [ref=e844]: "01"
+                    - generic [ref=e845]: Unggulan
+                  - heading "Member App Ecosystem" [level=3] [ref=e846]
+                  - paragraph [ref=e847]: MyBrawijaya, Sangu Lirboyo, and related apps
+                  - generic [ref=e848]: Highlight:Developed and maintained multiple mobile apps in a multi-tenant system.
+                  - generic [ref=e849]:
+                    - generic [ref=e850]: mobile
+                    - generic [ref=e851]: fintech
+                    - generic [ref=e852]: multi-tenant
+                    - generic [ref=e853]: React Native
+                  - button "Lihat Detail ↗" [ref=e854]:
+                    - text: Lihat Detail
+                    - generic [ref=e855]: ↗
+                - generic [ref=e857]:
+                  - generic [ref=e859]: "01"
+                  - paragraph: Member App Ecosystem
+              - generic [ref=e861]:
+                - generic [ref=e862]:
+                  - generic [ref=e863]:
+                    - generic [ref=e864]: "02"
+                    - generic [ref=e865]: Unggulan
+                  - heading "Puas HUB" [level=3] [ref=e866]
+                  - paragraph [ref=e867]: PPOB & digital payment
+                  - generic [ref=e868]: Highlight:Built and maintained a Flutter mobile app for PPOB services (pulsa, data, listrik, e-wallet, games).
+                  - generic [ref=e869]:
+                    - generic [ref=e870]: mobile
+                    - generic [ref=e871]: fintech
+                    - generic [ref=e872]: flutter
+                    - generic [ref=e873]: Flutter
+                  - button "Lihat Detail ↗" [ref=e874]:
+                    - text: Lihat Detail
+                    - generic [ref=e875]: ↗
+                - generic [ref=e877]:
+                  - generic [ref=e879]: "02"
+                  - paragraph: Puas HUB
+              - generic [ref=e881]:
+                - generic [ref=e882]:
+                  - generic [ref=e883]:
+                    - generic [ref=e884]: "03"
+                    - generic [ref=e885]: Unggulan
+                  - heading "Merchant SolusiNegeri" [level=3] [ref=e886]
+                  - paragraph [ref=e887]: Merchant fintech
+                  - generic [ref=e888]: Highlight:Developed a merchant application for financial transactions with NFC and EDC integration.
+                  - generic [ref=e889]:
+                    - generic [ref=e890]: Android
+                    - generic [ref=e891]: MVVM
+                    - generic [ref=e892]: QRIS
+                    - generic [ref=e893]: NFC
+                  - button "Lihat Detail ↗" [ref=e894]:
+                    - text: Lihat Detail
+                    - generic [ref=e895]: ↗
+                - generic [ref=e897]:
+                  - generic [ref=e899]: "03"
+                  - paragraph: Merchant SolusiNegeri
+              - generic [ref=e901]:
+                - generic [ref=e902]:
+                  - generic [ref=e904]: "04"
+                  - heading "DIGILUH" [level=3] [ref=e905]
+                  - paragraph [ref=e906]: Government attendance
+                  - generic [ref=e907]: Highlight:Developed a Flutter-based attendance application for government use.
+                  - generic [ref=e908]:
+                    - generic [ref=e909]: mobile
+                    - generic [ref=e910]: flutter
+                    - generic [ref=e911]: offline-first
+                    - generic [ref=e912]: Flutter
+                  - button "Lihat Detail ↗" [ref=e913]:
+                    - text: Lihat Detail
+                    - generic [ref=e914]: ↗
+                - generic [ref=e916]:
+                  - generic [ref=e918]: "04"
+                  - paragraph: DIGILUH
+              - generic [ref=e920]:
+                - generic [ref=e921]:
+                  - generic [ref=e923]: "05"
+                  - heading "eMahaWangsa" [level=3] [ref=e924]
+                  - paragraph [ref=e925]: Attendance with GPS & selfie
+                  - generic [ref=e926]: Highlight:Developed an attendance app with GPS and selfie verification.
+                  - generic [ref=e927]:
+                    - generic [ref=e928]: Android
+                    - generic [ref=e929]: GPS
+                    - generic [ref=e930]: Camera
+                  - button "Lihat Detail ↗" [ref=e931]:
+                    - text: Lihat Detail
+                    - generic [ref=e932]: ↗
+                - generic [ref=e934]:
+                  - generic [ref=e936]: "05"
+                  - paragraph: eMahaWangsa
+        - region "Build products that feel clear, fast, and human." [ref=e937]:
+          - generic [ref=e939]:
+            - paragraph [ref=e941]: "[ 01 — About Me ]"
+            - heading "Build products that feel clear, fast, and human." [level=2] [ref=e942]:
+              - generic "Build products that feel clear, fast, and human." [ref=e943]:
+                - generic [ref=e945]:
+                  - generic [ref=e946]: B
+                  - generic [ref=e947]: u
+                  - generic [ref=e948]: i
+                  - generic [ref=e949]: l
+                  - generic [ref=e950]: d
+                - generic [ref=e952]:
+                  - generic [ref=e953]: p
+                  - generic [ref=e954]: r
+                  - generic [ref=e955]: o
+                  - generic [ref=e956]: d
+                  - generic [ref=e957]: u
+                  - generic [ref=e958]: c
+                  - generic [ref=e959]: t
+                  - generic [ref=e960]: s
+                - generic [ref=e962]:
+                  - generic [ref=e963]: t
+                  - generic [ref=e964]: h
+                  - generic [ref=e965]: a
+                  - generic [ref=e966]: t
+                - generic [ref=e968]:
+                  - generic [ref=e969]: f
+                  - generic [ref=e970]: e
+                  - generic [ref=e971]: e
+                  - generic [ref=e972]: l
+                - generic [ref=e974]:
+                  - generic [ref=e975]: c
+                  - generic [ref=e976]: l
+                  - generic [ref=e977]: e
+                  - generic [ref=e978]: a
+                  - generic [ref=e979]: r
+                  - generic [ref=e980]: ","
+                - generic [ref=e982]:
+                  - generic [ref=e983]: f
+                  - generic [ref=e984]: a
+                  - generic [ref=e985]: s
+                  - generic [ref=e986]: t
+                  - generic [ref=e987]: ","
+                - generic [ref=e989]:
+                  - generic [ref=e990]: a
+                  - generic [ref=e991]: "n"
+                  - generic [ref=e992]: d
+                - generic [ref=e994]:
+                  - generic [ref=e995]: h
+                  - generic [ref=e996]: u
+                  - generic [ref=e997]: m
+                  - generic [ref=e998]: a
+                  - generic [ref=e999]: "n"
+                  - generic [ref=e1000]: .
+          - generic [ref=e1002]:
+            - generic [ref=e1003]: About Me •
+            - generic [ref=e1004]: About Me •
+            - generic [ref=e1005]: About Me •
+            - generic [ref=e1006]: About Me •
+            - generic [ref=e1007]: About Me •
+            - generic [ref=e1008]: About Me •
+            - generic [ref=e1009]: About Me •
+            - generic [ref=e1010]: About Me •
+          - generic [ref=e1011]:
+            - generic [ref=e1012]:
+              - paragraph [ref=e1016]: I turn ambitious product goals into production-ready interfaces — balancing clean architecture, sharp UX details, and smooth physics-based interactions that help users trust what they use.
+              - generic [ref=e1017]:
+                - generic [ref=e1018]:
+                  - generic [ref=e1019]:
+                    - generic [ref=e1020]: "0"
+                    - generic [ref=e1021]: +
+                  - generic [ref=e1022]: Years Experience
+                - generic [ref=e1023]:
+                  - generic [ref=e1024]:
+                    - generic [ref=e1025]: "0"
+                    - generic [ref=e1026]: +
+                  - generic [ref=e1027]: Projects Shipped
+                - generic [ref=e1028]:
+                  - generic [ref=e1029]:
+                    - generic [ref=e1030]: "0"
+                    - generic [ref=e1031]: "%"
+                  - generic [ref=e1032]: Passion Driven
+            - generic [ref=e1034]:
+              - generic [ref=e1035]:
+                - generic [ref=e1037]: ↗
+                - generic [ref=e1038]: ( 01 )
+                - heading "Philosophy" [level=3] [ref=e1039]
+                - paragraph [ref=e1040]: I believe in building digital experiences that do not just work, but feel emotional.
+              - generic [ref=e1041]:
+                - generic [ref=e1043]: ↗
+                - generic [ref=e1044]: ( 02 )
+                - heading "Focus" [level=3] [ref=e1045]
+                - paragraph [ref=e1046]: Specializing in high-end interactive frontend development, combining physics-based animations with editorial design aesthetics.
+              - generic [ref=e1047]:
+                - generic [ref=e1049]: ↗
+                - generic [ref=e1050]: ( 03 )
+                - heading "Craft" [level=3] [ref=e1051]
+                - paragraph [ref=e1052]: Every project is an opportunity to push the boundaries of what's possible on the web. I obsess over the details that make experiences feel magical.
+        - region "Career" [ref=e1053]:
+          - heading "Career" [level=2] [ref=e1057]:
+            - generic [ref=e1059]: Career
+          - generic [ref=e1061]:
+            - generic [ref=e1062]:
+              - img
+              - article [ref=e1064]:
+                - generic [ref=e1065]:
+                  - generic [ref=e1066]: "00"
+                  - generic [ref=e1067]: 2025-05 — Present
+                - heading "Full-stack Developer (Freelance)" [level=3] [ref=e1068]
+                - paragraph [ref=e1069]: Diprojectin·Remote
+                - blockquote [ref=e1070]: Developed backend services using Laravel and built web applications based on client requirements.
+            - generic [ref=e1071]:
+              - img
+              - article [ref=e1073]:
+                - generic [ref=e1074]:
+                  - generic [ref=e1075]: "00"
+                  - generic [ref=e1076]: 2025-01 — Present
+                - heading "Mobile Developer (Full Time)" [level=3] [ref=e1077]
+                - paragraph [ref=e1078]: PT Teknologi Kartu Indonesia·Salatiga
+                - blockquote [ref=e1079]: Developed and maintained mobile applications within a multi-tenant fintech ecosystem, contributing to 15+ production apps.
+            - generic [ref=e1080]:
+              - img
+              - article [ref=e1082]:
+                - generic [ref=e1083]:
+                  - generic [ref=e1084]: "00"
+                  - generic [ref=e1085]: 2026-02 — Present
+                - heading "Mobile Development (Freelance)" [level=3] [ref=e1086]
+                - paragraph [ref=e1087]: PUAS Hub·Remote
+                - blockquote [ref=e1088]: Built and maintained a Flutter mobile app for PPOB and digital payment services.
+            - generic [ref=e1089]:
+              - img
+              - article [ref=e1091]:
+                - generic [ref=e1092]:
+                  - generic [ref=e1093]: "00"
+                  - generic [ref=e1094]: 2024-11 — 2025-01
+                - heading "Android Developer (Freelance)" [level=3] [ref=e1095]
+                - paragraph [ref=e1096]: PT. Mahawangsa·Remote
+                - blockquote [ref=e1097]: Developed a mobile attendance application with GPS and selfie verification.
+            - generic [ref=e1098]:
+              - img
+              - article [ref=e1100]:
+                - generic [ref=e1101]:
+                  - generic [ref=e1102]: "00"
+                  - generic [ref=e1103]: Stack
+                - heading "Expertise" [level=3] [ref=e1104]
+                - paragraph [ref=e1105]: Tools and domains grouped how you ship.
+                - generic [ref=e1106]:
+                  - generic [ref=e1107]:
+                    - generic [ref=e1108]: Mobile Development
+                    - generic [ref=e1109]:
+                      - generic [ref=e1110]: Kotlin
+                      - generic [ref=e1111]: Android
+                      - generic [ref=e1112]: React Native
+                      - generic [ref=e1113]: Expo
+                      - generic [ref=e1114]: Flutter
+                      - generic [ref=e1115]: MVVM
+                      - generic [ref=e1116]: Clean Architecture
+                      - generic [ref=e1117]: BLoC
+                      - generic [ref=e1118]: Zustand
+                      - generic [ref=e1119]: REST API
+                  - generic [ref=e1120]:
+                    - generic [ref=e1121]: Backend & Integration
+                    - generic [ref=e1122]:
+                      - generic [ref=e1123]: Laravel
+                      - generic [ref=e1124]: MySQL
+                      - generic [ref=e1125]: JSON
+                      - generic [ref=e1126]: Swagger
+                  - generic [ref=e1127]:
+                    - generic [ref=e1128]: Tools & Workflow
+                    - generic [ref=e1129]:
+                      - generic [ref=e1130]: GitLab
+                      - generic [ref=e1131]: CI/CD
+                      - generic [ref=e1132]: Postman
+                      - generic [ref=e1133]: Jira
+            - article [ref=e1136]:
+              - generic [ref=e1137]:
+                - generic [ref=e1138]: "00"
+                - generic [ref=e1139]: Foundation
+              - heading "Education" [level=3] [ref=e1140]
+              - generic [ref=e1141]:
+                - generic [ref=e1142]: Universitas Trunojoyo Madura
+                - generic [ref=e1143]: Bachelor of Information Systems · Information Systems · GPA 3.48
+        - generic [ref=e1144]:
+          - generic:
+            - generic [ref=e1146]:
+              - generic [ref=e1147]: sena
+              - generic [ref=e1148]: bagus mas portfolionya, pro banget
+            - generic [ref=e1150]:
+              - generic [ref=e1151]: zakki
+              - generic [ref=e1152]: mas ngejain project murah murahan bisa ngga ?
+            - generic [ref=e1154]:
+              - generic [ref=e1155]: MAMAN
+              - generic [ref=e1156]: kereen cuyy
+            - generic [ref=e1158]:
+              - generic [ref=e1159]: hamba
+              - generic [ref=e1160]: keren bang sumpah
+            - generic [ref=e1162]:
+              - generic [ref=e1163]: Design Hunter
+              - generic [ref=e1164]: Portfolio ini keren banget, interaksinya halus.
+          - generic [ref=e1165]:
+            - heading "Guest Messages" [level=2] [ref=e1166]:
+              - generic [ref=e1168]: Guest
+              - generic [ref=e1170]: Messages
+            - paragraph [ref=e1172]: Leave a mark on this infinite field. No login, just raw vibes.
+            - button "Write Message ↗" [ref=e1173]:
+              - generic [ref=e1174]:
+                - text: Write Message
+                - generic [ref=e1175]: ↗
+      - generic [ref=e1179]:
+        - generic: Arik Riko Prasetya
+        - generic:
+          - generic:
+            - generic:
+              - generic: Open to work
+              - generic: ✦
+              - generic: Software engineering
+              - generic: ✦
+              - generic: Mari berhubung
+              - generic: ✦
+              - generic: Create impact
+              - generic: ✦
+              - generic: Creative development
+            - generic:
+              - generic: Open to work
+              - generic: ✦
+              - generic: Software engineering
+              - generic: ✦
+              - generic: Mari berhubung
+              - generic: ✦
+              - generic: Create impact
+              - generic: ✦
+              - generic: Creative development
+            - generic:
+              - generic: Open to work
+              - generic: ✦
+              - generic: Software engineering
+              - generic: ✦
+              - generic: Mari berhubung
+              - generic: ✦
+              - generic: Create impact
+              - generic: ✦
+              - generic: Creative development
+        - generic [ref=e1180]:
+          - paragraph [ref=e1181]: Closing chapter
+          - heading "Let's build something." [level=2] [ref=e1182]
+          - paragraph [ref=e1183]: Unduh CV atau kirim email — respons cepat.
+          - generic [ref=e1184]:
+            - generic [ref=e1185]:
+              - link "Get in touch" [ref=e1186] [cursor=pointer]:
+                - /url: mailto:rikoarik04@gmail.com
+                - img [ref=e1187]
+                - text: Get in touch
+              - link "GitHub" [ref=e1190] [cursor=pointer]:
+                - /url: https://github.com/rikoarik
+                - img [ref=e1191]
+                - text: GitHub
+            - generic [ref=e1193]:
+              - link "LinkedIn" [ref=e1194] [cursor=pointer]:
+                - /url: https://linkedin.com/in/rikoarik
+                - img [ref=e1195]
+                - text: LinkedIn
+              - link "Download CV" [ref=e1197] [cursor=pointer]:
+                - /url: /NodeFlair_Resume_2026-04-11_13_37_51.pdf
+                - img [ref=e1198]
+                - text: Download CV
+        - generic [ref=e1202]: © 2026 Arik Riko Prasetya. All rights reserved.
+      - button: ↑ Atas
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e1208] [cursor=pointer]:
+    - img [ref=e1209]

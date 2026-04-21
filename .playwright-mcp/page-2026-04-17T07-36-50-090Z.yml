@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - img [ref=e3]
+  - generic:
+    - img
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - heading "Admin CMS" [level=1] [ref=e8]
+      - paragraph [ref=e9]:
+        - text: Login pakai email dan password. Pastikan user ada di tabel
+        - code [ref=e10]: admin_users
+        - text: .
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - text: Email
+        - textbox "Email" [ref=e13]
+      - generic [ref=e14]:
+        - text: Password
+        - textbox "Password" [ref=e15]
+      - button "Masuk" [ref=e16]
+    - link "← Kembali ke portofolio" [ref=e17] [cursor=pointer]:
+      - /url: /
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e23] [cursor=pointer]:
+    - img [ref=e24]
+  - alert [ref=e27]

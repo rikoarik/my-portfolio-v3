@@ -362,7 +362,7 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
       </div>
 
       {/* Center heading */}
-      <div className="relative z-[30] mx-auto flex w-[min(100%,32rem)] max-w-xl flex-col items-center justify-center text-center pointer-events-auto px-6 sm:px-0">
+      <div className="ifs-content-pad ifs-content-wrap relative z-[30] flex w-[min(100%,32rem)] max-w-xl flex-col items-center justify-center text-center pointer-events-auto">
         <TextReveal
           as="h2"
           text="Guest Messages"

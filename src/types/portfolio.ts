@@ -47,7 +47,7 @@ export type Project = {
   featured: boolean;
   status?: "draft" | "published";
   published_at?: string | null;
-  /** Hero / card image — add column in DB when ready */
+  /** Hero / card image URL */
   cover_url?: string | null;
 };
 

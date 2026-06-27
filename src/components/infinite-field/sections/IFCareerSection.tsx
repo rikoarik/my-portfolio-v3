@@ -250,7 +250,7 @@ export function IFCareerSection({
     >
       <InteractiveGridBackground />
 
-      <div className="relative z-10 mx-auto mb-16 w-full min-w-0 max-w-6xl px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] sm:px-5 lg:px-6">
+      <div className="ifs-content-pad ifs-content-wrap relative z-10 mb-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex max-w-xl flex-col gap-3">
             <TextReveal
@@ -263,7 +263,7 @@ export function IFCareerSection({
         </div>
       </div>
 
-      <div className="relative mx-auto w-full min-w-0 max-w-5xl px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] sm:px-5 lg:px-6">
+      <div className="ifs-content-pad ifs-content-wrap relative max-w-5xl">
         <div className="ifs-vertical-journey">
           {allCards.map((item, i) => {
             const isLeft = i % 2 === 0;
@@ -317,6 +317,12 @@ export function IFCareerSection({
                         <>
                           <span className="text-[var(--muted-foreground)] px-2">·</span>
                           {(item.data as Experience).location}
+                        </>
+                      ) : null}
+                      {(item.data as Experience).employment_type ? (
+                        <>
+                          <span className="text-[var(--muted-foreground)] px-2">·</span>
+                          {(item.data as Experience).employment_type}
                         </>
                       ) : null}
                     </p>
@@ -396,6 +402,15 @@ export function IFCareerSection({
                           ? ` · GPA ${(item.data as Education).gpa}`
                           : ""}
                       </div>
+                      {(item.data as Education).bullets?.length ? (
+                        <ul className="ifs-edu-bullets mt-4 space-y-2 text-sm text-[var(--muted-foreground)]">
+                          {(item.data as Education).bullets.map((bullet) => (
+                            <li key={bullet} className="leading-relaxed">
+                              {bullet}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
                     </div>
                   </article>
                 )}

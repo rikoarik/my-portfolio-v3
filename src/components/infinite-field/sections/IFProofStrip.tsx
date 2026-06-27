@@ -4,11 +4,11 @@ import { useEffect, useRef } from "react";
 import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { SectionContent } from "@/types/portfolio";
 
-const stats = [
-  { value: "99+", label: "Projects Completed" },
-  { value: "40K+", label: "Satisfied Clients" },
-  { value: "12+", label: "Years Experience" },
+const DEFAULT_STATS = [
+  { value: "15+", label: "Production Apps" },
+  { value: "2+ Years", label: "Mobile Experience" },
   { value: "Ship", label: "Play Store · App Store" },
+  { value: "Fintech", label: "Domain Focus" },
 ];
 
 /** Seconds for one full pass — higher = easier to read */
@@ -85,7 +85,7 @@ export function IFProofStrip({ section }: { section?: SectionContent }) {
 
   const sourceStats = Array.isArray(section?.meta?.stats)
     ? (section?.meta.stats as { value: string; label: string }[])
-    : stats;
+    : DEFAULT_STATS;
 
   // We duplicate the stats array 4 times to create enough length for a seamless marquee
   const infiniteStats = [...sourceStats, ...sourceStats, ...sourceStats, ...sourceStats];

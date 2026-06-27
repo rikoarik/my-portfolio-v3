@@ -459,23 +459,20 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
       subtitle: "Philosophy",
       body: "I believe in building digital experiences that don't just work, but feel emotional.",
       meta: {
+        about_headline: "Build products that feel clear, fast, and human.",
+        about_intro:
+          "I turn ambitious product goals into production-ready mobile apps — balancing clean architecture, sharp UX details, and smooth interactions that help users trust what they use.",
         focus_title: "Focus",
         focus_body:
           "Specializing in high-end interactive frontend development, combining physics-based animations with editorial design aesthetics.",
-      },
-      status: "published",
-      published_at: null,
-    },
-    {
-      id: id("section-loader"),
-      section_key: "loader",
-      title: "Loader",
-      subtitle: null,
-      body: null,
-      meta: {
-        loader_label: "Loading",
-        loader_messages: ["Preparing scene", "Loading portfolio", "Almost ready"],
-        loader_text_animation: "slide-up",
+        craft_title: "Craft",
+        craft_body:
+          "Every project is an opportunity to push the boundaries of what's possible on mobile. I obsess over the details that make experiences feel magical.",
+        stats: [
+          { value: 2, suffix: "+", label: "Years Experience" },
+          { value: 15, suffix: "+", label: "Production Apps" },
+          { value: 100, suffix: "%", label: "Passion Driven" },
+        ],
       },
       status: "published",
       published_at: null,

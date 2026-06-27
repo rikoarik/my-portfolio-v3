@@ -40,7 +40,7 @@ export function PortfolioClient({
   const heroSection = getSection("hero");
   const navSection = getSection("nav");
   const aboutSection = getSection("about");
-  const mainfooterSection = getSection("mainfooter");
+  const contactSection = getSection("contact");
   const proofSection = getSection("proof");
   const loaderConfigRaw =
     data.seo?.settings?.metadata &&
@@ -124,7 +124,7 @@ export function PortfolioClient({
         </div>
 
         <div className="pointer-events-auto">
-          <CinematicFooter profile={data.profile} section={mainfooterSection} />
+          <CinematicFooter profile={data.profile} section={contactSection} />
         </div>
 
         <BackToTopButton />

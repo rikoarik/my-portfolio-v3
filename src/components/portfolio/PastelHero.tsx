@@ -162,7 +162,7 @@ export function PastelHero({
       className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-transparent"
     >
       <Meteors number={25} />
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col pb-10 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(4.5rem,env(safe-area-inset-top))] sm:px-[36px]">
+      <div className="ifs-content-pad relative z-10 flex min-h-0 flex-1 flex-col pb-10 pt-[max(4.5rem,env(safe-area-inset-top))]">
         <div className="grid min-h-0 flex-1 grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
           <div className="w-full min-w-0 max-w-[min(100%,520px)]">
             <h1 className="text-left text-[clamp(2rem,9vw+0.5rem,3.5rem)] font-bold leading-[1.02] tracking-[-0.03em] text-[var(--foreground)] sm:text-[clamp(3rem,8vw,5.5rem)]">

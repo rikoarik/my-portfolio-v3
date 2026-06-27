@@ -1,9 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
+import { loadGsap } from "@/lib/gsap";
+import { cn } from "@/lib/utils";
 import type { Project } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
@@ -140,6 +148,7 @@ function ProjectModal({
   const modalBullets = project.subtitle?.trim()
     ? project.bullets
     : project.bullets.slice(1);
+  const modalMetaTags = previewTagsForList(project, 2);
 
   const inner = (
     <div
@@ -190,6 +199,9 @@ function ProjectModal({
             ) : null}
             {project.period_label ? (
               <p className="ifs-project-meta ifs-modal__meta">{project.period_label}</p>
+            ) : null}
+            {modalMetaTags.length ? (
+              <p className="ifs-modal__meta-bar font-mono-meta">{modalMetaTags.join(" · ")}</p>
             ) : null}
           </header>
 
@@ -286,170 +298,289 @@ function ProjectModal({
   return createPortal(inner, portalRoot);
 }
 
-function ProjectCoverFrame({ project, index }: { project: Project; index: number }) {
+function ProjectCoverFrame({
+  project,
+  index,
+  variant = "expanded",
+}: {
+  project: Project;
+  index: number;
+  variant?: "collapsed" | "expanded";
+}) {
   const src = project.cover_url?.trim();
+  const domainTag = project.tags?.[0]?.trim() || project.stack[0]?.trim();
+
   if (src) {
     return (
-      <div className="ifs-project-cover-frame">
+      <div
+        className={cn(
+          "ifs-project-cover-frame ifs-accordion-cover-frame",
+          variant === "collapsed" && "ifs-accordion-cover-frame--collapsed",
+        )}
+      >
         <Image
           src={src}
           alt=""
           fill
-          sizes="(min-width: 768px) 50vw, 100vw"
+          sizes={variant === "collapsed" ? "120px" : "(min-width: 1024px) 40vw, 100vw"}
           className="ifs-project-cover-img"
           loading="lazy"
         />
         <div className="ifs-project-cover-shine" aria-hidden />
+        {domainTag && variant === "expanded" ? (
+          <span className="ifs-accordion-cover-domain font-mono-meta">{domainTag}</span>
+        ) : null}
       </div>
     );
   }
   return (
-    <div className="ifs-project-cover-frame ifs-project-cover-frame--placeholder">
+    <div
+      className={cn(
+        "ifs-project-cover-frame ifs-project-cover-frame--placeholder ifs-accordion-cover-frame",
+        variant === "collapsed" && "ifs-accordion-cover-frame--collapsed",
+      )}
+    >
       <div className="ifs-project-cover-gradient" aria-hidden />
-      <span className="ifs-project-cover-ix font-mono-meta">
+      <span className="ifs-accordion-cover-stroke-index" aria-hidden>
         {String(index + 1).padStart(2, "0")}
       </span>
-      <p className="ifs-project-cover-watermark">{project.title}</p>
+      {domainTag && variant === "expanded" ? (
+        <span className="ifs-accordion-cover-domain font-mono-meta">{domainTag}</span>
+      ) : null}
+      {variant === "expanded" ? (
+        <p className="ifs-project-cover-watermark">{project.title}</p>
+      ) : null}
     </div>
   );
 }
 
+const ProjectAccordionPanel = forwardRef<
+  HTMLButtonElement,
+  {
+    project: Project;
+    index: number;
+    isActive: boolean;
+    onActivate: () => void;
+    onOpenModal: () => void;
+    tabId: string;
+    panelId: string;
+  }
+>(function ProjectAccordionPanel(
+  { project, index, isActive, onActivate, onOpenModal, tabId, panelId },
+  ref,
+) {
+  const listTags = previewTagsForList(project, 3);
+  const impactLine = project.bullets[0]?.trim();
+  const indexLabel = String(index + 1).padStart(2, "0");
+
+  return (
+    <div
+      className={cn(
+        "ifs-project-accordion-panel",
+        isActive && "is-active",
+        project.featured && "ifs-project-accordion-panel--featured",
+      )}
+    >
+      <div className="ifs-project-accordion-panel-inner">
+        <div className="ifs-project-accordion-cover-bg" aria-hidden>
+          <ProjectCoverFrame project={project} index={index} variant="collapsed" />
+        </div>
+
+        <button
+          ref={ref}
+          type="button"
+          role="tab"
+          id={tabId}
+          aria-selected={isActive}
+          aria-expanded={isActive}
+          aria-controls={panelId}
+          aria-label={`Project ${indexLabel}: ${project.title}`}
+          tabIndex={isActive ? 0 : -1}
+          className="ifs-project-accordion-tab"
+          onClick={onActivate}
+        >
+          <span className="ifs-project-accordion-index font-mono-meta">{indexLabel}</span>
+          <span className="ifs-project-accordion-strip-title">{project.title}</span>
+        </button>
+
+        <div
+          id={panelId}
+          role="tabpanel"
+          aria-labelledby={tabId}
+          className="ifs-project-accordion-body"
+          hidden={!isActive}
+        >
+          <div className="ifs-project-accordion-content">
+            <div className="ifs-project-accordion-meta mb-4 flex flex-wrap items-center gap-3 sm:mb-5">
+              <span className="ifs-project-accordion-kicker font-mono-meta text-[10px] uppercase tracking-[0.24em] text-[var(--muted-foreground)]">
+                Project {indexLabel}
+              </span>
+              {project.featured ? (
+                <span className="ifs-project-accordion-pill ifs-project-accordion-pill--featured font-mono-meta">
+                  Featured
+                </span>
+              ) : null}
+              {project.period_label ? (
+                <span className="ifs-project-accordion-pill font-mono-meta">{project.period_label}</span>
+              ) : null}
+            </div>
+
+            <div className="ifs-project-accordion-title-wrap relative mb-4 sm:mb-5">
+              <span className="ifs-project-accordion-watermark" aria-hidden>
+                {indexLabel}
+              </span>
+              <h3 className="ifs-project-accordion-title relative z-[1] text-[clamp(1.35rem,4vw+0.5rem,2.75rem)] font-bold tracking-tight lg:text-4xl">
+                {project.title}
+              </h3>
+            </div>
+
+            {project.subtitle ? (
+              <p className="ifs-project-accordion-desc text-base leading-relaxed text-[var(--muted-foreground)] lg:text-lg">
+                {project.subtitle}
+              </p>
+            ) : null}
+
+            {impactLine ? (
+              <blockquote className="ifs-project-impact-quote mt-5 sm:mt-6">{impactLine}</blockquote>
+            ) : null}
+
+            {listTags.length ? (
+              <div className="mt-auto flex flex-wrap gap-2 pt-6 sm:pt-8">
+                {listTags.map((t) => (
+                  <span key={t} className="ifs-project-accordion-tag font-mono-meta">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={onOpenModal}
+              className="ifs-project-glass-cta mt-6 sm:mt-8"
+            >
+              <span>Lihat detail</span>
+              <span className="ifs-project-glass-cta-icon" aria-hidden>
+                ↗
+              </span>
+            </button>
+          </div>
+
+          <div className="ifs-project-accordion-visual">
+            <ProjectCoverFrame project={project} index={index} variant="expanded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export function IFProjectsSection({ projects }: { projects: Project[] }) {
-  const rootRef = useRef<HTMLElement>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [modal, setModal] = useState<Project | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const ordered = useMemo(() => sortProjects(projects), [projects]);
+  const featuredCount = useMemo(() => ordered.filter((p) => p.featured).length, [ordered]);
 
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
+  const focusTab = useCallback((index: number) => {
+    const clamped = Math.max(0, Math.min(index, ordered.length - 1));
+    setActiveIndex(clamped);
+    tabRefs.current[clamped]?.focus();
+  }, [ordered.length]);
 
-    const ua = navigator.userAgent;
-    const isSafari = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
-    if (isSafari) return;
+  const handleAccordionKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const { key } = e;
+      const isVertical = window.matchMedia("(max-width: 1023px)").matches;
+      const prevKey = isVertical ? "ArrowUp" : "ArrowLeft";
+      const nextKey = isVertical ? "ArrowDown" : "ArrowRight";
 
-    let ctx: { revert: () => void } | null = null;
-    let mounted = true;
+      if (key !== prevKey && key !== nextKey && key !== "Home" && key !== "End") return;
 
-    void (async () => {
-      await registerGsapPlugins();
-      if (!mounted) return;
-      const { gsap, ScrollTrigger } = await loadGsap();
-      if (!mounted) return;
+      e.preventDefault();
+      if (key === "Home") {
+        focusTab(0);
+        return;
+      }
+      if (key === "End") {
+        focusTab(ordered.length - 1);
+        return;
+      }
+      if (key === prevKey) {
+        focusTab(activeIndex - 1);
+        return;
+      }
+      focusTab(activeIndex + 1);
+    },
+    [activeIndex, focusTab, ordered.length],
+  );
 
-      ctx = gsap.context(() => {
-        const cards = gsap.utils.toArray<HTMLElement>("[data-project-card]");
-
-        cards.forEach((card, i) => {
-          const isLast = i === cards.length - 1;
-          if (isLast) return;
-
-          // When the NEXT card enters and scrolls up,
-          // it pushes THIS card into the background (scaling it down and dimming)
-          ScrollTrigger.create({
-            trigger: cards[i + 1],
-            start: `top bottom-=10%`,
-            end: `top top+=15vh`, // Approximating sticky stop
-            scrub: true,
-            animation: gsap.to(card, {
-              scale: 0.92 - (0.01 * i),
-              opacity: 0.4,
-              y: -20, // push it up slightly into the distance
-              transformOrigin: "top center",
-              ease: "none",
-            }),
-          });
-        });
-      }, root);
-    })();
-
-    return () => {
-      mounted = false;
-      ctx?.revert();
-    };
-  }, [ordered]);
+  useEffect(() => {
+    if (activeIndex < ordered.length) return;
+    setActiveIndex(Math.max(0, ordered.length - 1));
+  }, [activeIndex, ordered.length]);
 
   return (
     <section
-      ref={rootRef}
       id="projects"
       aria-labelledby="projects-title"
-      className="ifs-section ifs-projects-stacking-section"
+      className="ifs-section ifs-projects-accordion-section"
     >
       <InteractiveGridBackground />
 
-      <div className="mx-auto w-full min-w-0 max-w-6xl px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[min(22vh,10rem)] sm:px-6 sm:pb-[20vh]">
-        <header
-          className="ifs-projects-header mb-[min(8vh,4rem)] pt-[min(12vh,5.5rem)] text-center sm:mb-[10vh] sm:pt-[15vh]"
-          aria-labelledby="projects-title"
-        >
-          <p className="font-mono-meta text-xs uppercase tracking-[0.28em] text-[var(--muted-foreground)] mb-4">
-            Portofolio
-          </p>
-          <TextReveal as="h2" id="projects-title" text="Selected Works" className="ifs-heading !mb-0 mx-auto" />
+      <div className="ifs-content-pad ifs-content-wrap">
+        <header className="ifs-projects-header mb-6 sm:mb-8" aria-labelledby="projects-title">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="font-mono-meta mb-4 text-xs uppercase tracking-[0.28em] text-[var(--muted-foreground)]">
+                Portofolio
+              </p>
+              <TextReveal
+                as="h2"
+                id="projects-title"
+                text="Selected Works"
+                className="ifs-heading !mb-0 text-left"
+              />
+              <p className="ifs-projects-lead mt-3 max-w-xl text-base leading-relaxed text-[var(--muted-foreground)] sm:mt-4 sm:text-lg">
+                Production apps across mobile and cross-platform — curated case studies with
+                measurable impact.
+              </p>
+            </div>
+            <p className="font-mono-meta shrink-0 text-xs uppercase tracking-[0.22em] text-[var(--muted-foreground)] lg:text-right">
+              {ordered.length} projects
+              {featuredCount ? ` · ${featuredCount} featured` : ""}
+            </p>
+          </div>
         </header>
+      </div>
 
-        <div className="flex flex-col relative w-full ifs-stacking-container gap-[12vh]">
-          {ordered.map((p, i) => {
-            const listTags = previewTagsForList(p, 4);
-            const impactLine = p.bullets[0]?.trim();
-            
-            return (
-              <div
-                key={p.id}
-                data-project-card
-                className="ifs-stacking-card"
-                style={{ top: `calc(10vh + ${i * 1.5}rem)` }}
-              >
-                <div className="ifs-stacking-card-inner">
-                  <div className="ifs-stacking-card-content flex-1 max-w-xl flex flex-col pt-4">
-                    <div className="ifs-stacking-card-header flex items-center gap-4 mb-6">
-                      <span className="ifs-stacking-index font-mono-meta text-6xl text-[var(--muted-foreground)] opacity-30 font-bold">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      {p.featured && <span className="px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full font-bold uppercase tracking-wider">Unggulan</span>}
-                    </div>
-                    
-                    <h3 className="ifs-stacking-title text-[clamp(1.5rem,6vw+0.5rem,3.75rem)] font-bold tracking-tight md:text-5xl lg:text-6xl mb-4">
-                      {p.title}
-                    </h3>
-                    <p className="ifs-stacking-desc text-[var(--muted-foreground)] text-lg leading-relaxed">{p.subtitle}</p>
-                    
-                    {impactLine && (
-                      <div className="mt-8 p-5 bg-[var(--muted)]/30 border border-[var(--border)]/50 rounded-2xl text-sm leading-relaxed">
-                        <span className="font-bold mr-2 text-[var(--foreground)]">Highlight:</span>
-                        <span className="text-[var(--muted-foreground)]">{impactLine}</span>
-                      </div>
-                    )}
-                    
-                    <div className="mt-auto pt-10 flex flex-wrap gap-2">
-                       {listTags.map(t => <span key={t} className="px-3 py-1.5 border border-[var(--border)] rounded-full text-xs text-[var(--foreground)] opacity-80">{t}</span>)}
-                    </div>
-                    
-                    <button 
-                      onClick={() => setModal(p)}
-                      className="mt-8 flex items-center justify-between gap-3 text-sm font-bold antialiased border border-[var(--border)] pl-6 pr-4 py-3 rounded-full w-max hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors group"
-                    >
-                      Lihat Detail 
-                      <span className="w-8 h-8 flex items-center justify-center bg-[var(--foreground)] text-[var(--background)] group-hover:bg-[var(--background)] group-hover:text-[var(--foreground)] rounded-full transition-colors">
-                        ↗
-                      </span>
-                    </button>
-                  </div>
-                  
-                  <div className="ifs-stacking-card-visual flex-1 relative w-full h-[300px] md:h-auto rounded-[2rem] overflow-hidden shadow-2xl ml-0 md:ml-8 mt-8 md:mt-0">
-                    <ProjectCoverFrame project={p} index={i} />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      <div className="ifs-content-pad ifs-content-wrap">
+        <div
+          role="tablist"
+          aria-label="Selected works projects"
+          className="ifs-project-accordion"
+          onKeyDown={handleAccordionKeyDown}
+        >
+          {ordered.map((p, i) => (
+            <ProjectAccordionPanel
+              key={p.id}
+              project={p}
+              index={i}
+              isActive={i === activeIndex}
+              onActivate={() => setActiveIndex(i)}
+              onOpenModal={() => setModal(p)}
+              tabId={`ifs-project-tab-${p.id}`}
+              panelId={`ifs-project-panel-${p.id}`}
+              ref={(el) => {
+                tabRefs.current[i] = el;
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      {modal && typeof document !== "undefined" ? (
-        <ProjectModal project={modal} onClose={() => setModal(null)} mounted />
-      ) : null}
+      {modal ? <ProjectModal project={modal} onClose={() => setModal(null)} mounted /> : null}
     </section>
   );
 }

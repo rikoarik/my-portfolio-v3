@@ -50,6 +50,97 @@ export function parseJsonOrLines(value: string): string[] {
   return parseLines(value);
 }
 
+export function parseProofStatsInput(value: string): { value: string; label: string }[] {
+  return parseLines(value)
+    .map((line) => {
+      const [value, label] = line.split("|").map((part) => part.trim());
+      if (!value || !label) return null;
+      return { value, label };
+    })
+    .filter((item): item is { value: string; label: string } => item !== null);
+}
+
+export function parseAboutStatsInput(
+  value: string,
+): { value: number; suffix: string; label: string }[] {
+  return parseLines(value)
+    .map((line) => {
+      const parts = line.split("|").map((part) => part.trim());
+      if (parts.length < 2) return null;
+      const [valueRaw, suffixOrLabel, labelMaybe] = parts;
+      const numericValue = Number(valueRaw);
+      if (!Number.isFinite(numericValue)) return null;
+      if (labelMaybe) {
+        return { value: numericValue, suffix: suffixOrLabel || "+", label: labelMaybe };
+      }
+      return { value: numericValue, suffix: "+", label: suffixOrLabel };
+    })
+    .filter((item): item is { value: number; suffix: string; label: string } => item !== null);
+}
+
+export function parseNavItemsInput(value: string): { id: string; label: string; href?: string }[] {
+  return parseLines(value)
+    .map((line, index) => {
+      const [label, href] = line.split("|").map((part) => part.trim());
+      if (!label) return null;
+      return {
+        id: `nav-${index + 1}`,
+        label,
+        ...(href ? { href } : {}),
+      };
+    })
+    .filter((item): item is { id: string; label: string; href?: string } => item !== null);
+}
+
+export function formatProofStats(stats: unknown): string {
+  if (!Array.isArray(stats)) return "";
+  return stats
+    .map((item) => {
+      if (!item || typeof item !== "object") return "";
+      const row = item as Record<string, unknown>;
+      const value = typeof row.value === "string" ? row.value : "";
+      const label = typeof row.label === "string" ? row.label : "";
+      return value && label ? `${value} | ${label}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+export function formatAboutStats(stats: unknown): string {
+  if (!Array.isArray(stats)) return "";
+  return stats
+    .map((item) => {
+      if (!item || typeof item !== "object") return "";
+      const row = item as Record<string, unknown>;
+      const value = typeof row.value === "number" ? row.value : Number(row.value);
+      const label = typeof row.label === "string" ? row.label : "";
+      const suffix = typeof row.suffix === "string" ? row.suffix : "+";
+      if (!Number.isFinite(value) || !label) return "";
+      return `${value} | ${suffix} | ${label}`;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+export function formatNavItems(items: unknown): string {
+  if (!Array.isArray(items)) return "";
+  return items
+    .map((item) => {
+      if (!item || typeof item !== "object") return "";
+      const row = item as Record<string, unknown>;
+      const label = typeof row.label === "string" ? row.label : "";
+      const href = typeof row.href === "string" ? row.href : "";
+      return label ? (href ? `${label} | ${href}` : label) : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+export function formatMarqueeItems(items: unknown): string {
+  if (!Array.isArray(items)) return "";
+  return items.filter((item): item is string => typeof item === "string").join("\n");
+}
+
 export function parseCaseStudyInput(value: string) {
   if (!value.trim()) return null;
   const parsed = JSON.parse(value) as unknown;
@@ -95,6 +186,31 @@ export const experienceFormSchema = z.object({
   status: publicationStatusSchema.default("published"),
 });
 
+export const skillGroupFormSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Group name wajib"),
+  sort_order: z.coerce.number().int().default(0),
+});
+
+export const skillFormSchema = z.object({
+  id: z.string().optional(),
+  group_id: z.string().min(1, "Group wajib"),
+  name: z.string().min(1, "Skill name wajib"),
+  sort_order: z.coerce.number().int().default(0),
+});
+
+export const educationFormSchema = z.object({
+  id: z.string().optional(),
+  institution: z.string().min(1, "Institution wajib"),
+  degree: z.string().min(1, "Degree wajib"),
+  field: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  gpa: z.string().optional(),
+  sort_order: z.coerce.number().int().default(0),
+  bullets: z.string().optional(),
+});
+
 export const sectionFormSchema = z.object({
   id: z.string().optional(),
   section_key: z.string().min(1),
@@ -105,6 +221,15 @@ export const sectionFormSchema = z.object({
   about_intro: z.string().optional(),
   focus_title: z.string().optional(),
   focus_body: z.string().optional(),
+  kicker: z.string().optional(),
+  talk_label: z.string().optional(),
+  cv_label: z.string().optional(),
+  marquee_items: z.string().optional(),
+  proof_stats: z.string().optional(),
+  about_stats: z.string().optional(),
+  craft_title: z.string().optional(),
+  craft_body: z.string().optional(),
+  nav_items: z.string().optional(),
   meta: z.string().optional(),
   status: publicationStatusSchema.default("published"),
 });

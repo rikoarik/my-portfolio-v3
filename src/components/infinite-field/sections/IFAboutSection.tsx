@@ -101,6 +101,34 @@ export function IFAboutSection({
       ? section.meta.focus_body
       : "Specializing in high-end interactive frontend. I combine brutalist editorial aesthetics with creative engineering to craft award-winning, immersive digital products.";
 
+  type AboutStat = { value: number; suffix: string; label: string };
+  const defaultAboutStats: AboutStat[] = [
+    { value: 2, suffix: "+", label: "Years Experience" },
+    { value: 15, suffix: "+", label: "Production Apps" },
+    { value: 100, suffix: "%", label: "Passion Driven" },
+  ];
+  const aboutStats = Array.isArray(section?.meta?.stats)
+    ? (section.meta.stats as unknown[])
+        .map((item) => {
+          if (!item || typeof item !== "object") return null;
+          const row = item as Record<string, unknown>;
+          const value = typeof row.value === "number" ? row.value : Number(row.value);
+          const label = typeof row.label === "string" ? row.label : "";
+          if (!Number.isFinite(value) || !label) return null;
+          const suffix = typeof row.suffix === "string" ? row.suffix : "+";
+          return { value, suffix, label };
+        })
+        .filter((item): item is AboutStat => item !== null)
+    : defaultAboutStats;
+  const craftTitle =
+    typeof section?.meta?.craft_title === "string" && section.meta.craft_title.trim()
+      ? section.meta.craft_title
+      : "Craft";
+  const craftBody =
+    typeof section?.meta?.craft_body === "string" && section.meta.craft_body.trim()
+      ? section.meta.craft_body
+      : "Every project is an opportunity to push the boundaries of what's possible on the web. I obsess over the details that make experiences feel magical.";
+
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -276,16 +304,15 @@ export function IFAboutSection({
       ref={rootRef}
       id="about"
       aria-labelledby="about-title"
-      className="ifs-section relative overflow-hidden bg-[var(--background)]"
-      style={{ padding: 0 }}
+      className="ifs-section ifs-section--flush-y relative overflow-hidden bg-[var(--background)]"
     >
       <InteractiveGridBackground />
 
       {/* ── PART 1: Hero Statement ── */}
-      <div className="ifs-about-hero relative w-full min-w-0 pt-28 sm:pt-40 md:pt-52 pb-16 sm:pb-28 md:pb-36 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-8 lg:px-16">
-        <div className="max-w-[85rem] mx-auto">
+      <div className="ifs-about-hero relative w-full min-w-0 pt-10 pb-8 sm:pt-12 sm:pb-10 md:pt-14 md:pb-12">
+        <div className="ifs-content-pad ifs-content-wrap">
           {/* Section Label */}
-          <div className="mb-12 md:mb-20">
+          <div className="mb-6 sm:mb-8 md:mb-10">
             <p className="font-mono-meta text-[10px] sm:text-xs uppercase tracking-[0.3em] text-[var(--muted-foreground)] opacity-60">
               [ 01 — {section?.title ?? "About Me"} ]
             </p>
@@ -302,7 +329,7 @@ export function IFAboutSection({
       </div>
 
       {/* ── PART 2: Horizontal Marquee Divider ── */}
-      <div className="relative w-full overflow-hidden py-8 sm:py-12 md:py-16 border-y border-[var(--border)]">
+      <div className="relative w-full overflow-hidden py-4 sm:py-5 md:py-6 border-y border-[var(--border)]">
         <div className="ifs-about-marquee whitespace-nowrap flex items-center gap-8 sm:gap-12 will-change-transform">
           {Array.from({ length: 8 }).map((_, i) => (
             <span
@@ -321,8 +348,8 @@ export function IFAboutSection({
       </div>
 
       {/* ── PART 3: Body Content ── */}
-      <div className="ifs-about-body relative w-full min-w-0 py-20 sm:py-32 md:py-40 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-8 lg:px-16">
-        <div className="max-w-[85rem] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-12">
+      <div className="ifs-about-body relative w-full min-w-0 pt-8 pb-14 sm:pt-10 sm:pb-16 md:pt-12 md:pb-20">
+        <div className="ifs-content-pad ifs-content-wrap grid grid-cols-1 gap-16 md:gap-12 lg:grid-cols-12">
 
           {/* LEFT: Subline */}
           <div className="lg:col-span-5">
@@ -335,14 +362,19 @@ export function IFAboutSection({
 
           {/* RIGHT: Stats Row */}
           <div className="lg:col-span-6 lg:col-start-7 ifs-about-stats flex flex-wrap gap-12 sm:gap-16 lg:gap-20 items-start lg:pt-4">
-            <StatBlock value={4} suffix="+" label="Years Experience" />
-            <StatBlock value={20} suffix="+" label="Projects Shipped" />
-            <StatBlock value={100} suffix="%" label="Passion Driven" />
+            {aboutStats.map((stat) => (
+              <StatBlock
+                key={stat.label}
+                value={stat.value}
+                suffix={stat.suffix}
+                label={stat.label}
+              />
+            ))}
           </div>
         </div>
 
         {/* Scrub Divider */}
-        <div className="ifs-about-divider w-full h-[1px] bg-[var(--border)] my-16 md:my-24 will-change-transform" />
+        <div className="ifs-about-divider w-full h-[1px] bg-[var(--border)] my-10 md:my-14 will-change-transform" />
 
         {/* ── PART 4: Philosophy & Focus Grid ── */}
         <div className="ifs-about-grid max-w-[85rem] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
@@ -388,10 +420,10 @@ export function IFAboutSection({
               ( 03 )
             </span>
             <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">
-              Craft
+              {craftTitle}
             </h3>
             <p className="text-base sm:text-lg opacity-70 leading-relaxed">
-              Every project is an opportunity to push the boundaries of what's possible on the web. I obsess over the details that make experiences feel magical.
+              {craftBody}
             </p>
           </div>
 

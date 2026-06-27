@@ -10,7 +10,35 @@
   max-width: 72rem;
   margin: 0 auto;
   box-sizing: border-box;
-  padding: 4rem max(1rem, env(safe-area-inset-left)) 4rem max(1rem, env(safe-area-inset-right));
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  padding-left: var(--ifs-section-px, max(0.75rem, env(safe-area-inset-left)));
+  padding-right: var(--ifs-section-px-end, max(0.75rem, env(safe-area-inset-right)));
+}
+
+.ifs-section--flush-y {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.ifs-section--flush-x {
+  max-width: none;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.ifs-content-pad {
+  padding-left: var(--ifs-section-px, max(0.75rem, env(safe-area-inset-left)));
+  padding-right: var(--ifs-section-px-end, max(0.75rem, env(safe-area-inset-right)));
+}
+
+.ifs-content-wrap {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 72rem;
 }
 
 /* Perf: skip rendering offscreen sections until needed.
@@ -23,8 +51,34 @@
   contain-intrinsic-size: 1000px;
 }
 
+/* Match home: horizontal pad on content wrappers, not section box */
+#main .portfolio-main-column > .ifs-section {
+  max-width: none;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 #main #projects.ifs-section {
-  contain-intrinsic-size: 1600px;
+  contain-intrinsic-size: 800px;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 640px) {
+  #main #projects.ifs-section {
+    padding-top: 3rem;
+    padding-bottom: 4.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  #main #projects.ifs-section {
+    padding-top: 3.5rem;
+    padding-bottom: 5rem;
+  }
 }
 
 #main #career.ifs-section {
@@ -33,12 +87,14 @@
 
 @media (min-width: 640px) {
   .ifs-section {
-    padding: 6rem max(1.25rem, env(safe-area-inset-left)) 6rem max(1.25rem, env(safe-area-inset-right));
+    padding-top: 6rem;
+    padding-bottom: 6rem;
   }
 }
 @media (min-width: 1024px) {
   .ifs-section {
-    padding: 8rem max(2rem, env(safe-area-inset-left)) 8rem max(2rem, env(safe-area-inset-right));
+    padding-top: 8rem;
+    padding-bottom: 8rem;
   }
 }
 
@@ -248,86 +304,424 @@
   line-height: 1.65;
 }
 
-/* ── Stacking Cards Project Styles (Option B) ── */
-.ifs-projects-stacking-section {
+/* ── Fluid Accordion Project Styles ── */
+.ifs-projects-accordion-section {
   position: relative;
   background-color: var(--background);
   z-index: 10;
 }
 
-.ifs-stacking-container {
+/* ── Selected Works editorial polish ── */
+.ifs-projects-header {
+  text-align: left;
+}
+
+.ifs-projects-lead {
+  font-family: var(--font-if-body), system-ui, sans-serif;
+}
+
+.ifs-project-accordion {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
 }
 
-.ifs-stacking-card {
-  position: sticky;
-  height: auto;
-  min-height: 70vh;
+.ifs-project-accordion-panel {
+  position: relative;
+  display: block;
   width: 100%;
-  transform-origin: top center;
-  will-change: transform, opacity;
-  z-index: 10;
-}
-
-.ifs-stacking-card-inner {
-  width: 100%;
-  max-width: 100%;
   min-width: 0;
-  box-sizing: border-box;
-  height: 100%;
-  min-height: 70vh;
-  padding: 1.25rem max(1rem, env(safe-area-inset-left)) 1.5rem max(1rem, env(safe-area-inset-right));
-  /* Solid card surface so stacked cards behind don't show through */
-  background: var(--card);
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  border-radius: 1.25rem;
   background: color-mix(in srgb, var(--card) 92%, var(--background));
-  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-  border-radius: 2.5rem;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  transition:
+    flex 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.ifs-project-accordion-panel.is-active {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  box-shadow: 0 20px 48px -32px color-mix(in srgb, var(--foreground) 22%, transparent);
+}
+
+.ifs-project-accordion-panel--featured.is-active {
+  border-color: color-mix(in srgb, var(--primary) 50%, var(--border));
+}
+
+.ifs-project-accordion-panel-inner {
+  position: relative;
+  width: 100%;
+  min-height: 3.5rem;
+}
+
+.ifs-project-accordion-cover-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.ifs-project-accordion-panel.is-active .ifs-project-accordion-cover-bg {
+  opacity: 0;
+}
+
+.ifs-project-accordion-tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 1rem 1.15rem;
+  min-height: 3.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.ifs-project-accordion-tab:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  outline-offset: -2px;
+}
+
+.ifs-project-accordion-panel.is-active .ifs-project-accordion-tab {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ifs-project-accordion-index {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.ifs-project-accordion-strip-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ifs-project-accordion-body {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -20px 40px -20px color-mix(in srgb, var(--foreground) 10%, transparent);
-  transition: box-shadow 0.3s ease;
+  gap: 1.5rem;
+  padding: 1.25rem 1.25rem 1.5rem;
 }
 
-@media (max-width: 639px) {
-  .ifs-stacking-card {
-    min-height: auto;
-  }
-
-  .ifs-stacking-card-inner {
-    min-height: min(70vh, 720px);
-    border-radius: 1.35rem;
-  }
+.ifs-project-accordion-body[hidden] {
+  display: none;
 }
 
-@media (min-width: 768px) {
-  .ifs-stacking-card-inner {
-    flex-direction: row;
-    padding: 3.5rem;
-    min-height: 70vh;
-  }
-}
-
-.ifs-stacking-card-content {
+.ifs-project-accordion-content {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  flex: 1;
 }
 
-.ifs-stacking-title {
+.ifs-project-accordion-title-wrap {
+  isolation: isolate;
+}
+
+.ifs-project-accordion-watermark {
+  position: absolute;
+  left: -0.05em;
+  top: -0.35em;
+  font-family: var(--font-if-display), system-ui, sans-serif;
+  font-size: clamp(3rem, 12vw, 6rem);
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--border) 85%, transparent);
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.ifs-project-accordion-title {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-.ifs-stacking-card-visual {
-  border-radius: 1.5rem;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--muted) 20%, transparent);
+.ifs-project-accordion-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, var(--primary));
+  background: color-mix(in srgb, var(--card) 80%, transparent);
 }
 
-.ifs-stacking-card-visual .ifs-project-cover-frame {
+.ifs-project-accordion-pill--featured {
+  color: color-mix(in srgb, var(--primary) 70%, var(--foreground));
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+
+.ifs-project-impact-quote {
+  margin: 0;
+  padding: 0.85rem 0 0 1rem;
+  border-left: 2px solid color-mix(in srgb, var(--primary) 65%, transparent);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+
+.ifs-project-accordion-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--foreground) 72%, var(--muted-foreground));
+  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  background: transparent;
+  opacity: 0.9;
+}
+
+.ifs-project-accordion-visual {
+  position: relative;
+  width: 100%;
+  min-height: min(52vw, 16rem);
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+.ifs-accordion-cover-frame {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  min-height: inherit;
   border-radius: inherit;
+}
+
+.ifs-accordion-cover-frame--collapsed {
+  min-height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  border: none;
+}
+
+.ifs-accordion-cover-frame--collapsed .ifs-project-cover-img {
+  object-fit: cover;
+}
+
+.ifs-accordion-cover-stroke-index {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-if-display), system-ui, sans-serif;
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--foreground) 12%, transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ifs-accordion-cover-domain {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  padding: 0.28rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--background) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@media (min-width: 1024px) {
+  .ifs-project-accordion {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.5rem;
+    min-height: min(72vh, 640px);
+  }
+
+  .ifs-project-accordion-panel {
+    flex: 1;
+    min-width: 3.5rem;
+    border-radius: 1.5rem;
+  }
+
+  .ifs-project-accordion-panel.is-active {
+    flex: 5;
+  }
+
+  .ifs-project-accordion-panel-inner {
+    height: 100%;
+    min-height: min(72vh, 640px);
+  }
+
+  .ifs-project-accordion-tab {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    min-height: min(72vh, 640px);
+    padding: 1.25rem 0.65rem;
+  }
+
+  .ifs-project-accordion-index {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.58rem;
+  }
+
+  .ifs-project-accordion-strip-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 60%;
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  .ifs-project-accordion-body {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 2rem;
+    height: 100%;
+    min-height: min(72vh, 640px);
+    padding: 2.25rem 2.5rem;
+  }
+
+  .ifs-project-accordion-visual {
+    flex: 1;
+    min-width: 0;
+    min-height: 100%;
+    margin-top: 0;
+  }
+
+  .ifs-accordion-cover-frame {
+    min-height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+.ifs-project-glass-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: max-content;
+  padding: 0.75rem 0.75rem 0.75rem 1.35rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, var(--border));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--foreground) 4%, transparent) 0%,
+    color-mix(in srgb, var(--foreground) 1%, transparent) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--foreground);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.ifs-project-glass-cta:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px -20px color-mix(in srgb, var(--foreground) 35%, transparent);
+}
+
+.ifs-project-glass-cta-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.ifs-project-glass-cta:hover .ifs-project-glass-cta-icon {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.ifs-modal__meta-bar {
+  margin-top: 0.65rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--primary) 55%, var(--muted-foreground));
+}
+
+.ifs-project-accordion-panel.is-active .ifs-project-accordion-visual .ifs-accordion-cover-frame {
+  box-shadow: 0 28px 64px -36px color-mix(in srgb, var(--foreground) 28%, transparent);
+}
+
+.ifs-project-accordion-panel.is-active:hover .ifs-project-accordion-visual .ifs-accordion-cover-frame {
+  transform: translateY(-4px);
+}
+
+.ifs-project-accordion-panel.is-active:hover .ifs-project-accordion-visual .ifs-project-cover-img {
+  transform: scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ifs-project-accordion-panel {
+    transition: none;
+  }
 }
 
 .ifs-projects-sticky-stack {
@@ -1581,10 +1975,19 @@
 }
 
 #main {
+  --ifs-section-px: max(0.75rem, env(safe-area-inset-left));
+  --ifs-section-px-end: max(0.75rem, env(safe-area-inset-right));
   padding-bottom: 0;
   background-color: color-mix(in srgb, var(--background) 90%, var(--muted));
   overflow-x: clip;
   max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  #main {
+    --ifs-section-px: max(1.25rem, env(safe-area-inset-left));
+    --ifs-section-px-end: max(1.25rem, env(safe-area-inset-right));
+  }
 }
 
 .portfolio-main-column > * {

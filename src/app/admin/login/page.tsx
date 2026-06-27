@@ -37,9 +37,12 @@ function LoginForm() {
   };
 
   return (
-    <div className="mx-auto max-w-md space-y-6 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-8 text-[var(--admin-ink)] shadow-sm">
+    <div className="admin-login-card mx-auto max-w-md space-y-6 rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-8 text-[var(--admin-ink)] shadow-[0_8px_30px_rgba(17,24,39,0.08)]">
       <div>
-        <h1 className="text-2xl font-bold">Admin CMS</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--admin-accent)]">
+          Portfolio CMS
+        </p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight">Admin login</h1>
         <p className="mt-2 text-sm text-[var(--admin-muted)]">
           Login pakai email dan password. Pastikan user ada di tabel{" "}
           <code className="font-mono-meta text-[var(--admin-accent)]">admin_users</code>.

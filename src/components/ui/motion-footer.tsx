@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import type { SectionContent, SiteProfile } from "@/types/portfolio";
-import { Mail, FileText, Globe } from "lucide-react";
+import { Mail, FileText, Globe, Phone } from "lucide-react";
 
 function IconGithub({ className, ...props }: React.SVGProps<SVGSVGElement>) {
   return (
@@ -229,6 +229,8 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
   const kicker = typeof section?.meta?.kicker === "string" ? section.meta.kicker : "Closing chapter";
   const heading = section?.title?.trim() || "Let's build something.";
   const lead = section?.subtitle?.trim() || "Unduh CV atau kirim email — respons cepat.";
+  const body =
+    typeof section?.body === "string" && section.body.trim() ? section.body.trim() : null;
   const primaryLabel = typeof section?.meta?.talk_label === "string" ? section.meta.talk_label : "Get in touch";
   const cvLabel = typeof section?.meta?.cv_label === "string" ? section.meta.cv_label : "Download CV";
   const marqueeItems = Array.isArray(section?.meta?.marquee_items)
@@ -310,7 +312,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
             </div>
           </div>
 
-          <div className="relative z-10 mx-auto mt-16 flex w-full min-w-0 max-w-5xl flex-1 flex-col items-center justify-center px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:mt-20 sm:px-6">
+          <div className="ifs-content-pad relative z-10 mx-auto mt-16 flex w-full min-w-0 max-w-5xl flex-1 flex-col items-center justify-center sm:mt-20">
             <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground sm:mb-5 md:text-sm md:tracking-[0.26em]">
               {kicker}
             </p>
@@ -320,7 +322,14 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
             >
               {heading}
             </h2>
-            <p className="mb-8 max-w-xl px-1 text-center text-sm text-muted-foreground sm:mb-10 md:text-base">{lead}</p>
+            <p className="mb-4 max-w-xl px-1 text-center text-sm text-muted-foreground md:text-base">{lead}</p>
+            {body ? (
+              <p className="mb-8 max-w-xl px-1 text-center text-sm text-muted-foreground/80 sm:mb-10 md:text-base">
+                {body}
+              </p>
+            ) : (
+              <div className="mb-8 sm:mb-10" />
+            )}
 
             <div ref={linksRef} className="flex flex-col items-center gap-6 w-full pointer-events-auto">
               <div className="flex flex-wrap justify-center gap-4 w-full">
@@ -344,6 +353,15 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 md:gap-6 w-full mt-2">
+                {profile.phone && (
+                  <MagneticButton
+                    as="a"
+                    href={`tel:${profile.phone.replace(/\s/g, "")}`}
+                    className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground flex items-center gap-2"
+                  >
+                    <Phone className="w-4 h-4" /> {profile.phone}
+                  </MagneticButton>
+                )}
                 {profile.linkedin_url && (
                   <MagneticButton as="a" href={profile.linkedin_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground flex items-center gap-2">
                     <IconLinkedin className="w-4 h-4" /> LinkedIn
@@ -363,7 +381,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
             </div>
           </div>
 
-          <div className="pointer-events-auto relative z-20 flex w-full max-w-full items-center justify-center px-[max(1rem,env(safe-area-inset-left))] pb-[max(1.5rem,env(safe-area-inset-bottom))] pr-[max(1rem,env(safe-area-inset-right))] pt-2 md:px-12">
+          <div className="ifs-content-pad pointer-events-auto relative z-20 flex w-full max-w-full items-center justify-center pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2">
             <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase text-center">
               © {new Date().getFullYear()} {profile.full_name}. All rights reserved.
             </div>

@@ -17,6 +17,9 @@ export type FilterableItem = {
   status?: string | null;
   subtitle?: string | null;
   meta?: React.ReactNode;
+  thumbnailUrl?: string | null;
+  featured?: boolean;
+  chips?: string[];
 };
 
 export function FilterableList({
@@ -27,6 +30,7 @@ export function FilterableList({
   emptyTitle,
   emptyDescription,
   emptyAction,
+  showFeaturedFilter,
   deleteAction,
   reorderAction,
   bulkAction,
@@ -39,6 +43,7 @@ export function FilterableList({
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: React.ReactNode;
+  showFeaturedFilter?: boolean;
   deleteAction?: (
     prev: ActionResult | null,
     formData: FormData,
@@ -58,13 +63,15 @@ export function FilterableList({
 }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [displayOrder, setDisplayOrder] = useState<string[]>([]);
 
-  const filtered = useMemo(
-    () => filterItems(items, query, status),
-    [items, query, status],
-  );
+  const filtered = useMemo(() => {
+    const base = filterItems(items, query, status);
+    if (!featuredOnly) return base;
+    return base.filter((item) => item.featured);
+  }, [items, query, status, featuredOnly]);
 
   useEffect(() => {
     setDisplayOrder(filtered.map((item) => item.id));
@@ -90,13 +97,16 @@ export function FilterableList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <ListFilterBar
         query={query}
         status={status}
         hasStatusFilter={config.hasStatus}
+        featuredOnly={featuredOnly}
+        showFeaturedFilter={showFeaturedFilter}
         onQueryChange={setQuery}
         onStatusChange={setStatus}
+        onFeaturedChange={setFeaturedOnly}
       />
 
       {config.hasBulk && selected.size > 0 && bulkAction ? (
@@ -117,7 +127,7 @@ export function FilterableList({
           Tidak ada item cocok dengan filter aktif.
         </p>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {displayItems.map((item, index) => (
             <ListItemRow
               key={item.id}

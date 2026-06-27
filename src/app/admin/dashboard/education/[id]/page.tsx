@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { EducationEditActions } from "@/components/admin/forms/EducationEditActions";
 import { EducationForm } from "@/components/admin/forms/EducationForm";
 import { PORTFOLIO_SEED } from "@/data/portfolio.seed";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,9 +22,10 @@ export default async function EditEducationPage({
   if (!edu) return notFound();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <AdminPageHeader title="Edit education" description={`ID: ${id}`} />
-      <EducationForm education={edu} />
-    </div>
+    <EducationForm
+      education={edu}
+      title={`${edu.degree} · ${edu.institution}`}
+      headerActions={<EducationEditActions id={edu.id} title={edu.degree} />}
+    />
   );
 }

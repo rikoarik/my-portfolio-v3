@@ -12,7 +12,7 @@ import { StatusBadge } from "./StatusBadge";
 import { StatusToggle } from "./StatusToggle";
 
 export type ListItemConfig = {
-  editHref?: (id: string) => string;
+  editHrefPrefix?: string;
   hasStatus?: boolean;
   hasReorder?: boolean;
   hasBulk?: boolean;
@@ -40,6 +40,8 @@ export function ListItemRow({
     status?: string | null;
     subtitle?: string | null;
     meta?: React.ReactNode;
+    thumbnailUrl?: string | null;
+    chips?: string[];
   };
   index: number;
   total: number;
@@ -64,32 +66,60 @@ export function ListItemRow({
   onOptimisticReorder?: (nextOrder: string[]) => void;
   onRollback?: (prevOrder: string[]) => void;
 }) {
+  const editHref = config.editHrefPrefix
+    ? `${config.editHrefPrefix}${item.id}`
+    : undefined;
+
   return (
     <AdminListCard
+      editHref={editHref}
       title={
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-3">
           {config.hasBulk && onToggleSelect ? (
             <input
               type="checkbox"
               aria-label={`Pilih ${item.title}`}
               checked={selected}
               onChange={onToggleSelect}
-              className="size-4"
+              onClick={(e) => e.stopPropagation()}
+              className="size-4 shrink-0"
             />
           ) : null}
-          {item.title}
+          {item.thumbnailUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.thumbnailUrl}
+              alt=""
+              className="size-10 shrink-0 rounded object-cover"
+            />
+          ) : (
+            <span className="flex size-10 shrink-0 items-center justify-center rounded bg-[var(--accent)] text-xs text-[var(--muted-foreground)]">
+              —
+            </span>
+          )}
+          <span className="min-w-0">
+            <span className="block truncate font-semibold">{item.title}</span>
+            {item.subtitle ? (
+              <span className="mt-0.5 block truncate text-sm font-normal text-[var(--muted-foreground)]">
+                {item.subtitle}
+              </span>
+            ) : null}
+          </span>
         </span>
       }
       meta={
-        item.meta ?? (
-          <>
-            {config.hasStatus && item.status ? (
-              <>
-                <StatusBadge status={item.status} />
-              </>
-            ) : null}
-          </>
-        )
+        <>
+          {config.hasStatus && item.status ? <StatusBadge status={item.status} /> : null}
+          {item.meta ? <span className="text-[var(--muted-foreground)]">{item.meta}</span> : null}
+          {item.chips?.slice(0, 4).map((chip) => (
+            <span
+              key={chip}
+              className="rounded-full bg-[var(--accent)] px-2 py-0.5 font-mono-meta text-[10px] text-[var(--muted-foreground)]"
+            >
+              {chip}
+            </span>
+          ))}
+        </>
       }
       actions={
         <>
@@ -115,9 +145,9 @@ export function ListItemRow({
               toggleAction={toggleStatusAction}
             />
           ) : null}
-          {config.editHref ? (
-            <Button asChild variant="outline" size="sm">
-              <Link href={config.editHref(item.id)}>Edit</Link>
+          {editHref ? (
+            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+              <Link href={editHref}>Edit</Link>
             </Button>
           ) : null}
           {deleteAction ? (
@@ -129,10 +159,6 @@ export function ListItemRow({
           ) : null}
         </>
       }
-    >
-      {item.subtitle ? (
-        <p className="text-sm text-[var(--muted-foreground)]">{item.subtitle}</p>
-      ) : null}
-    </AdminListCard>
+    />
   );
 }

@@ -1,14 +1,15 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { ContentChartCard } from "@/components/admin/dashboard/ContentChartCard";
-import { KpiCard } from "@/components/admin/dashboard/KpiCard";
+import { AnalyticsKpiCard } from "@/components/admin/dashboard/AnalyticsKpiCard";
+import { OrganicLandingCard } from "@/components/admin/dashboard/OrganicLandingCard";
+import { SeoBreakdownCard } from "@/components/admin/dashboard/SeoBreakdownCard";
 import { ShortcutCard } from "@/components/admin/dashboard/ShortcutCard";
-import { StatLegendCard } from "@/components/admin/dashboard/StatLegendCard";
+import { TopPagesTable } from "@/components/admin/dashboard/TopPagesTable";
+import { TopReferrersTable } from "@/components/admin/dashboard/TopReferrersTable";
+import { TrafficChartCard } from "@/components/admin/dashboard/TrafficChartCard";
+import { getAnalyticsSnapshot } from "@/lib/admin/analytics-data";
 import {
-  buildChartData,
-  buildKpiCards,
-  buildLegendItems,
   DASHBOARD_SHORTCUTS,
   getDashboardSnapshot,
   SECONDARY_SHORTCUTS,
@@ -17,60 +18,94 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const snapshot = await getDashboardSnapshot();
-  const chartData = buildChartData(snapshot);
-  const kpiCards = buildKpiCards(snapshot);
-  const legendItems = buildLegendItems(snapshot);
+  const [analytics, cms] = await Promise.all([getAnalyticsSnapshot(), getDashboardSnapshot()]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader
-        title="Dashboard"
-        description="Ringkasan performa CMS dan akses cepat ke modul konten portfolio."
+        title="Analytics"
+        description="Traffic, SEO signals, and quick access to CMS modules."
       />
 
-      {snapshot.guestbookPending > 0 ? (
+      {cms.guestbookPending > 0 ? (
         <div className="rounded-[var(--admin-radius)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {snapshot.guestbookPending} guestbook message
-          {snapshot.guestbookPending > 1 ? "s" : ""} menunggu moderasi.{" "}
+          {cms.guestbookPending} guestbook message
+          {cms.guestbookPending > 1 ? "s" : ""} awaiting moderation.{" "}
           <Link href="/admin/dashboard/guestbook" className="font-medium underline">
             Review now
           </Link>
         </div>
       ) : null}
 
-      <section aria-label="Quick shortcuts">
-        <div className="admin-shortcut-scroll lg:grid lg:grid-cols-4 lg:gap-4">
-          {DASHBOARD_SHORTCUTS.map((item) => (
-            <ShortcutCard key={item.id} {...item} />
-          ))}
+      <section aria-label="Analytics KPIs">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <AnalyticsKpiCard
+            label="Views (30d)"
+            value={analytics.totalViews30d}
+            subtext={`${analytics.totalViews7d.toLocaleString()} in last 7 days`}
+          />
+          <AnalyticsKpiCard
+            label="Visitors (7d)"
+            value={analytics.uniqueVisitors7d}
+            subtext={`${analytics.uniqueVisitors30d.toLocaleString()} unique in 30d`}
+          />
+          <AnalyticsKpiCard
+            label="Organic share"
+            value={analytics.organicShare7d}
+            subtext="7-day search traffic share"
+            suffix="%"
+          />
+          <AnalyticsKpiCard
+            label="Today"
+            value={analytics.totalViewsToday}
+            subtext="Page views since midnight UTC"
+          />
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-12" aria-label="Content analytics">
+      <section className="grid gap-4 lg:grid-cols-12" aria-label="Traffic overview">
         <div className="lg:col-span-8">
-          <ContentChartCard data={chartData} />
+          <TrafficChartCard data={analytics.dailySeries} />
         </div>
         <div className="lg:col-span-4">
-          <StatLegendCard items={legendItems} />
+          <SeoBreakdownCard breakdown={analytics.seoBreakdown} />
         </div>
       </section>
 
-      <section aria-label="KPI cards">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {kpiCards.map((item) => (
-            <KpiCard key={item.id} {...item} />
-          ))}
-        </div>
+      <section className="grid gap-4 lg:grid-cols-2" aria-label="Top content">
+        <TopPagesTable rows={analytics.topPages} />
+        <TopReferrersTable rows={analytics.topReferrers} />
       </section>
 
-      <section aria-label="More modules">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {SECONDARY_SHORTCUTS.map((item) => (
-            <ShortcutCard key={item.id} {...item} />
-          ))}
-        </div>
+      <section aria-label="SEO progress">
+        <OrganicLandingCard rows={analytics.organicKeywords} />
       </section>
+
+      <details className="admin-card group">
+        <summary className="cursor-pointer list-none px-4 py-4 md:px-5 [&::-webkit-details-marker]:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold">Manage content</h3>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                CMS shortcuts — collapsed by default.
+              </p>
+            </div>
+            <span className="text-xs text-[var(--muted-foreground)] group-open:rotate-180">▼</span>
+          </div>
+        </summary>
+        <div className="space-y-4 border-t border-[var(--border)] px-4 pb-4 pt-4 md:px-5">
+          <div className="admin-shortcut-scroll lg:grid lg:grid-cols-4 lg:gap-4">
+            {DASHBOARD_SHORTCUTS.map((item) => (
+              <ShortcutCard key={item.id} {...item} />
+            ))}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {SECONDARY_SHORTCUTS.map((item) => (
+              <ShortcutCard key={item.id} {...item} />
+            ))}
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

@@ -28,7 +28,7 @@ export type SeoPageData = {
 };
 
 function formIdFor(page: SeoPageData) {
-  return `seo-page-${page.id}`;
+  return `seo-page-form-${page.id}`;
 }
 
 function SeoPageFields({ page }: { page: SeoPageData }) {

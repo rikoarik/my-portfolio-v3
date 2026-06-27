@@ -13,8 +13,14 @@ type EducationRow = {
   id: string;
   institution: string;
   degree: string;
+  field?: string | null;
   sort_order?: number;
+  bullets?: string[];
 };
+
+function educationSearchText(e: EducationRow) {
+  return [e.degree, e.institution, e.field, ...(e.bullets ?? [])].filter(Boolean).join(" ");
+}
 
 export default async function AdminEducationPage() {
   const supabase = await createSupabaseServerClient();
@@ -29,13 +35,13 @@ export default async function AdminEducationPage() {
     [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader
         title="Education"
-        description="Kelola riwayat pendidikan dan bullets."
+        description="Klik baris untuk edit. Geser ↑↓ untuk urutan."
         actions={
-          <Button asChild>
-            <Link href="/admin/dashboard/education/new">Tambah</Link>
+          <Button asChild size="lg">
+            <Link href="/admin/dashboard/education/new">+ Education baru</Link>
           </Button>
         }
       />
@@ -45,12 +51,13 @@ export default async function AdminEducationPage() {
           id: e.id,
           title: e.degree,
           subtitle: e.institution,
-          meta: <>sort {e.sort_order ?? 0}</>,
+          searchText: educationSearchText(e),
+          chips: e.field ? [e.field] : undefined,
         }))}
         module="Education"
         table="education"
         config={{
-          editHref: (id) => `/admin/dashboard/education/${id}`,
+          editHrefPrefix: "/admin/dashboard/education/",
           hasReorder: true,
         }}
         emptyTitle="Belum ada education"

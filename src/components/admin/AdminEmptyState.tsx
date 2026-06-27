@@ -15,7 +15,7 @@ export function AdminEmptyState({
       {description ? (
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">{description}</p>
       ) : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+      {action ? <div className="mt-2">{action}</div> : null}
     </div>
   );
 }

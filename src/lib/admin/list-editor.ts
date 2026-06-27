@@ -29,6 +29,19 @@ export function removeEntry(entries: string[], index: number): string[] {
   return entries.filter((_, i) => i !== index);
 }
 
+export function moveEntry(
+  entries: string[],
+  index: number,
+  dir: "up" | "down",
+): string[] {
+  if (index < 0 || index >= entries.length) return entries;
+  const target = dir === "up" ? index - 1 : index + 1;
+  if (target < 0 || target >= entries.length) return entries;
+  const next = [...entries];
+  [next[index], next[target]] = [next[target], next[index]];
+  return next;
+}
+
 export function serializeEntries(entries: string[]): string {
   const cleaned = entries.map((entry) => entry.trim()).filter(Boolean);
   return JSON.stringify(cleaned);

@@ -2,7 +2,8 @@
 
 import { upsertEducation } from "@/app/admin/actions";
 import { AdminField } from "@/components/admin/AdminField";
-import { AdminFormCard } from "@/components/admin/AdminFormCard";
+import { FormToolbar, StickyFormActions } from "@/components/admin/forms/FormHelpers";
+import { ModuleEditorShell } from "@/components/admin/forms/ModuleEditorShell";
 import {
   EditorForm,
   getFieldErrors,
@@ -12,7 +13,6 @@ import {
 import { FieldError } from "@/components/admin/FieldError";
 import { ListEditor } from "@/components/admin/ListEditor";
 import { LivePreviewPane } from "@/components/admin/LivePreviewPane";
-import { SubmitButton } from "@/components/admin/SubmitButton";
 import { UnsavedChangesGuard } from "@/components/admin/UnsavedChangesGuard";
 import { Input } from "@/components/ui/input";
 
@@ -39,54 +39,72 @@ type EducationData = {
 export function EducationForm({
   education,
   isNew,
+  backHref = "/admin/dashboard/education",
+  title,
+  headerActions,
 }: {
   education: EducationData;
   isNew?: boolean;
+  backHref?: string;
+  title?: string;
+  headerActions?: React.ReactNode;
 }) {
   const bullets = Array.isArray(education.bullets) ? education.bullets : [];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <AdminFormCard title={isNew ? "Education baru" : "Education details"}>
+    <ModuleEditorShell
+      form={
         <EditorForm
           action={upsertEducation}
           formId={FORM_ID}
           navigateOnCreate={isNew ? "/admin/dashboard/education" : undefined}
-          className="space-y-6"
         >
           {education.id ? <input type="hidden" name="id" value={education.id} /> : null}
+          <input type="hidden" name="sort_order" value={String(education.sort_order ?? 0)} />
           <UnsavedChangesGuard formId={FORM_ID} />
-          <EducationFormFields education={education} bullets={bullets} />
-          <SubmitButton pendingText="Saving...">Save</SubmitButton>
+          <FormToolbar
+            formId={FORM_ID}
+            backHref={backHref}
+            title={title}
+            headerActions={headerActions}
+            saveLabel="Simpan"
+          />
+          <EducationFormFields education={education} bullets={bullets} isNew={isNew} />
+          <StickyFormActions formId={FORM_ID} backHref={backHref} saveLabel="Simpan" />
         </EditorForm>
-      </AdminFormCard>
-      <LivePreviewPane formId={FORM_ID} title="Education preview" fields={PREVIEW_FIELDS} />
-    </div>
+      }
+      preview={
+        <LivePreviewPane formId={FORM_ID} title="Preview" fields={PREVIEW_FIELDS} />
+      }
+    />
   );
 }
 
 function EducationFormFields({
   education,
   bullets,
+  isNew,
 }: {
   education: EducationData;
   bullets: string[];
+  isNew?: boolean;
 }) {
   const ctx = useEditorFormState();
   const state = ctx?.state ?? null;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <AdminField label="Institution" htmlFor="institution" className="sm:col-span-2">
+    <div className="grid gap-1.5 sm:grid-cols-4">
+      <AdminField label="Institution" htmlFor="institution" className="sm:col-span-4">
         <Input
           id="institution"
           name="institution"
           required
+          autoFocus={isNew}
           defaultValue={getFieldValue(state, "institution", education.institution ?? "")}
         />
         <FieldError errors={getFieldErrors(state, "institution")} />
       </AdminField>
-      <AdminField label="Degree" htmlFor="degree" className="sm:col-span-2">
+      <AdminField label="Degree" htmlFor="degree" className="sm:col-span-4">
         <Input
           id="degree"
           name="degree"
@@ -95,7 +113,7 @@ function EducationFormFields({
         />
         <FieldError errors={getFieldErrors(state, "degree")} />
       </AdminField>
-      <AdminField label="Field" htmlFor="field">
+      <AdminField label="Field" htmlFor="field" className="sm:col-span-2">
         <Input
           id="field"
           name="field"
@@ -105,29 +123,23 @@ function EducationFormFields({
       <AdminField label="GPA" htmlFor="gpa">
         <Input id="gpa" name="gpa" defaultValue={getFieldValue(state, "gpa", education.gpa ?? "")} />
       </AdminField>
-      <AdminField label="Start date" htmlFor="start_date">
+      <AdminField label="Start" htmlFor="start_date">
         <Input
           id="start_date"
           name="start_date"
+          placeholder="2018"
           defaultValue={getFieldValue(state, "start_date", education.start_date ?? "")}
         />
       </AdminField>
-      <AdminField label="End date" htmlFor="end_date">
+      <AdminField label="End" htmlFor="end_date">
         <Input
           id="end_date"
           name="end_date"
+          placeholder="2022"
           defaultValue={getFieldValue(state, "end_date", education.end_date ?? "")}
         />
       </AdminField>
-      <AdminField label="Sort order" htmlFor="sort_order">
-        <Input
-          id="sort_order"
-          name="sort_order"
-          type="number"
-          defaultValue={getFieldValue(state, "sort_order", String(education.sort_order ?? 0))}
-        />
-      </AdminField>
-      <AdminField label="Bullets" className="sm:col-span-2">
+      <AdminField label="Bullets" className="sm:col-span-4">
         <ListEditor name="bullets" initialEntries={bullets} />
       </AdminField>
     </div>

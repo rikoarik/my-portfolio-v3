@@ -52,7 +52,7 @@ export default async function AdminSeoPage() {
   const rows = (pages as SeoPageRow[]) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title="SEO" description="Global metadata dan override per halaman." />
       <SeoSettingsForm setting={setting} currentLandingThemePreset={currentLandingThemePreset} />
       <SeoPageCreateForm />

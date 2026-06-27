@@ -29,7 +29,7 @@ export function PreviewPane({
             return {
               ...field,
               content: (
-                <ul className="list-inside list-disc text-sm">
+                <ul className="max-h-24 list-inside list-disc overflow-y-auto text-xs leading-snug">
                   {items.map((item, i) => (
                     <li key={i}>{item}</li>
                   ))}
@@ -47,7 +47,7 @@ export function PreviewPane({
             return {
               ...field,
               content: (
-                <pre className="overflow-auto rounded bg-[var(--accent)]/30 p-2 text-xs">
+                <pre className="max-h-32 overflow-auto rounded bg-[var(--accent)]/30 p-1.5 text-[10px] leading-snug">
                   {JSON.stringify(parsed, null, 2)}
                 </pre>
               ),
@@ -59,7 +59,7 @@ export function PreviewPane({
         }
         return {
           ...field,
-          content: <p className="text-sm whitespace-pre-wrap">{field.value}</p>,
+          content: <p className="text-xs leading-snug whitespace-pre-wrap">{field.value}</p>,
           invalid: false,
         };
       }),
@@ -67,20 +67,20 @@ export function PreviewPane({
   );
 
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+    <div className="rounded-md border border-[var(--border)] bg-[var(--card)] p-2.5">
+      <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
         {title ?? "Preview"}
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {rendered.map((field) => (
           <div key={field.label}>
-            <p className="text-xs font-medium text-[var(--muted-foreground)]">{field.label}</p>
+            <p className="text-[10px] font-medium text-[var(--muted-foreground)]">{field.label}</p>
             {field.invalid ? (
-              <p className="mt-1 text-sm text-amber-600">Konten tidak valid atau kosong.</p>
+              <p className="mt-0.5 text-xs text-amber-600">Konten tidak valid atau kosong.</p>
             ) : field.content ? (
-              <div className="mt-1">{field.content}</div>
+              <div className="mt-0.5">{field.content}</div>
             ) : (
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">—</p>
+              <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">—</p>
             )}
           </div>
         ))}

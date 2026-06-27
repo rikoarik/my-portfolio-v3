@@ -28,7 +28,7 @@ export default async function AdminProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-3">
       <AdminPageHeader
         title="Profil situs"
         description="Perubahan akan memperbarui cache portofolio."

@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 
 import {
   addEntry,
+  moveEntry,
   removeEntry,
   serializeEntries,
   type AddResult,
@@ -26,10 +27,15 @@ export function ListEditor({
   name,
   initialEntries,
   label,
+  onEntriesChange,
+  hideFromSubmit,
 }: {
   name: string;
   initialEntries: string[];
   label?: string;
+  onEntriesChange?: (entries: string[]) => void;
+  /** When true, entries are not written to FormData (use with onEntriesChange). */
+  hideFromSubmit?: boolean;
 }) {
   const [entries, setEntries] = useState(initialEntries);
   const [draft, setDraft] = useState("");
@@ -42,26 +48,63 @@ export function ListEditor({
       return;
     }
     setEntries(result.entries);
+    onEntriesChange?.(result.entries);
     setDraft("");
     setAddError(null);
   };
 
   const handleRemove = (index: number) => {
-    setEntries((prev) => removeEntry(prev, index));
+    setEntries((prev) => {
+      const next = removeEntry(prev, index);
+      onEntriesChange?.(next);
+      return next;
+    });
+  };
+
+  const handleMove = (index: number, dir: "up" | "down") => {
+    setEntries((prev) => {
+      const next = moveEntry(prev, index, dir);
+      onEntriesChange?.(next);
+      return next;
+    });
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {label ? (
         <label className="text-sm font-medium text-[var(--foreground)]">{label}</label>
       ) : null}
-      <input type="hidden" name={name} value={serializeEntries(entries)} />
-      <ul className="space-y-2">
+      <input type="hidden" name={hideFromSubmit ? undefined : name} value={serializeEntries(entries)} />
+      <ul className="space-y-1">
         {entries.map((entry, index) => (
           <li
             key={`${entry}-${index}`}
-            className="flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-2"
+            className="flex items-center gap-1 rounded border border-[var(--border)] px-2 py-1"
           >
+            <div className="flex shrink-0 flex-col gap-0.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5"
+                disabled={index === 0}
+                onClick={() => handleMove(index, "up")}
+                aria-label="Naikkan"
+              >
+                ↑
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5"
+                disabled={index === entries.length - 1}
+                onClick={() => handleMove(index, "down")}
+                aria-label="Turunkan"
+              >
+                ↓
+              </Button>
+            </div>
             <span className="flex-1 text-sm">{entry}</span>
             <Button
               type="button"
@@ -79,7 +122,8 @@ export function ListEditor({
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Tambah entri..."
+          placeholder="Tambah..."
+          className="h-8"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -87,8 +131,8 @@ export function ListEditor({
             }
           }}
         />
-        <Button type="button" variant="outline" onClick={handleAdd}>
-          Tambah
+        <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
+          +
         </Button>
       </div>
       {addError ? (

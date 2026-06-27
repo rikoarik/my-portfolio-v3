@@ -78,6 +78,18 @@ export function EditorForm({
   }, [markSaved]);
 
   useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+        event.preventDefault();
+        const form = document.getElementById(formId) as HTMLFormElement | null;
+        form?.requestSubmit();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [formId]);
+
+  useEffect(() => {
     if (!state) return;
     if (state.ok) {
       notify.success(state.message);

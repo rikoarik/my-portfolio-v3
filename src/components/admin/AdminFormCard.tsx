@@ -13,13 +13,13 @@ export function AdminFormCard({
 }) {
   return (
     <Card className="admin-card border-[var(--border)] bg-[var(--card)] shadow-none">
-      <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+      <CardHeader className="space-y-0.5 p-3 pb-2">
+        <CardTitle className="text-base">{title}</CardTitle>
         {description ? (
-          <p className="text-sm text-[var(--muted-foreground)]">{description}</p>
+          <p className="text-xs text-[var(--muted-foreground)]">{description}</p>
         ) : null}
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="p-3 pt-0">{children}</CardContent>
     </Card>
   );
 }

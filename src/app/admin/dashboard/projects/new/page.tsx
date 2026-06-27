@@ -1,16 +1,26 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ProjectForm } from "@/components/admin/forms/ProjectForm";
+import { fetchRecentMediaOptions } from "@/lib/admin/media-options";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewProjectPage() {
+  const supabase = await createSupabaseServerClient();
+  const mediaOptions = await fetchRecentMediaOptions(supabase);
+
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <>
       <AdminPageHeader
-        title="New project"
-        description="Buat project baru dengan editor terstruktur dan preview langsung."
+        title="Project baru"
+        backHref="/admin/dashboard/projects"
+        backLabel="Daftar"
       />
-      <ProjectForm project={{ sort_order: 0, status: "published" }} isNew />
-    </div>
+      <ProjectForm
+        project={{ sort_order: 0, status: "draft" }}
+        isNew
+        mediaOptions={mediaOptions}
+      />
+    </>
   );
 }

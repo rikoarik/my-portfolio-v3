@@ -5,6 +5,7 @@ import {
   addEntry,
   MAX_ENTRIES,
   MAX_ENTRY_LEN,
+  moveEntry,
   removeEntry,
   serializeEntries,
 } from "./list-editor";
@@ -86,6 +87,14 @@ describe("list-editor removeEntry", () => {
       ),
       { numRuns: PROPERTY_TEST_RUNS },
     );
+  });
+});
+
+describe("list-editor moveEntry", () => {
+  it("swaps adjacent entries", () => {
+    expect(moveEntry(["a", "b", "c"], 1, "up")).toEqual(["b", "a", "c"]);
+    expect(moveEntry(["a", "b", "c"], 0, "up")).toEqual(["a", "b", "c"]);
+    expect(moveEntry(["a", "b"], 1, "down")).toEqual(["a", "b"]);
   });
 });
 

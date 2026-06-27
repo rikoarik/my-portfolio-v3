@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ExperienceEditActions } from "@/components/admin/forms/ExperienceEditActions";
 import { ExperienceForm } from "@/components/admin/forms/ExperienceForm";
 import { PORTFOLIO_SEED } from "@/data/portfolio.seed";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,9 +22,10 @@ export default async function EditExperiencePage({
   if (!e) return notFound();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <AdminPageHeader title="Edit experience" description={`ID: ${id}`} />
-      <ExperienceForm experience={e} />
-    </div>
+    <ExperienceForm
+      experience={e}
+      title={`${e.role} · ${e.company}`}
+      headerActions={<ExperienceEditActions id={e.id} title={e.role} />}
+    />
   );
 }

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { filterItems, type StatusFilter } from "./list-filter";
 import { PROPERTY_TEST_RUNS } from "./test-config";
 
-type Item = { id: string; title: string; status?: string | null };
+type Item = { id: string; title: string; status?: string | null; searchText?: string };
 
 const statusArb = fc.constantFrom<StatusFilter>("all", "draft", "published");
 const itemArb = fc.record({
@@ -29,7 +29,8 @@ describe("list-filter filterItems", () => {
 
         for (const item of result) {
           if (trimmed) {
-            expect(item.title.toLowerCase()).toContain(lower);
+            const haystack = (item.searchText ?? item.title).toLowerCase();
+            expect(haystack).toContain(lower);
           }
           if (status !== "all") {
             expect(item.status).toBe(status);
@@ -37,8 +38,8 @@ describe("list-filter filterItems", () => {
         }
 
         const expected = items.filter((item) => {
-          const matchesQuery =
-            !trimmed || item.title.toLowerCase().includes(lower);
+          const haystack = (item.searchText ?? item.title).toLowerCase();
+          const matchesQuery = !trimmed || haystack.includes(lower);
           const matchesStatus = status === "all" || item.status === status;
           return matchesQuery && matchesStatus;
         });

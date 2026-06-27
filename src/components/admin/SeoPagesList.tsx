@@ -20,7 +20,7 @@ export function SeoPagesList({ rows }: { rows: SeoPageData[] }) {
         }))}
         module="SEO"
         table="seo_pages"
-        config={{ hasStatus: true, editHref: (id) => `#seo-page-${id}` }}
+        config={{ hasStatus: true, editHrefPrefix: `#seo-page-` }}
         deleteAction={deleteSeoPage}
         bulkAction={bulkAction}
         toggleStatusAction={toggleRecordStatus}

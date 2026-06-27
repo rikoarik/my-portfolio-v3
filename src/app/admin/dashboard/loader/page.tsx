@@ -31,7 +31,7 @@ export default async function AdminLoaderPage() {
       : fallback;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader
         title="Loader Settings"
         description="Konfigurasi loader portfolio."

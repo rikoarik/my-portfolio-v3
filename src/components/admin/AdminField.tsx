@@ -17,7 +17,7 @@ export function AdminField({
   children: ReactNode;
 }) {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-1", className)}>
       <Label htmlFor={htmlFor} className="admin-field-label">
         {label}
       </Label>

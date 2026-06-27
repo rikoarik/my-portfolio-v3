@@ -30,7 +30,7 @@ export default async function AdminGuestbookPage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader
         title="Guestbook"
         description="Moderasi pesan publik sebelum tampil di section guestbook."

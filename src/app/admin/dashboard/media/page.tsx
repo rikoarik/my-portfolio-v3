@@ -22,7 +22,7 @@ export default async function AdminMediaPage() {
   const rows = (data as MediaRow[]) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title="Media Library" description="Registrasi asset media + metadata." />
       <MediaUploadForm />
       <MediaList rows={rows} />

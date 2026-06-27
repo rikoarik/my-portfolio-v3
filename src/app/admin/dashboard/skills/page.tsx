@@ -48,7 +48,7 @@ export default async function AdminSkillsPage() {
   const groups = await loadSkillGroups();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader
         title="Skills"
         description="Kelola skill groups dan daftar skill per group."

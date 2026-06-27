@@ -30,7 +30,7 @@ export function SectionsList({
         table="section_content"
         config={{
           hasStatus: true,
-          editHref: (id) => `#section-${id}`,
+          editHrefPrefix: `#section-`,
         }}
         deleteAction={deleteSectionContent}
         toggleStatusAction={toggleRecordStatus}

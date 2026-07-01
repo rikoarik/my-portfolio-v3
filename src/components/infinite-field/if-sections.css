@@ -38,7 +38,6 @@
   margin-right: auto;
   width: 100%;
   min-width: 0;
-  max-width: 72rem;
 }
 
 /* Perf: skip rendering offscreen sections until needed.
@@ -55,10 +54,8 @@
 #main .portfolio-main-column > .ifs-section {
   max-width: none;
   width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-  padding-right: 0;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 #main #projects.ifs-section {
@@ -341,10 +338,13 @@
   text-align: left;
   color: inherit;
   font: inherit;
+  will-change: flex;
   transition:
-    flex 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
+    flex 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    flex-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.5s ease,
+    box-shadow 0.5s ease,
+    background-color 0.45s ease;
 }
 
 .ifs-project-accordion-panel.is-active {
@@ -367,6 +367,7 @@
   inset: 0;
   opacity: 0.35;
   pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ifs-project-accordion-panel.is-active .ifs-project-accordion-cover-bg {
@@ -388,6 +389,11 @@
   text-align: left;
   color: inherit;
   font: inherit;
+  opacity: 1;
+  transform: translateZ(0);
+  transition:
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ifs-project-accordion-tab:focus-visible {
@@ -405,6 +411,8 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ifs-project-accordion-index {
@@ -413,6 +421,7 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+  transition: color 0.35s ease;
 }
 
 .ifs-project-accordion-strip-title {
@@ -424,19 +433,31 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: opacity 0.4s ease;
 }
 
 .ifs-project-accordion-body {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.25rem 1.25rem 1.5rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.ifs-project-accordion-body[hidden] {
-  display: none;
+.ifs-project-accordion-body.is-open {
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .ifs-project-accordion-content {
@@ -520,6 +541,8 @@
   min-height: min(52vw, 16rem);
   border-radius: 1.25rem;
   overflow: hidden;
+  transform: translateZ(0);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ifs-accordion-cover-frame {
@@ -527,6 +550,11 @@
   height: 100%;
   min-height: inherit;
   border-radius: inherit;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ifs-accordion-cover-frame .ifs-project-cover-img {
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ifs-accordion-cover-frame--collapsed {
@@ -582,18 +610,29 @@
   }
 
   .ifs-project-accordion-panel {
-    flex: 1;
+    flex: 1 1 0;
     min-width: 3.5rem;
     border-radius: 1.5rem;
   }
 
   .ifs-project-accordion-panel.is-active {
-    flex: 5;
+    flex: 5.25 1 0;
   }
 
   .ifs-project-accordion-panel-inner {
     height: 100%;
     min-height: min(72vh, 640px);
+  }
+
+  .ifs-project-accordion-body {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    min-height: min(72vh, 640px);
+  }
+
+  .ifs-project-accordion-body.is-open {
+    position: absolute;
   }
 
   .ifs-project-accordion-tab {
@@ -719,8 +758,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ifs-project-accordion-panel {
-    transition: none;
+  .ifs-project-accordion-panel,
+  .ifs-project-accordion-tab,
+  .ifs-project-accordion-body,
+  .ifs-project-accordion-cover-bg,
+  .ifs-accordion-cover-frame,
+  .ifs-accordion-cover-frame .ifs-project-cover-img,
+  .ifs-project-accordion-visual {
+    transition: none !important;
+  }
+
+  .ifs-accordion-animate-in {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -2741,10 +2791,21 @@
   mix-blend-mode: overlay;
 }
 
+.ifs-modal--project.ifs-modal {
+  max-width: min(44rem, calc(100vw - 2rem));
+}
+
+@media (min-width: 768px) {
+  .ifs-modal--project.ifs-modal {
+    max-width: min(48rem, calc(100vw - 3rem));
+  }
+}
+
 .ifs-modal--project {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .ifs-modal__scroll {
@@ -2754,7 +2815,10 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 2.5rem 2.5rem 1.5rem;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 2.5rem 2rem 1.5rem;
   scrollbar-gutter: stable;
 }
 
@@ -2765,6 +2829,7 @@
 
 .ifs-modal__header {
   margin-bottom: 0.25rem;
+  padding-right: 4.25rem;
 }
 
 .ifs-modal__kicker {
@@ -2772,11 +2837,11 @@
 }
 
 .ifs-modal__title {
-  max-width: 26ch;
+  max-width: none;
 }
 
 .ifs-modal__subtitle {
-  max-width: 48ch;
+  max-width: none;
 }
 
 .ifs-modal__meta {
@@ -2802,7 +2867,7 @@
   line-height: 1.45;
   color: color-mix(in srgb, var(--muted-foreground) 94%, var(--foreground));
   margin: 0 0 0.85rem;
-  max-width: 44ch;
+  max-width: none;
 }
 
 .ifs-modal__tags {
@@ -2924,11 +2989,15 @@
   }
 
   .ifs-modal__scroll {
-    padding: 1.5rem 1.25rem 1.25rem;
+    padding: 1.65rem 1.5rem 1.25rem;
+  }
+
+  .ifs-modal__header {
+    padding-right: 3.75rem;
   }
 
   .ifs-modal__cta {
-    padding: 0.85rem 1.25rem 1.15rem;
+    padding: 0.85rem 1.5rem 1.15rem;
     padding-bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
   }
 }

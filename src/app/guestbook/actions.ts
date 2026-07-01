@@ -3,17 +3,25 @@
 import { revalidateTag, updateTag } from "next/cache";
 import { createAnonServerClient } from "@/lib/supabase/anon";
 
-export async function postGuestMessage(prevState: any, formData: FormData) {
+export type GuestMessageActionState =
+  | { success: true }
+  | { errorKey: string }
+  | null;
+
+export async function postGuestMessage(
+  _prevState: GuestMessageActionState,
+  formData: FormData,
+): Promise<GuestMessageActionState> {
   const name = String(formData.get("name") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
 
   if (!name || !message) {
-    return { error: "Nama dan pesan wajib diisi." };
+    return { errorKey: "guestbook.errors.required" };
   }
 
   const supabase = createAnonServerClient();
   if (!supabase) {
-    return { error: "Supabase tidak terhubung." };
+    return { errorKey: "guestbook.errors.supabaseDisconnected" };
   }
 
   const { error } = await supabase.from("guestbook").insert({
@@ -24,9 +32,9 @@ export async function postGuestMessage(prevState: any, formData: FormData) {
 
   if (error) {
     console.error("Guestbook insert error:", error);
-    return { error: "Gagal mengirim pesan. Silakan coba lagi." };
+    return { errorKey: "guestbook.errors.sendFailed" };
   }
 
   updateTag("portfolio");
-  return { success: true };
+  return { success: true as const };
 }

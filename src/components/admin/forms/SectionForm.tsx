@@ -1,8 +1,15 @@
 "use client";
 
+import { useState } from "react";
+
 import { upsertSectionContent } from "@/app/admin/actions";
 import { AdminField } from "@/components/admin/AdminField";
-import { AdminFormCard } from "@/components/admin/AdminFormCard";
+import {
+  FormTabs,
+  FormToolbar,
+  StickyFormActions,
+} from "@/components/admin/forms/FormHelpers";
+import { ModuleEditorShell } from "@/components/admin/forms/ModuleEditorShell";
 import {
   EditorForm,
   getFieldErrors,
@@ -12,7 +19,6 @@ import {
 import { FieldError } from "@/components/admin/FieldError";
 import { ListEditor } from "@/components/admin/ListEditor";
 import { LivePreviewPane } from "@/components/admin/LivePreviewPane";
-import { SubmitButton } from "@/components/admin/SubmitButton";
 import { UnsavedChangesGuard } from "@/components/admin/UnsavedChangesGuard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +39,24 @@ export type SectionData = {
   status?: "draft" | "published";
 };
 
+const FORM_ID = "section-editor-form";
+
+const SECTION_KEY_OPTIONS = ["hero", "about", "proof", "contact", "nav"] as const;
+
+const SECTION_KEY_LABELS: Record<string, string> = {
+  hero: "Hero — landing atas",
+  about: "About — tentang saya",
+  proof: "Proof — strip statistik",
+  contact: "Contact — footer",
+  nav: "Nav — item navigasi",
+};
+
+const basePreviewFields = [
+  { name: "title", label: "Title" },
+  { name: "subtitle", label: "Subtitle" },
+  { name: "body", label: "Body" },
+];
+
 function parseMeta(meta: unknown): Record<string, unknown> {
   if (!meta || typeof meta !== "object" || Array.isArray(meta)) return {};
   return meta as Record<string, unknown>;
@@ -47,29 +71,8 @@ function lineEntries(formatted: string): string[] {
   return formatted ? formatted.split("\n").filter(Boolean) : [];
 }
 
-function formIdFor(section: SectionData, isNew?: boolean) {
-  return isNew ? "section-editor-new" : `section-editor-${section.id}`;
-}
-
-const basePreviewFields = [
-  { name: "title", label: "Title" },
-  { name: "subtitle", label: "Subtitle" },
-  { name: "body", label: "Body" },
-];
-
-export function SectionForm({
-  section,
-  isNew,
-  compact,
-}: {
-  section: SectionData;
-  isNew?: boolean;
-  compact?: boolean;
-}) {
-  const meta = parseMeta(section.meta);
-  const sectionKey = section.section_key || "";
-  const fid = formIdFor(section, isNew);
-  const previewFields = [
+function previewFieldsFor(sectionKey: string) {
+  return [
     ...basePreviewFields,
     ...(sectionKey === "contact"
       ? [{ name: "marquee_items", label: "Marquee", type: "array" as const }]
@@ -84,256 +87,406 @@ export function SectionForm({
       ? [{ name: "about_stats", label: "About stats", type: "array" as const }]
       : []),
   ];
+}
 
-  const formContent = (
-    <AdminFormCard
-      title={isNew ? "Tambah section" : sectionKey || "Section"}
-      description={isNew ? "Buat row section baru untuk homepage." : undefined}
-    >
-      <EditorForm action={upsertSectionContent} formId={fid} className="grid gap-3 sm:grid-cols-2">
-        {section.id ? <input type="hidden" name="id" value={section.id} /> : null}
-        <UnsavedChangesGuard formId={fid} />
-        <SectionFormFields section={section} meta={meta} sectionKey={sectionKey} />
-        <div className="sm:col-span-2">
-          <SubmitButton pendingText="Menyimpan...">
-            {isNew ? "Simpan" : "Update"}
-          </SubmitButton>
-        </div>
-      </EditorForm>
-    </AdminFormCard>
-  );
-
-  if (compact) {
-    return formContent;
-  }
+export function SectionForm({
+  section,
+  isNew,
+  title,
+  headerActions,
+  backHref = "/admin/dashboard/sections",
+}: {
+  section: SectionData;
+  isNew?: boolean;
+  title?: string;
+  headerActions?: React.ReactNode;
+  backHref?: string;
+}) {
+  const meta = parseMeta(section.meta);
+  const [sectionKey, setSectionKey] = useState(section.section_key || "");
+  const displayTitle = title ?? (sectionKey || "Section baru");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      {formContent}
-      <LivePreviewPane formId={fid} title="Section preview" fields={previewFields} />
-    </div>
+    <ModuleEditorShell
+      form={
+        <EditorForm
+          action={upsertSectionContent}
+          formId={FORM_ID}
+          navigateOnCreate={isNew ? backHref : undefined}
+          className="space-y-2"
+        >
+          {section.id ? <input type="hidden" name="id" value={section.id} /> : null}
+          <UnsavedChangesGuard formId={FORM_ID} />
+          <FormToolbar
+            formId={FORM_ID}
+            backHref={backHref}
+            saveLabel={isNew ? "Simpan" : "Update"}
+            title={displayTitle}
+            headerActions={headerActions}
+            showStatus
+            statusDefault={(section.status ?? "published") as "draft" | "published"}
+          />
+          <FormTabs
+            tabs={[
+              {
+                id: "utama",
+                label: "Utama",
+                content: (
+                  <UtamaTab
+                    section={section}
+                    sectionKey={sectionKey}
+                    onSectionKeyChange={setSectionKey}
+                  />
+                ),
+              },
+              {
+                id: "meta",
+                label: "Meta",
+                content: <MetaTab meta={meta} sectionKey={sectionKey} />,
+              },
+              {
+                id: "lanjutan",
+                label: "Lanjutan",
+                content: <LanjutanTab section={section} />,
+              },
+            ]}
+          />
+          <StickyFormActions
+            formId={FORM_ID}
+            backHref={backHref}
+            saveLabel={isNew ? "Simpan" : "Update"}
+          />
+        </EditorForm>
+      }
+      preview={
+        <LivePreviewPane
+          formId={FORM_ID}
+          title="Section preview"
+          fields={previewFieldsFor(sectionKey)}
+        />
+      }
+    />
   );
 }
 
-function SectionFormFields({
+function UtamaTab({
   section,
-  meta,
   sectionKey,
+  onSectionKeyChange,
 }: {
   section: SectionData;
-  meta: Record<string, unknown>;
   sectionKey: string;
+  onSectionKeyChange: (key: string) => void;
 }) {
   const ctx = useEditorFormState();
   const state = ctx?.state ?? null;
+  const datalistId = `${FORM_ID}-section-key-options`;
 
   return (
-    <>
-      <AdminField label="Section key" htmlFor="section_key" className="sm:col-span-2">
+    <div className="space-y-3">
+      <AdminField
+        label="Section key"
+        hint="Pilih tipe section. Menentukan field di tab Meta."
+        htmlFor="section_key"
+      >
         <Input
           id="section_key"
           name="section_key"
           required
+          list={datalistId}
           defaultValue={getFieldValue(state, "section_key", section.section_key ?? "")}
-          placeholder="hero/about/contact/proof/nav"
+          placeholder="hero / about / proof / contact / nav"
+          onChange={(e) => onSectionKeyChange(e.target.value.trim())}
         />
+        <datalist id={datalistId}>
+          {SECTION_KEY_OPTIONS.map((key) => (
+            <option key={key} value={key}>
+              {SECTION_KEY_LABELS[key]}
+            </option>
+          ))}
+        </datalist>
         <FieldError errors={getFieldErrors(state, "section_key")} />
       </AdminField>
-      <AdminField label="Title" htmlFor="title">
+
+      {sectionKey && SECTION_KEY_LABELS[sectionKey] ? (
+        <p className="text-xs text-[var(--muted-foreground)]">{SECTION_KEY_LABELS[sectionKey]}</p>
+      ) : null}
+
+      <AdminField label="Title" hint="Heading utama." htmlFor="title">
         <Input
           id="title"
           name="title"
           defaultValue={getFieldValue(state, "title", section.title ?? "")}
         />
       </AdminField>
-      <AdminField label="Subtitle" htmlFor="subtitle">
+      <AdminField label="Subtitle" hint="Sub-heading." htmlFor="subtitle">
         <Input
           id="subtitle"
           name="subtitle"
           defaultValue={getFieldValue(state, "subtitle", section.subtitle ?? "")}
         />
       </AdminField>
-      <AdminField label="Body" htmlFor="body" className="sm:col-span-2">
+      <AdminField label="Body" hint="Konten utama. Multiline OK." htmlFor="body">
         <Textarea
           id="body"
           name="body"
-          rows={3}
+          rows={4}
           defaultValue={getFieldValue(state, "body", section.body ?? "")}
         />
       </AdminField>
+    </div>
+  );
+}
 
-      {(sectionKey === "about" || !sectionKey) && (
-        <>
-          <AdminField label="About headline" htmlFor="about_headline" className="sm:col-span-2">
-            <Input
-              id="about_headline"
-              name="about_headline"
-              defaultValue={getFieldValue(
-                state,
-                "about_headline",
-                typeof meta.about_headline === "string" ? meta.about_headline : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="About intro" htmlFor="about_intro" className="sm:col-span-2">
-            <Textarea
-              id="about_intro"
-              name="about_intro"
-              rows={3}
-              defaultValue={getFieldValue(
-                state,
-                "about_intro",
-                typeof meta.about_intro === "string" ? meta.about_intro : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="Focus title" htmlFor="focus_title" className="sm:col-span-2">
-            <Input
-              id="focus_title"
-              name="focus_title"
-              defaultValue={getFieldValue(
-                state,
-                "focus_title",
-                typeof meta.focus_title === "string" ? meta.focus_title : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="Focus body" htmlFor="focus_body" className="sm:col-span-2">
-            <Textarea
-              id="focus_body"
-              name="focus_body"
-              rows={3}
-              defaultValue={getFieldValue(
-                state,
-                "focus_body",
-                typeof meta.focus_body === "string" ? meta.focus_body : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="About stats" className="sm:col-span-2">
-            <ListEditor
-              name="about_stats"
-              label="value | suffix | label per entry"
-              initialEntries={lineEntries(formatAboutStats(meta.stats))}
-            />
-          </AdminField>
-          <AdminField label="Craft title" htmlFor="craft_title" className="sm:col-span-2">
-            <Input
-              id="craft_title"
-              name="craft_title"
-              defaultValue={getFieldValue(
-                state,
-                "craft_title",
-                typeof meta.craft_title === "string" ? meta.craft_title : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="Craft body" htmlFor="craft_body" className="sm:col-span-2">
-            <Textarea
-              id="craft_body"
-              name="craft_body"
-              rows={3}
-              defaultValue={getFieldValue(
-                state,
-                "craft_body",
-                typeof meta.craft_body === "string" ? meta.craft_body : "",
-              )}
-            />
-          </AdminField>
-        </>
-      )}
+function MetaTab({
+  meta,
+  sectionKey,
+}: {
+  meta: Record<string, unknown>;
+  sectionKey: string;
+}) {
+  if (!sectionKey) {
+    return (
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted-foreground)]">
+        Pilih section_key di tab Utama dulu.
+      </div>
+    );
+  }
 
-      {(sectionKey === "contact" || !sectionKey) && (
-        <>
-          <AdminField label="Kicker" htmlFor="kicker" className="sm:col-span-2">
-            <Input
-              id="kicker"
-              name="kicker"
-              defaultValue={getFieldValue(
-                state,
-                "kicker",
-                typeof meta.kicker === "string" ? meta.kicker : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="Talk label" htmlFor="talk_label">
-            <Input
-              id="talk_label"
-              name="talk_label"
-              defaultValue={getFieldValue(
-                state,
-                "talk_label",
-                typeof meta.talk_label === "string" ? meta.talk_label : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="CV label" htmlFor="cv_label">
-            <Input
-              id="cv_label"
-              name="cv_label"
-              defaultValue={getFieldValue(
-                state,
-                "cv_label",
-                typeof meta.cv_label === "string" ? meta.cv_label : "",
-              )}
-            />
-          </AdminField>
-          <AdminField label="Marquee items" className="sm:col-span-2">
-            <ListEditor name="marquee_items" initialEntries={marqueeEntries(meta)} />
-          </AdminField>
-        </>
-      )}
+  if (sectionKey === "hero") {
+    return (
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted-foreground)]">
+        Hero memakai field Utama (title, subtitle, body). Meta tambahan seperti brand/CTA bisa di
+        tab Lanjutan.
+      </div>
+    );
+  }
 
-      {(sectionKey === "proof" || !sectionKey) && (
-        <AdminField label="Proof stats" className="sm:col-span-2">
-          <ListEditor
-            name="proof_stats"
-            label="value | label per entry"
-            initialEntries={lineEntries(formatProofStats(meta.stats))}
-          />
-        </AdminField>
-      )}
+  if (sectionKey === "about") {
+    return <AboutMetaFields meta={meta} />;
+  }
+  if (sectionKey === "contact") {
+    return <ContactMetaFields meta={meta} />;
+  }
+  if (sectionKey === "proof") {
+    return <ProofMetaFields meta={meta} />;
+  }
+  if (sectionKey === "nav") {
+    return <NavMetaFields meta={meta} />;
+  }
 
-      {(sectionKey === "nav" || !sectionKey) && (
-        <AdminField label="Nav items" className="sm:col-span-2">
-          <ListEditor
-            name="nav_items"
-            label="label | href per entry"
-            initialEntries={lineEntries(formatNavItems(meta.items))}
-          />
-        </AdminField>
-      )}
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted-foreground)]">
+      Tidak ada field meta khusus untuk section_key &quot;{sectionKey}&quot;. Pakai tab Lanjutan
+      untuk JSON.
+    </div>
+  );
+}
 
-      <details className="sm:col-span-2">
-        <summary className="cursor-pointer text-sm font-medium text-[var(--muted-foreground)]">
-          Advanced meta JSON
-        </summary>
-        <AdminField label="Meta JSON" htmlFor="meta" className="mt-2">
-          <Textarea
-            id="meta"
-            name="meta"
-            rows={3}
-            defaultValue={getFieldValue(
-              state,
-              "meta",
-              section.meta ? JSON.stringify(section.meta, null, 2) : "",
-            )}
-          />
-          <FieldError errors={getFieldErrors(state, "meta")} />
-        </AdminField>
-      </details>
+function AboutMetaFields({ meta }: { meta: Record<string, unknown> }) {
+  const ctx = useEditorFormState();
+  const state = ctx?.state ?? null;
 
-      <AdminField label="Status" htmlFor="status">
-        <select
-          id="status"
-          name="status"
-          defaultValue={getFieldValue(state, "status", section.status ?? "published")}
-          className="h-10 w-full rounded-md border border-[var(--border)] bg-transparent px-3 text-sm"
-        >
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </select>
+  return (
+    <div className="space-y-3">
+      <AdminField
+        label="About headline"
+        hint="Judul besar section About. Kosongkan untuk default."
+        htmlFor="about_headline"
+      >
+        <Input
+          id="about_headline"
+          name="about_headline"
+          defaultValue={getFieldValue(
+            state,
+            "about_headline",
+            typeof meta.about_headline === "string" ? meta.about_headline : "",
+          )}
+        />
       </AdminField>
-    </>
+      <AdminField label="About intro" hint="Paragraf intro." htmlFor="about_intro">
+        <Textarea
+          id="about_intro"
+          name="about_intro"
+          rows={3}
+          defaultValue={getFieldValue(
+            state,
+            "about_intro",
+            typeof meta.about_intro === "string" ? meta.about_intro : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="Focus title" hint="Judul blok 'Domain Focus'." htmlFor="focus_title">
+        <Input
+          id="focus_title"
+          name="focus_title"
+          defaultValue={getFieldValue(
+            state,
+            "focus_title",
+            typeof meta.focus_title === "string" ? meta.focus_title : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="Focus body" hint="Deskripsi domain focus." htmlFor="focus_body">
+        <Textarea
+          id="focus_body"
+          name="focus_body"
+          rows={3}
+          defaultValue={getFieldValue(
+            state,
+            "focus_body",
+            typeof meta.focus_body === "string" ? meta.focus_body : "",
+          )}
+        />
+      </AdminField>
+      <AdminField
+        label="About stats"
+        hint="Format: nilai | suffix | label per baris. Contoh: '2 | + | Years Mobile'."
+      >
+        <ListEditor
+          name="about_stats"
+          label="value | suffix | label per entry"
+          initialEntries={lineEntries(formatAboutStats(meta.stats))}
+        />
+      </AdminField>
+      <AdminField label="Craft title" hint="Judul blok 'Delivery'." htmlFor="craft_title">
+        <Input
+          id="craft_title"
+          name="craft_title"
+          defaultValue={getFieldValue(
+            state,
+            "craft_title",
+            typeof meta.craft_title === "string" ? meta.craft_title : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="Craft body" hint="Deskripsi delivery." htmlFor="craft_body">
+        <Textarea
+          id="craft_body"
+          name="craft_body"
+          rows={3}
+          defaultValue={getFieldValue(
+            state,
+            "craft_body",
+            typeof meta.craft_body === "string" ? meta.craft_body : "",
+          )}
+        />
+      </AdminField>
+    </div>
+  );
+}
+
+function ContactMetaFields({ meta }: { meta: Record<string, unknown> }) {
+  const ctx = useEditorFormState();
+  const state = ctx?.state ?? null;
+
+  return (
+    <div className="space-y-3">
+      <AdminField
+        label="Kicker"
+        hint="Label kecil di atas heading footer. Contoh: 'Contact'."
+        htmlFor="kicker"
+      >
+        <Input
+          id="kicker"
+          name="kicker"
+          defaultValue={getFieldValue(
+            state,
+            "kicker",
+            typeof meta.kicker === "string" ? meta.kicker : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="Talk label" hint="Teks tombol email utama." htmlFor="talk_label">
+        <Input
+          id="talk_label"
+          name="talk_label"
+          defaultValue={getFieldValue(
+            state,
+            "talk_label",
+            typeof meta.talk_label === "string" ? meta.talk_label : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="CV label" hint="Teks tombol unduh CV." htmlFor="cv_label">
+        <Input
+          id="cv_label"
+          name="cv_label"
+          defaultValue={getFieldValue(
+            state,
+            "cv_label",
+            typeof meta.cv_label === "string" ? meta.cv_label : "",
+          )}
+        />
+      </AdminField>
+      <AdminField
+        label="Marquee items"
+        hint="Tek per baris. Teks berjalan di footer."
+      >
+        <ListEditor name="marquee_items" initialEntries={marqueeEntries(meta)} />
+      </AdminField>
+    </div>
+  );
+}
+
+function ProofMetaFields({ meta }: { meta: Record<string, unknown> }) {
+  return (
+    <div className="space-y-3">
+      <AdminField
+        label="Proof stats"
+        hint="Format: nilai | label per baris. Contoh: '15+ | Production Apps'."
+      >
+        <ListEditor
+          name="proof_stats"
+          label="value | label per entry"
+          initialEntries={lineEntries(formatProofStats(meta.stats))}
+        />
+      </AdminField>
+    </div>
+  );
+}
+
+function NavMetaFields({ meta }: { meta: Record<string, unknown> }) {
+  return (
+    <div className="space-y-3">
+      <AdminField
+        label="Nav items"
+        hint="Format: label | href per baris. Contoh: 'Work | #projects'."
+      >
+        <ListEditor
+          name="nav_items"
+          label="label | href per entry"
+          initialEntries={lineEntries(formatNavItems(meta.items))}
+        />
+      </AdminField>
+    </div>
+  );
+}
+
+function LanjutanTab({ section }: { section: SectionData }) {
+  const ctx = useEditorFormState();
+  const state = ctx?.state ?? null;
+
+  return (
+    <div className="space-y-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+      <p className="text-sm font-medium text-amber-700">⚠ Advanced meta JSON</p>
+      <p className="text-xs text-[var(--muted-foreground)]">
+        Edit JSON mentah hanya untuk field yang tidak punya input di tab Meta. Perubahan di sini
+        bisa menghapus nilai field structured — pakai dengan hati-hati.
+      </p>
+      <AdminField label="Meta JSON" htmlFor="meta">
+        <Textarea
+          id="meta"
+          name="meta"
+          rows={6}
+          defaultValue={getFieldValue(
+            state,
+            "meta",
+            section.meta ? JSON.stringify(section.meta, null, 2) : "",
+          )}
+        />
+        <FieldError errors={getFieldErrors(state, "meta")} />
+      </AdminField>
+    </div>
   );
 }

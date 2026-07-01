@@ -5,10 +5,14 @@ import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { Education, Experience, SkillGroup } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
+import { useT } from "@/i18n/context";
 
-function fmtPeriod(e: { start_date: string | null; end_date: string | null }) {
+function fmtPeriod(
+  e: { start_date: string | null; end_date: string | null },
+  presentLabel: string,
+) {
   const start = e.start_date?.trim() ?? "";
-  const end = e.end_date?.trim() || "Present";
+  const end = e.end_date?.trim() || presentLabel;
   return start ? `${start} — ${end}` : end;
 }
 
@@ -21,6 +25,7 @@ export function IFCareerSection({
   skillGroups: SkillGroup[];
   education: Education[];
 }) {
+  const t = useT();
   const rootRef = useRef<HTMLElement>(null);
 
   const expShown = experiences.slice(0, 4);
@@ -256,7 +261,7 @@ export function IFCareerSection({
             <TextReveal
               as="h2"
               id="career-title"
-              text="Career"
+              text={t("career.title")}
               className="ifs-heading !mb-0"
             />
           </div>
@@ -305,7 +310,7 @@ export function IFCareerSection({
                         00
                       </span>
                       <span className="ifs-career-pill">
-                        {fmtPeriod(item.data as Experience)}
+                        {fmtPeriod(item.data as Experience, t("career.present"))}
                       </span>
                     </div>
                     <h3 className="ifs-career-role text-2xl lg:text-3xl mt-4 mb-2">
@@ -344,14 +349,14 @@ export function IFCareerSection({
                         00
                       </span>
                       <span className="ifs-career-pill ifs-career-pill--accent text-[var(--background)] !bg-[var(--foreground)]">
-                        Stack
+                        {t("career.stackPill")}
                       </span>
                     </div>
                     <h3 className="ifs-career-role text-2xl lg:text-3xl mt-4 mb-2">
-                      Expertise
+                      {t("career.stackTitle")}
                     </h3>
                     <p className="ifs-career-lead mt-1 text-[var(--muted-foreground)]">
-                      Tools and domains grouped how you ship.
+                      {t("career.stackLead")}
                     </p>
                     <div className="ifs-career-skills mt-6 space-y-5">
                       {(item.data as SkillGroup[]).slice(0, 3).map((g) => (
@@ -384,10 +389,10 @@ export function IFCareerSection({
                       >
                         00
                       </span>
-                      <span className="ifs-career-pill">Foundation</span>
+                      <span className="ifs-career-pill">{t("career.educationPill")}</span>
                     </div>
                     <h3 className="ifs-career-role text-2xl lg:text-3xl mt-4 mb-2">
-                      Education
+                      {t("career.educationTitle")}
                     </h3>
                     <div className="ifs-career-edu mt-4 space-y-2">
                       <div className="ifs-edu-institution text-lg font-medium">
@@ -399,7 +404,7 @@ export function IFCareerSection({
                           ? ` · ${(item.data as Education).field}`
                           : ""}
                         {(item.data as Education).gpa
-                          ? ` · GPA ${(item.data as Education).gpa}`
+                          ? ` · ${t("career.gpa", { gpa: (item.data as Education).gpa! })}`
                           : ""}
                       </div>
                       {(item.data as Education).bullets?.length ? (

@@ -15,6 +15,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { UnsavedChangesGuard } from "@/components/admin/UnsavedChangesGuard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { LOCALES } from "@/i18n/locales";
 
 const FORM_ID = "profile-editor-form";
 
@@ -36,6 +37,7 @@ type ProfileData = {
   linkedin_url?: string | null;
   website_url?: string | null;
   cv_url?: string | null;
+  locale_ui?: string | null;
   og_description?: string | null;
 };
 
@@ -60,6 +62,24 @@ function ProfileFields({ initial }: { initial: ProfileData }) {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
+      <AdminField label="Bahasa situs" htmlFor="locale_ui" className="sm:col-span-2">
+        <select
+          id="locale_ui"
+          name="locale_ui"
+          defaultValue={getFieldValue(state, "locale_ui", initial.locale_ui ?? "en")}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {LOCALES.map((locale) => (
+            <option key={locale} value={locale}>
+              {locale === "en" ? "English" : "Bahasa Indonesia"}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          Mengatur label UI (nav, tombol, modal). Konten section edit di menu Sections — sesuaikan bahasa dengan pilihan ini.
+        </p>
+        <FieldError errors={getFieldErrors(state, "locale_ui")} />
+      </AdminField>
       <AdminField label="Nama lengkap" htmlFor="full_name" className="sm:col-span-2">
         <Input
           id="full_name"

@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { SectionContent } from "@/types/portfolio";
+import { useT } from "@/i18n/context";
+import { resolveSectionText } from "@/i18n/resolve";
 
 /* ── Character-split text for mask reveal ── */
 function SplitChars({ text, className = "" }: { text: string; className?: string }) {
@@ -76,36 +78,21 @@ export function IFAboutSection({
 }: {
   section?: SectionContent;
 }) {
+  const t = useT();
   const rootRef = useRef<HTMLElement>(null);
 
-  const headline =
-    typeof section?.meta?.about_headline === "string" && section.meta.about_headline.trim()
-      ? section.meta.about_headline
-      : "Reliable mobile apps for fintech and payments.";
-  const subline =
-    typeof section?.meta?.about_intro === "string" && section.meta.about_intro.trim()
-      ? section.meta.about_intro
-      : "I build production mobile apps with clean architecture, reliable user flows, API integrations, and maintainable code that holds up in real user conditions.";
-  const philosophyTitle =
-    typeof section?.subtitle === "string" && section.subtitle.trim()
-      ? section.subtitle
-      : "Engineering Approach";
-  const philosophyBody =
-    typeof section?.body === "string" && section.body.trim()
-      ? section.body
-      : "I focus on mobile flows that users and operators can trust: clear states, predictable validation, resilient API handling, and careful edge-case coverage.";
-  const focusTitle =
-    typeof section?.meta?.focus_title === "string" ? section.meta.focus_title : "Domain Focus";
-  const focusBody =
-    typeof section?.meta?.focus_body === "string"
-      ? section.meta.focus_body
-      : "Fintech, payment, merchant and member apps, PPOB, QRIS, NFC, and multi-tenant mobile architecture.";
+  const headline = resolveSectionText(section?.meta?.about_headline, t, "about.headlineFallback");
+  const subline = resolveSectionText(section?.meta?.about_intro, t, "about.introFallback");
+  const philosophyTitle = resolveSectionText(section?.subtitle, t, "about.philosophyTitleFallback");
+  const philosophyBody = resolveSectionText(section?.body, t, "about.philosophyBodyFallback");
+  const focusTitle = resolveSectionText(section?.meta?.focus_title, t, "about.focusTitleFallback");
+  const focusBody = resolveSectionText(section?.meta?.focus_body, t, "about.focusBodyFallback");
 
   type AboutStat = { value: number; suffix: string; label: string };
   const defaultAboutStats: AboutStat[] = [
-    { value: 2, suffix: "+", label: "Years Mobile" },
-    { value: 15, suffix: "+", label: "Production Apps" },
-    { value: 3, suffix: "", label: "Core Stacks" },
+    { value: 2, suffix: "+", label: t("about.stats.yearsMobile") },
+    { value: 15, suffix: "+", label: t("about.stats.productionApps") },
+    { value: 3, suffix: "", label: t("about.stats.coreStacks") },
   ];
   const aboutStats = Array.isArray(section?.meta?.stats)
     ? (section.meta.stats as unknown[])
@@ -120,14 +107,9 @@ export function IFAboutSection({
         })
         .filter((item): item is AboutStat => item !== null)
     : defaultAboutStats;
-  const craftTitle =
-    typeof section?.meta?.craft_title === "string" && section.meta.craft_title.trim()
-      ? section.meta.craft_title
-      : "Delivery";
-  const craftBody =
-    typeof section?.meta?.craft_body === "string" && section.meta.craft_body.trim()
-      ? section.meta.craft_body
-      : "I keep features maintainable from development to release: reusable modules, GitLab CI/CD, store deployment, and production issue triage.";
+  const craftTitle = resolveSectionText(section?.meta?.craft_title, t, "about.craftTitleFallback");
+  const craftBody = resolveSectionText(section?.meta?.craft_body, t, "about.craftBodyFallback");
+  const sectionTitle = resolveSectionText(section?.title, t, "about.titleFallback");
 
   useEffect(() => {
     const root = rootRef.current;
@@ -314,7 +296,7 @@ export function IFAboutSection({
           {/* Section Label */}
           <div className="mb-6 sm:mb-8 md:mb-10">
             <p className="font-mono-meta text-[10px] sm:text-xs uppercase tracking-[0.3em] text-[var(--muted-foreground)] opacity-60">
-              [ 01 — {section?.title ?? "About Me"} ]
+              {t("about.sectionLabel", { title: sectionTitle })}
             </p>
           </div>
 
@@ -341,7 +323,7 @@ export function IFAboutSection({
                 opacity: 0.15,
               }}
             >
-              {section?.title ?? "About Me"} •
+              {sectionTitle} •
             </span>
           ))}
         </div>

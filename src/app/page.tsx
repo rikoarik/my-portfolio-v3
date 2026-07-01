@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { PortfolioClient } from "@/components/portfolio/PortfolioClient";
 import { getPortfolio } from "@/lib/portfolio";
+import { getServerT } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getPortfolio();
@@ -44,6 +45,7 @@ export default async function HomePage() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
   const offlineBanner = supabaseConfigured && data.source === "seed";
+  const t = getServerT(data.profile.locale_ui);
 
   return (
     <main
@@ -55,7 +57,7 @@ export default async function HomePage() {
         href="#hero-title"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[var(--primary)] focus:px-4 focus:py-2 focus:text-[var(--primary-foreground)]"
       >
-        Lewati ke konten
+        {t("common.skipToContent")}
       </a>
       <PortfolioClient data={data} offlineBanner={offlineBanner} />
     </main>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useRef } from "react";
+import { useT } from "@/i18n/context";
 import type { GitHubContributionDay, GitHubContributionSummary } from "@/types/portfolio";
 
 function getLevelColors(level: number) {
@@ -31,6 +32,7 @@ const STEP = CELL + GAP; // 16px per step
 /* ── Component ─────────────────────────────────────────── */
 
 export function HeroContribution3D({ summary }: { summary: GitHubContributionSummary | null }) {
+  const t = useT();
   const [hovered, setHovered] = useState<GitHubContributionDay | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +54,7 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
         style={{ color: "var(--muted-foreground)" }}
         aria-hidden
       >
-        [GitHub data unavailable]
+        {t("github.unavailable")}
       </div>
     );
   }
@@ -75,7 +77,7 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
               color: "var(--muted-foreground)",
             }}
           >
-            GitHub Contributions
+            {t("github.contributionsTitle")}
           </p>
           <p
             className="mt-1 font-bold"
@@ -104,8 +106,8 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
           }}
         >
           {hovered
-            ? `${hovered.date} · ${hovered.count} commit${hovered.count !== 1 ? "s" : ""}`
-            : "Hover to inspect timeline"}
+            ? t("github.commitCount", { date: hovered.date, count: hovered.count })
+            : t("github.hoverTimeline")}
         </p>
       </div>
 
@@ -225,7 +227,7 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
         style={{ fontSize: "0.55rem", color: "var(--muted-foreground)" }}
         aria-hidden
       >
-        <span>Less</span>
+        <span>{t("github.legendLess")}</span>
         {[0, 1, 2, 3, 4].map((lvl) => (
           <span
             key={lvl}
@@ -239,7 +241,7 @@ export function HeroContribution3D({ summary }: { summary: GitHubContributionSum
             }}
           />
         ))}
-        <span>More</span>
+        <span>{t("github.legendMore")}</span>
       </div>
     </div>
   );

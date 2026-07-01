@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/context";
+import { resolveSectionText } from "@/i18n/resolve";
 import type { SectionContent, SiteProfile } from "@/types/portfolio";
 import { Mail, FileText, Globe, Phone } from "lucide-react";
 
@@ -108,7 +110,7 @@ const STYLES = `
 }
 
 .footer-giant-bg-text {
-  font-size: 20vw;
+  font-size: clamp(10rem, 20vw, 26rem);
   line-height: 0.75;
   font-weight: 900;
   letter-spacing: -0.05em;
@@ -205,9 +207,9 @@ const MagneticButton = React.forwardRef<HTMLElement, MagneticButtonProps>(
 );
 MagneticButton.displayName = "MagneticButton";
 
-function chunkMarquee(items: string[]) {
+function chunkMarquee(items: string[], defaults: string[]) {
   const cleaned = items.map((s) => s.trim()).filter(Boolean);
-  return cleaned.length ? cleaned : ["Kotlin Android", "React Native Expo", "Flutter", "Fintech", "Payment", "API Integration"];
+  return cleaned.length ? cleaned : defaults;
 }
 
 const MarqueeItem = ({ items }: { items: string[] }) => (
@@ -222,21 +224,29 @@ const MarqueeItem = ({ items }: { items: string[] }) => (
 );
 
 export function CinematicFooter({ profile, section }: { profile: SiteProfile; section?: SectionContent }) {
+  const t = useT();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const giantTextRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
-  const kicker = typeof section?.meta?.kicker === "string" ? section.meta.kicker : "Contact";
-  const heading = section?.title?.trim() || "Let's build reliable mobile apps.";
-  const lead = section?.subtitle?.trim() || "Available for mobile roles, fintech/payment projects, and production app maintenance.";
-  const body =
-    typeof section?.body === "string" && section.body.trim() ? section.body.trim() : null;
-  const primaryLabel = typeof section?.meta?.talk_label === "string" ? section.meta.talk_label : "Email me";
-  const cvLabel = typeof section?.meta?.cv_label === "string" ? section.meta.cv_label : "Download CV";
+  const kicker = resolveSectionText(section?.meta?.kicker, t, "footer.kickerFallback");
+  const heading = resolveSectionText(section?.title, t, "footer.headingFallback");
+  const lead = resolveSectionText(section?.subtitle, t, "footer.leadFallback");
+  const body = resolveSectionText(section?.body, t, "footer.bodyFallback");
+  const primaryLabel = resolveSectionText(section?.meta?.talk_label, t, "footer.emailFallback");
+  const cvLabel = resolveSectionText(section?.meta?.cv_label, t, "footer.cvFallback");
+  const defaultMarquee = [
+    t("footer.marquee.kotlin"),
+    t("footer.marquee.reactNative"),
+    t("footer.marquee.flutter"),
+    t("footer.marquee.fintech"),
+    t("footer.marquee.payment"),
+    t("footer.marquee.apiIntegration"),
+  ];
   const marqueeItems = Array.isArray(section?.meta?.marquee_items)
     ? (section?.meta?.marquee_items as unknown[]).filter((x): x is string => typeof x === "string")
     : [];
-  const marqueeChunk = chunkMarquee(marqueeItems);
+  const marqueeChunk = chunkMarquee(marqueeItems, defaultMarquee);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -305,7 +315,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
           </div>
 
           <div className="pointer-events-none absolute left-0 top-12 z-10 w-full max-w-full overflow-hidden border-y border-border/50 bg-background/60 py-4 shadow-2xl backdrop-blur-md max-sm:-rotate-1 max-sm:scale-105 sm:-rotate-2 sm:scale-110">
-            <div className="flex w-max animate-footer-scroll-marquee text-xs md:text-sm font-bold tracking-[0.3em] text-muted-foreground uppercase">
+            <div className="flex w-max animate-footer-scroll-marquee text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase md:text-sm lg:text-base xl:text-lg">
               <MarqueeItem items={marqueeChunk} />
               <MarqueeItem items={marqueeChunk} />
               <MarqueeItem items={marqueeChunk} />
@@ -313,18 +323,20 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
           </div>
 
           <div className="ifs-content-pad relative z-10 mx-auto mt-16 flex w-full min-w-0 max-w-5xl flex-1 flex-col items-center justify-center sm:mt-20">
-            <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground sm:mb-5 md:text-sm md:tracking-[0.26em]">
+            <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground sm:mb-5 md:text-sm md:tracking-[0.26em] lg:text-base xl:text-lg">
               {kicker}
             </p>
             <h2
               ref={headingRef}
-              className="footer-text-glow mb-4 text-center text-[clamp(1.85rem,8vw+0.35rem,4.5rem)] font-black tracking-tighter sm:mb-5 md:text-7xl lg:text-8xl"
+              className="footer-text-glow mb-4 text-center text-[clamp(1.85rem,calc(5vw+0.5rem),5.5rem)] font-black tracking-tighter sm:mb-5 lg:text-[clamp(2.25rem,calc(4.5vw+0.75rem),6.5rem)] xl:text-[clamp(2.75rem,calc(4vw+1rem),7.5rem)] 2xl:text-[clamp(3rem,calc(3.5vw+1.25rem),8.5rem)]"
             >
               {heading}
             </h2>
-            <p className="mb-4 max-w-xl px-1 text-center text-sm text-muted-foreground md:text-base">{lead}</p>
+            <p className="mb-4 max-w-xl px-1 text-center text-sm text-muted-foreground md:text-base lg:text-lg xl:max-w-2xl xl:text-xl">
+              {lead}
+            </p>
             {body ? (
-              <p className="mb-8 max-w-xl px-1 text-center text-sm text-muted-foreground/80 sm:mb-10 md:text-base">
+              <p className="mb-8 max-w-xl px-1 text-center text-sm text-muted-foreground/80 sm:mb-10 md:text-base lg:text-lg xl:max-w-2xl xl:text-xl">
                 {body}
               </p>
             ) : (
@@ -337,7 +349,7 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
                   <MagneticButton
                     as="a"
                     href={`mailto:${profile.email}`}
-                    className="footer-glass-pill px-8 py-4 rounded-full text-foreground font-bold text-sm md:text-base flex items-center gap-3 group"
+                    className="footer-glass-pill px-8 py-4 rounded-full text-foreground font-bold text-sm md:text-base lg:text-lg flex items-center gap-3 group"
                   >
                     <Mail className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     {primaryLabel}
@@ -345,9 +357,9 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
                 )}
                 
                 {profile.github_url && (
-                  <MagneticButton as="a" href={profile.github_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-8 py-4 rounded-full text-foreground font-bold text-sm md:text-base flex items-center gap-3 group">
+                  <MagneticButton as="a" href={profile.github_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-8 py-4 rounded-full text-foreground font-bold text-sm md:text-base lg:text-lg flex items-center gap-3 group">
                     <IconGithub className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                    GitHub
+                    {t("footer.github")}
                   </MagneticButton>
                 )}
               </div>
@@ -357,14 +369,14 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
                   <MagneticButton
                     as="a"
                     href={`tel:${profile.phone.replace(/\s/g, "")}`}
-                    className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground flex items-center gap-2"
+                    className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm lg:text-base hover:text-foreground flex items-center gap-2"
                   >
                     <Phone className="w-4 h-4" /> {profile.phone}
                   </MagneticButton>
                 )}
                 {profile.linkedin_url && (
-                  <MagneticButton as="a" href={profile.linkedin_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground flex items-center gap-2">
-                    <IconLinkedin className="w-4 h-4" /> LinkedIn
+                  <MagneticButton as="a" href={profile.linkedin_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm lg:text-base hover:text-foreground flex items-center gap-2">
+                    <IconLinkedin className="w-4 h-4" /> {t("footer.linkedin")}
                   </MagneticButton>
                 )}
                 {profile.cv_url && (
@@ -373,8 +385,8 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
                   </MagneticButton>
                 )}
                 {profile.website_url && (
-                  <MagneticButton as="a" href={profile.website_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground flex items-center gap-2">
-                    <Globe className="w-4 h-4" /> Website
+                  <MagneticButton as="a" href={profile.website_url} target="_blank" rel="noreferrer" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm lg:text-base hover:text-foreground flex items-center gap-2">
+                    <Globe className="w-4 h-4" /> {t("footer.website")}
                   </MagneticButton>
                 )}
               </div>
@@ -382,8 +394,8 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
           </div>
 
           <div className="ifs-content-pad pointer-events-auto relative z-20 flex w-full max-w-full items-center justify-center pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2">
-            <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase text-center">
-              © {new Date().getFullYear()} {profile.full_name}. All rights reserved.
+            <div className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase text-center md:text-xs lg:text-sm">
+              {t("footer.copyright", { year: new Date().getFullYear(), name: profile.full_name })}
             </div>
           </div>
         </footer>

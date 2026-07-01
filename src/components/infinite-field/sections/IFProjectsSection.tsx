@@ -10,11 +10,15 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { loadGsap } from "@/lib/gsap";
+import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
+import type Lenis from "lenis";
 import type { Project } from "@/types/portfolio";
+
+type WindowWithLenis = Window & { __portfolioLenis?: Lenis };
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
+import { useT } from "@/i18n/context";
 
 function sortProjects(projects: Project[]): Project[] {
   return [...projects].sort((a, b) => {
@@ -62,6 +66,7 @@ function ProjectModal({
   onClose: () => void;
   mounted: boolean;
 }) {
+  const t = useT();
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -94,8 +99,13 @@ function ProjectModal({
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
+    const lenis = (window as WindowWithLenis).__portfolioLenis;
+    lenis?.stop();
+
     return () => {
       document.body.style.overflow = prevOverflow;
+      lenis?.start();
     };
   }, []);
 
@@ -138,10 +148,7 @@ function ProjectModal({
 
   if (!mounted) return null;
 
-  const portalRoot =
-    typeof document !== "undefined"
-      ? (document.getElementById("main") ?? document.body)
-      : null;
+  const portalRoot = typeof document !== "undefined" ? document.body : null;
   if (!portalRoot) return null;
 
   const hasLinks = Boolean(project.repo_url || project.demo_url);
@@ -170,12 +177,12 @@ function ProjectModal({
           type="button"
           className="ifs-modal-close"
           onClick={closeWithAnim}
-          aria-label="Tutup detail proyek"
+          aria-label={t("projects.modal.closeAria")}
         >
-          Tutup
+          {t("projects.modal.close")}
         </button>
 
-        <div className="ifs-modal__scroll">
+        <div className="ifs-modal__scroll" data-lenis-prevent>
           {project.cover_url ? (
             <div className="ifs-modal-cover">
               <Image
@@ -190,7 +197,7 @@ function ProjectModal({
           ) : null}
 
           <header className="ifs-modal__header">
-            <p className="ifs-subheading ifs-modal__kicker">Project</p>
+            <p className="ifs-subheading ifs-modal__kicker">{t("projects.modal.kicker")}</p>
             <h3 id={titleId} className="ifs-project-title ifs-modal__title">
               {project.title}
             </h3>
@@ -206,8 +213,8 @@ function ProjectModal({
           </header>
 
           <div className="ifs-modal__section">
-            <p className="ifs-modal__section-label font-mono-meta">Stack &amp; tags</p>
-            <p className="ifs-modal__section-hint">Teknologi dan label yang dipakai di project ini.</p>
+            <p className="ifs-modal__section-label font-mono-meta">{t("projects.modal.stackTags")}</p>
+            <p className="ifs-modal__section-hint">{t("projects.modal.stackTagsHint")}</p>
             <div className="ifs-project-tags ifs-modal__tags">
               {allTagsForModal(project).map((t) => (
                 <span key={`tag-${t}`} className="ifs-project-tag">
@@ -219,8 +226,8 @@ function ProjectModal({
 
           {modalBullets.length ? (
             <div className="ifs-modal__section">
-              <p className="ifs-modal__section-label font-mono-meta">Highlights</p>
-              <p className="ifs-modal__section-hint">Hasil, metrik, atau dampak utama — bukan daftar fitur.</p>
+              <p className="ifs-modal__section-label font-mono-meta">{t("projects.modal.highlights")}</p>
+              <p className="ifs-modal__section-hint">{t("projects.modal.highlightsHint")}</p>
               <ul className="ifs-case-list ifs-modal__bullets">
                 {modalBullets.slice(0, 6).map((b, i) => (
                   <li key={`b-${project.id}-${i}`}>{b}</li>
@@ -231,16 +238,16 @@ function ProjectModal({
 
           {project.case_study ? (
             <div className="ifs-modal__section">
-              <p className="ifs-modal__section-label font-mono-meta">Case study</p>
-              <p className="ifs-modal__section-hint">Problem, batasan, solusi, lalu dampak terukur.</p>
+              <p className="ifs-modal__section-label font-mono-meta">{t("projects.modal.caseStudy")}</p>
+              <p className="ifs-modal__section-hint">{t("projects.modal.caseStudyHint")}</p>
               <div className="ifs-case-grid ifs-modal__case ifs-modal__case--framed">
                 <div className="ifs-case-block">
-                  <div className="ifs-case-label">Problem</div>
+                  <div className="ifs-case-label">{t("projects.modal.problem")}</div>
                   <p className="ifs-case-text">{project.case_study.problem}</p>
                 </div>
                 {project.case_study.constraints.length ? (
                   <div className="ifs-case-block">
-                    <div className="ifs-case-label">Constraints</div>
+                    <div className="ifs-case-label">{t("projects.modal.constraints")}</div>
                     <ul className="ifs-case-study-list">
                       {project.case_study.constraints.map((c, i) => (
                         <li key={`c-${project.id}-${i}`}>{c}</li>
@@ -249,12 +256,12 @@ function ProjectModal({
                   </div>
                 ) : null}
                 <div className="ifs-case-block">
-                  <div className="ifs-case-label">Solution</div>
+                  <div className="ifs-case-label">{t("projects.modal.solution")}</div>
                   <p className="ifs-case-text">{project.case_study.solution}</p>
                 </div>
                 {project.case_study.results.length ? (
                   <div className="ifs-case-block ifs-case-block--impact">
-                    <div className="ifs-case-label">Impact</div>
+                    <div className="ifs-case-label">{t("projects.modal.impact")}</div>
                     <ul className="ifs-case-study-list ifs-case-study-list--impact">
                       {project.case_study.results.map((r, i) => (
                         <li key={`r-${project.id}-${i}`}>{r}</li>
@@ -268,7 +275,7 @@ function ProjectModal({
         </div>
 
         {hasLinks ? (
-          <footer className="ifs-modal__cta" aria-label="Tautan proyek">
+          <footer className="ifs-modal__cta" aria-label={t("projects.modal.ctaAria")}>
             {project.demo_url ? (
               <a
                 href={project.demo_url}
@@ -276,7 +283,7 @@ function ProjectModal({
                 rel="noreferrer"
                 className="ifs-pill-btn ifs-pill-btn--primary ifs-modal__cta-primary"
               >
-                Demo {"\u2197"}
+                {t("projects.modal.demo")}
               </a>
             ) : null}
             {project.repo_url ? (
@@ -286,7 +293,7 @@ function ProjectModal({
                 rel="noreferrer"
                 className="ifs-pill-btn ifs-modal__cta-secondary"
               >
-                Repo {"\u2197"}
+                {t("projects.modal.repo")}
               </a>
             ) : null}
           </footer>
@@ -369,9 +376,56 @@ const ProjectAccordionPanel = forwardRef<
   { project, index, isActive, onActivate, onOpenModal, tabId, panelId },
   ref,
 ) {
+  const t = useT();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const visualRef = useRef<HTMLDivElement>(null);
   const listTags = previewTagsForList(project, 3);
   const impactLine = project.bullets[0]?.trim();
   const indexLabel = String(index + 1).padStart(2, "0");
+
+  useEffect(() => {
+    if (!isActive) return;
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const content = contentRef.current;
+    const visual = visualRef.current;
+    if (!content) return;
+
+    let ctx: { revert: () => void } | null = null;
+
+    void (async () => {
+      await registerGsapPlugins();
+      const { gsap } = await loadGsap();
+
+      const items = content.querySelectorAll<HTMLElement>(".ifs-accordion-animate-in");
+      gsap.set(items, { opacity: 0, y: 18 });
+      if (visual) gsap.set(visual, { opacity: 0, scale: 0.96 });
+
+      ctx = gsap.context(() => {
+        gsap.to(items, {
+          opacity: 1,
+          y: 0,
+          duration: 0.62,
+          stagger: 0.07,
+          ease: "power3.out",
+          clearProps: "opacity,transform",
+        });
+        if (visual) {
+          gsap.to(visual, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.75,
+            ease: "power3.out",
+            delay: 0.12,
+            clearProps: "opacity,transform",
+          });
+        }
+      }, content);
+    })();
+
+    return () => ctx?.revert();
+  }, [isActive, project.id]);
 
   return (
     <div
@@ -394,7 +448,7 @@ const ProjectAccordionPanel = forwardRef<
           aria-selected={isActive}
           aria-expanded={isActive}
           aria-controls={panelId}
-          aria-label={`Project ${indexLabel}: ${project.title}`}
+          aria-label={t("projects.accordion.tabAria", { index: indexLabel, title: project.title })}
           tabIndex={isActive ? 0 : -1}
           className="ifs-project-accordion-tab"
           onClick={onActivate}
@@ -407,17 +461,17 @@ const ProjectAccordionPanel = forwardRef<
           id={panelId}
           role="tabpanel"
           aria-labelledby={tabId}
-          className="ifs-project-accordion-body"
-          hidden={!isActive}
+          aria-hidden={!isActive}
+          className={cn("ifs-project-accordion-body", isActive && "is-open")}
         >
-          <div className="ifs-project-accordion-content">
-            <div className="ifs-project-accordion-meta mb-4 flex flex-wrap items-center gap-3 sm:mb-5">
+          <div ref={contentRef} className="ifs-project-accordion-content">
+            <div className="ifs-project-accordion-meta ifs-accordion-animate-in mb-4 flex flex-wrap items-center gap-3 sm:mb-5">
               <span className="ifs-project-accordion-kicker font-mono-meta text-[10px] uppercase tracking-[0.24em] text-[var(--muted-foreground)]">
-                Project {indexLabel}
+                {t("projects.accordion.kicker", { index: indexLabel })}
               </span>
               {project.featured ? (
                 <span className="ifs-project-accordion-pill ifs-project-accordion-pill--featured font-mono-meta">
-                  Featured
+                  {t("projects.accordion.featured")}
                 </span>
               ) : null}
               {project.period_label ? (
@@ -425,7 +479,7 @@ const ProjectAccordionPanel = forwardRef<
               ) : null}
             </div>
 
-            <div className="ifs-project-accordion-title-wrap relative mb-4 sm:mb-5">
+            <div className="ifs-project-accordion-title-wrap ifs-accordion-animate-in relative mb-4 sm:mb-5">
               <span className="ifs-project-accordion-watermark" aria-hidden>
                 {indexLabel}
               </span>
@@ -435,20 +489,20 @@ const ProjectAccordionPanel = forwardRef<
             </div>
 
             {project.subtitle ? (
-              <p className="ifs-project-accordion-desc text-base leading-relaxed text-[var(--muted-foreground)] lg:text-lg">
+              <p className="ifs-project-accordion-desc ifs-accordion-animate-in text-base leading-relaxed text-[var(--muted-foreground)] lg:text-lg">
                 {project.subtitle}
               </p>
             ) : null}
 
             {impactLine ? (
-              <blockquote className="ifs-project-impact-quote mt-5 sm:mt-6">{impactLine}</blockquote>
+              <blockquote className="ifs-project-impact-quote ifs-accordion-animate-in mt-5 sm:mt-6">{impactLine}</blockquote>
             ) : null}
 
             {listTags.length ? (
-              <div className="mt-auto flex flex-wrap gap-2 pt-6 sm:pt-8">
-                {listTags.map((t) => (
-                  <span key={t} className="ifs-project-accordion-tag font-mono-meta">
-                    {t}
+              <div className="ifs-accordion-animate-in mt-auto flex flex-wrap gap-2 pt-6 sm:pt-8">
+                {listTags.map((tag) => (
+                  <span key={tag} className="ifs-project-accordion-tag font-mono-meta">
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -457,16 +511,16 @@ const ProjectAccordionPanel = forwardRef<
             <button
               type="button"
               onClick={onOpenModal}
-              className="ifs-project-glass-cta mt-6 sm:mt-8"
+              className="ifs-project-glass-cta ifs-accordion-animate-in mt-6 sm:mt-8"
             >
-              <span>Lihat detail</span>
+              <span>{t("projects.accordion.viewDetail")}</span>
               <span className="ifs-project-glass-cta-icon" aria-hidden>
                 ↗
               </span>
             </button>
           </div>
 
-          <div className="ifs-project-accordion-visual">
+          <div ref={visualRef} className="ifs-project-accordion-visual">
             <ProjectCoverFrame project={project} index={index} variant="expanded" />
           </div>
         </div>
@@ -476,6 +530,7 @@ const ProjectAccordionPanel = forwardRef<
 });
 
 export function IFProjectsSection({ projects }: { projects: Project[] }) {
+  const t = useT();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [modal, setModal] = useState<Project | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -534,22 +589,21 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="font-mono-meta mb-4 text-xs uppercase tracking-[0.28em] text-[var(--muted-foreground)]">
-                Portofolio
+                {t("projects.kicker")}
               </p>
               <TextReveal
                 as="h2"
                 id="projects-title"
-                text="Selected Works"
+                text={t("projects.title")}
                 className="ifs-heading !mb-0 text-left"
               />
               <p className="ifs-projects-lead mt-3 max-w-xl text-base leading-relaxed text-[var(--muted-foreground)] sm:mt-4 sm:text-lg">
-                Fintech, payment, merchant/member, and operational mobile apps — selected work
-                focused on real production flows.
+                {t("projects.lead")}
               </p>
             </div>
             <p className="font-mono-meta shrink-0 text-xs uppercase tracking-[0.22em] text-[var(--muted-foreground)] lg:text-right">
-              {ordered.length} projects
-              {featuredCount ? ` · ${featuredCount} featured` : ""}
+              {t("projects.count", { count: ordered.length })}
+              {featuredCount ? t("projects.featuredSuffix", { count: featuredCount }) : ""}
             </p>
           </div>
         </header>
@@ -558,7 +612,7 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
       <div className="ifs-content-pad ifs-content-wrap">
         <div
           role="tablist"
-          aria-label="Selected works projects"
+          aria-label={t("projects.tablistAria")}
           className="ifs-project-accordion"
           onKeyDown={handleAccordionKeyDown}
         >

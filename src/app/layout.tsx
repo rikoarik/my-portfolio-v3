@@ -4,6 +4,8 @@ import { DM_Sans, Geist_Mono, Orbitron, Syne } from "next/font/google";
 import { AppProviders } from "@/components/providers/app-providers";
 import { PastelMeshBackground } from "@/components/ui/PastelMeshBackground";
 import { getPortfolio } from "@/lib/portfolio";
+import { parseLandingThemePreset } from "@/lib/theme/landing-theme";
+import { parseLocale } from "@/i18n/locales";
 
 import "./globals.css";
 
@@ -58,19 +60,30 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const data = await getPortfolio();
+  const landingThemePreset = parseLandingThemePreset(
+    data.seo?.settings?.landing_theme_preset,
+  );
+  const locale = parseLocale(data.profile.locale_ui);
+
   return (
     <html
-      lang="id"
+      lang={locale}
       data-scroll-behavior="smooth"
+      data-landing-theme={landingThemePreset}
       className={`${syne.variable} ${geistMono.variable} ${ifDisplay.variable} ${ifBody.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       {/* overflow-x-hidden di body memotong strip career (transform) + bayangan di tepi kiri/kanan */}
-      <body className="min-h-full min-w-0 bg-[var(--background)] text-[var(--foreground)]">
+      <body
+        className="min-h-full min-w-0 bg-[var(--background)] text-[var(--foreground)]"
+        suppressHydrationWarning
+      >
         <PastelMeshBackground />
         {/* Film Grain Overlay */}
         <div className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.04] mix-blend-multiply">

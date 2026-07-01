@@ -1,21 +1,37 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import type { SectionContent } from "@/types/portfolio";
+import { useT } from "@/i18n/context";
 
-const DEFAULT_STATS = [
-  { value: "15+", label: "Production Apps" },
-  { value: "2+ Years", label: "Mobile Experience" },
-  { value: "Ship", label: "Play Store · App Store" },
-  { value: "Fintech", label: "Domain Focus" },
-];
-
-/** Seconds for one full pass — higher = easier to read */
 const PROOF_MARQUEE_DURATION = 500;
 
 export function IFProofStrip({ section }: { section?: SectionContent }) {
+  const t = useT();
   const rootRef = useRef<HTMLDivElement>(null);
+
+  const defaultStats = useMemo(
+    () => [
+      {
+        value: t("proofStrip.stats.productionApps.value"),
+        label: t("proofStrip.stats.productionApps.label"),
+      },
+      {
+        value: t("proofStrip.stats.mobileExperience.value"),
+        label: t("proofStrip.stats.mobileExperience.label"),
+      },
+      {
+        value: t("proofStrip.stats.ship.value"),
+        label: t("proofStrip.stats.ship.label"),
+      },
+      {
+        value: t("proofStrip.stats.fintech.value"),
+        label: t("proofStrip.stats.fintech.label"),
+      },
+    ],
+    [t],
+  );
 
   useEffect(() => {
     const root = rootRef.current;
@@ -84,14 +100,13 @@ export function IFProofStrip({ section }: { section?: SectionContent }) {
   }, []);
 
   const sourceStats = Array.isArray(section?.meta?.stats)
-    ? (section?.meta.stats as { value: string; label: string }[])
-    : DEFAULT_STATS;
+    ? (section.meta.stats as { value: string; label: string }[])
+    : defaultStats;
 
-  // We duplicate the stats array 4 times to create enough length for a seamless marquee
   const infiniteStats = [...sourceStats, ...sourceStats, ...sourceStats, ...sourceStats];
 
   return (
-    <section ref={rootRef} className="ifs-proof-strip" aria-label="Key statistics">
+    <section ref={rootRef} className="ifs-proof-strip" aria-label={t("proofStrip.ariaLabel")}>
       <div className="ifs-proof-marquee">
         {infiniteStats.map((stat, i) => (
           <div key={`m1-${i}`} className="ifs-proof-item">

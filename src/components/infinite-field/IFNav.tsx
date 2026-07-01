@@ -4,14 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type Lenis from "lenis";
 import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import { MagneticHover } from "@/components/interactions/MagneticHover";
+import { useT } from "@/i18n/context";
 
-const DEFAULT_NAV_ITEMS = [
-  { id: "projects", label: "Work" },
-  { id: "about", label: "About" },
-  { id: "career", label: "Career" },
-  { id: "guestbook", label: "Guestbook" },
-  { id: "contact", label: "Contact" },
-] as const;
+const DEFAULT_NAV_IDS = ["projects", "about", "career", "guestbook", "contact"] as const;
+
+const NAV_ITEM_KEYS: Record<(typeof DEFAULT_NAV_IDS)[number], string> = {
+  projects: "nav.items.work",
+  about: "nav.items.about",
+  career: "nav.items.career",
+  guestbook: "nav.items.guestbook",
+  contact: "nav.items.contact",
+};
 
 const SCROLLER = typeof document !== "undefined" ? document.documentElement : null;
 
@@ -62,7 +65,26 @@ export function IFNav({
   brand: string;
   items?: { id: string; label: string }[];
 }) {
-  const navItems = useMemo(() => (items?.length ? items : DEFAULT_NAV_ITEMS), [items]);
+  const t = useT();
+  const defaultNavItems = useMemo(
+    () =>
+      DEFAULT_NAV_IDS.map((id) => ({
+        id,
+        label: t(NAV_ITEM_KEYS[id]),
+      })),
+    [t],
+  );
+  const navItems = useMemo(() => {
+    if (!items?.length) return defaultNavItems;
+    return items.map((item) => ({
+      id: item.id,
+      label:
+        item.label?.trim() ||
+        (NAV_ITEM_KEYS[item.id as keyof typeof NAV_ITEM_KEYS]
+          ? t(NAV_ITEM_KEYS[item.id as keyof typeof NAV_ITEM_KEYS])
+          : item.id),
+    }));
+  }, [items, defaultNavItems, t]);
   const [active, setActive] = useState<string>("");
   const [barMode, setBarMode] = useState<"hero" | "float">("hero");
   const [isDesktopLayout, setIsDesktopLayout] = useState(true);
@@ -306,7 +328,7 @@ export function IFNav({
       id="nav"
       ref={navRef}
       className="ifs-nav-root pointer-events-none fixed inset-x-0 top-0 z-[55]"
-      aria-label="Site navigation"
+      aria-label={t("nav.ariaLabel")}
     >
       <div
         ref={pillRef}
@@ -325,7 +347,7 @@ export function IFNav({
                 : "ifs-nav-brand"
             }
             onClick={scrollToTop}
-            aria-label="Scroll to top"
+            aria-label={t("nav.scrollToTopAria")}
           >
             {brand}
           </button>

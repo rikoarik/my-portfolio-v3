@@ -21,7 +21,7 @@ export default async function AdminProfilePage() {
         linkedin_url: data.linkedin_url,
         website_url: data.website_url,
         cv_url: data.cv_url,
-        locale_ui: data.locale_ui ?? "id",
+        locale_ui: data.locale_ui ?? "en",
         og_description: data.og_description,
       };
     }

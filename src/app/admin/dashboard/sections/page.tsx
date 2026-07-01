@@ -1,7 +1,10 @@
+import Link from "next/link";
+
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminSectionTabs } from "@/components/admin/AdminSectionTabs";
-import { SectionCreateForm, SectionsList } from "@/components/admin/SectionsList";
+import { SectionsList } from "@/components/admin/SectionsList";
 import type { SectionData } from "@/components/admin/forms/SectionForm";
+import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +26,14 @@ export default async function AdminSectionsPage({
     <div className="space-y-3">
       <AdminPageHeader
         title="Sections"
-        description="Kelola copy tiap section homepage."
-        actions={<AdminSectionTabs active={activeTab} />}
+        description="Kelola copy tiap section homepage. Klik baris untuk edit."
+        actions={
+          <Button asChild size="lg">
+            <Link href="/admin/dashboard/sections/new">+ Section baru</Link>
+          </Button>
+        }
       />
-      <SectionCreateForm />
+      <AdminSectionTabs active={activeTab} />
       <SectionsList rows={rows} activeTab={activeTab} />
     </div>
   );

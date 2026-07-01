@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import type { GuestMessage } from "@/types/portfolio";
 import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
+import { useT } from "@/i18n/context";
 import { CommentModal } from "./CommentModal";
 
 const VISIBLE_CAP = 12;
@@ -79,6 +80,7 @@ function resolveCollision(a: Body, b: Body) {
 }
 
 export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
+  const t = useT();
   const rootRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -365,16 +367,19 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
       <div className="ifs-content-pad ifs-content-wrap relative z-[30] flex w-[min(100%,32rem)] max-w-xl flex-col items-center justify-center text-center pointer-events-auto">
         <TextReveal
           as="h2"
-          text="Guest Messages"
+          text={t("guestbook.title")}
           className="text-[clamp(1.75rem,8vw,2.25rem)] font-sans font-black uppercase tracking-tighter sm:text-6xl mb-6"
         />
         <div className="mb-10 max-w-sm mx-auto space-y-4">
           <p className="text-[var(--muted-foreground)] text-base font-medium leading-relaxed">
-            Messages from collaborators and visitors appear here after review. Keep it relevant and professional.
+            {t("guestbook.lead")}
           </p>
           {hiddenCount > 0 && (
             <p className="text-[var(--muted-foreground)]/60 font-mono text-xs tracking-wide">
-              {visible.length} of {messages.length} messages orbiting
+              {t("guestbook.orbitingCount", {
+                visible: visible.length,
+                total: messages.length,
+              })}
             </p>
           )}
         </div>
@@ -384,7 +389,7 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
           className="group relative w-full max-w-xs px-6 py-4 text-[var(--foreground)] sm:w-auto sm:max-w-none sm:px-10 sm:py-5 bg-transparent border border-[var(--border)] rounded-full font-bold uppercase tracking-widest overflow-hidden transition-all duration-300 hover:border-[var(--foreground)] hover:scale-[1.03] active:scale-[0.97]"
         >
           <span className="relative z-10 flex items-center gap-3 transition-colors group-hover:text-[var(--background)]">
-            Write Message
+            {t("guestbook.writeMessage")}
             <span className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300">↗</span>
           </span>
           <div className="absolute inset-0 bg-[var(--foreground)] translate-y-[110%] transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0" />

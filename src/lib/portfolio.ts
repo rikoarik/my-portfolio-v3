@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { PORTFOLIO_SEED } from "@/data/portfolio.seed";
 import { createAnonServerClient } from "@/lib/supabase/anon";
+import { parseLocale } from "@/i18n/locales";
 import { parseLandingThemePreset } from "@/lib/theme/landing-theme";
 import type {
   Education,
@@ -185,7 +186,7 @@ async function fetchFromSupabase(): Promise<PortfolioPayload | null> {
     linkedin_url: profileRow.linkedin_url,
     website_url: profileRow.website_url,
     cv_url: profileRow.cv_url,
-    locale_ui: profileRow.locale_ui ?? "id",
+    locale_ui: parseLocale(profileRow.locale_ui),
     og_description: profileRow.og_description,
   };
 

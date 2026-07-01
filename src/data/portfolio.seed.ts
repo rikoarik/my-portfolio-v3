@@ -41,7 +41,7 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
     linkedin_url: "https://linkedin.com/in/rikoarik",
     website_url: "https://arkdev.my.id",
     cv_url: "/NodeFlair_Resume_2026-04-11_13_37_51.pdf",
-    locale_ui: "id",
+    locale_ui: "en",
     og_description:
       "Mobile Developer focused on fintech, payment, and multi-tenant mobile apps — Kotlin, React Native, Flutter, Laravel, REST API, and CI/CD.",
   },

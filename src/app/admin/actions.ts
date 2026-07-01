@@ -40,6 +40,7 @@ import {
   skillFormSchema,
   skillGroupFormSchema,
 } from "@/lib/admin/validation";
+import { parseLocale } from "@/i18n/locales";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function revalidatePortfolio() {
@@ -104,7 +105,7 @@ export async function updateSiteProfile(
       linkedin_url: String(formData.get("linkedin_url") ?? "") || null,
       website_url: String(formData.get("website_url") ?? "") || null,
       cv_url: String(formData.get("cv_url") ?? "") || null,
-      locale_ui: "id",
+      locale_ui: parseLocale(formData.get("locale_ui")),
       og_description: String(formData.get("og_description") ?? "") || null,
       updated_at: new Date().toISOString(),
     };

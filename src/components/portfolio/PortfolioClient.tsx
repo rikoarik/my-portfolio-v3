@@ -15,6 +15,8 @@ import { CinematicFooter } from "@/components/ui/motion-footer";
 import { PageLoader } from "@/components/portfolio/PageLoader";
 import { PastelHero } from "@/components/portfolio/PastelHero";
 import { SmoothScroller } from "@/components/portfolio/SmoothScroller";
+import { I18nProvider, useT } from "@/i18n/context";
+import { parseLocale } from "@/i18n/locales";
 import type { PortfolioPayload } from "@/types/portfolio";
 
 import "@/components/infinite-field/if-sections.css";
@@ -26,6 +28,21 @@ export function PortfolioClient({
   data: PortfolioPayload;
   offlineBanner: boolean;
 }) {
+  return (
+    <I18nProvider locale={parseLocale(data.profile.locale_ui)}>
+      <PortfolioClientInner data={data} offlineBanner={offlineBanner} />
+    </I18nProvider>
+  );
+}
+
+function PortfolioClientInner({
+  data,
+  offlineBanner,
+}: {
+  data: PortfolioPayload;
+  offlineBanner: boolean;
+}) {
+  const t = useT();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,7 +68,10 @@ export function PortfolioClient({
   const navItems = Array.isArray(navSection?.meta?.items)
     ? (navSection?.meta.items as { id: string; label: string }[])
     : undefined;
-  const brand = typeof heroSection?.meta?.brand === "string" ? heroSection.meta.brand : "ARP · Portfolio";
+  const brand =
+    typeof heroSection?.meta?.brand === "string"
+      ? heroSection.meta.brand
+      : t("nav.brandFallback");
   const loaderMessages = Array.isArray(loaderConfigRaw?.messages)
     ? loaderConfigRaw.messages.filter((m): m is string => typeof m === "string" && m.trim().length > 0)
     : [];
@@ -67,7 +87,7 @@ export function PortfolioClient({
   const loaderLabel =
     typeof loaderConfigRaw?.label === "string" && loaderConfigRaw.label.trim()
       ? loaderConfigRaw.label
-      : "Loading";
+      : t("loader.label");
 
   return (
     <>
@@ -79,7 +99,9 @@ export function PortfolioClient({
         onDone={() => setLoading(false)}
         config={{
           label: loaderLabel,
-          messages: loaderMessages.length ? loaderMessages : ["Preparing scene", "Loading portfolio"],
+          messages: loaderMessages.length
+            ? loaderMessages
+            : [t("loader.messages.preparingScene"), t("loader.messages.loadingPortfolio")],
           textAnimation: loaderTextAnimation,
           colors: {
             overlayBg:
@@ -90,13 +112,13 @@ export function PortfolioClient({
           },
         }}
       />
-      
+
       {offlineBanner ? (
         <div
           className="font-mono-meta sticky top-0 z-[60] border-b border-amber-500/40 bg-amber-500/10 px-4 py-2 text-center text-xs text-amber-200 backdrop-blur-md"
           role="status"
         >
-          Mode offline — data seed. Hubungkan Supabase untuk konten live.
+          {t("common.offlineBanner")}
         </div>
       ) : null}
 
@@ -110,7 +132,6 @@ export function PortfolioClient({
           contributions={data.github_contributions}
         />
 
-        {/* pointer-events-none + child auto = klik tembus ke footer/back-to-top di area kosong; section tetap bisa diklik */}
         <div className="portfolio-main-column relative z-[1] min-w-0 max-w-full bg-transparent pointer-events-none [&>*]:pointer-events-auto">
           <IFProofStrip section={proofSection} />
           <IFProjectsSection projects={data.projects} />

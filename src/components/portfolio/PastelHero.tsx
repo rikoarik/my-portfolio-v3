@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import { loadGsap, registerGsapPlugins } from "@/lib/gsap";
 import { HeroContribution3D } from "@/components/portfolio/HeroContribution3D";
 import { Meteors } from "@/components/ui/meteors";
+import { useT } from "@/i18n/context";
+import { resolveSectionText } from "@/i18n/resolve";
 import type { GitHubContributionSummary, SectionContent, SiteProfile } from "@/types/portfolio";
 
 const SCROLLER = typeof document !== "undefined" ? document.documentElement : null;
@@ -22,19 +24,23 @@ export function PastelHero({
   section?: SectionContent;
   contributions: GitHubContributionSummary | null;
 }) {
-  const fallbackName = profile.full_name || "Arik Riko Prasetya";
+  const t = useT();
+  const fallbackName = profile.full_name || t("hero.nameFallback");
   const parts = fallbackName.split(" ");
   const firstLine = section?.title?.split(" ").slice(0, 2).join(" ") || parts.slice(0, 2).join(" ");
   const secondLine =
     section?.title?.split(" ").slice(2).join(" ") ||
     parts.slice(2).join(" ") ||
     profile.title;
-  const taglineLines = (section?.body ?? "Mobile Developer focused on fintech, payment, and multi-tenant mobile applications.\nI build production-ready mobile apps using Kotlin, React Native, Flutter, and backend integrations.")
+  const taglineLines = (
+    typeof section?.body === "string" && section.body.trim()
+      ? section.body
+      : `${t("hero.taglineLine1")}\n${t("hero.taglineLine2")}`
+  )
     .split("\n")
     .filter(Boolean);
-  const roleText = section?.subtitle ?? profile.title;
-  const ctaLabel =
-    typeof section?.meta?.cta_label === "string" ? section.meta.cta_label : "Explore Work";
+  const roleText = section?.subtitle?.trim() ? section.subtitle : profile.title;
+  const ctaLabel = resolveSectionText(section?.meta?.cta_label, t, "hero.ctaExploreWork");
   const ctaHref = typeof section?.meta?.cta_href === "string" ? section.meta.cta_href : "#projects";
   const sectionRef = useRef<HTMLElement>(null);
   const nameLine1Ref = useRef<HTMLSpanElement>(null);
@@ -238,7 +244,7 @@ export function PastelHero({
           className="font-mono-meta text-[0.65rem] tracking-[0.08em]"
           style={{ fontFamily: "var(--font-geist-mono), ui-monospace, monospace" }}
         >
-          scroll
+          {t("hero.scrollIndicator")}
         </span>
       </div>
     </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/i18n/context";
 import type Lenis from "lenis";
 
 type WindowWithLenis = Window & { __portfolioLenis?: Lenis };
@@ -36,6 +37,7 @@ function scrollToTop() {
  * Fixed pojok kanan bawah — di atas lapisan konten (z-50) supaya klik tidak ketutup kolom pointer-events.
  */
 export function BackToTopButton() {
+  const t = useT();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -89,11 +91,11 @@ export function BackToTopButton() {
         bottom: "max(0.75rem, env(safe-area-inset-bottom))",
         right: "max(0.75rem, env(safe-area-inset-right))",
       }}
-      aria-label="Kembali ke atas"
+      aria-label={t("common.backToTop.ariaLabel")}
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
     >
-      ↑ Atas
+      {t("common.backToTop.label")}
     </button>
   );
 }

@@ -2,7 +2,8 @@
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { postGuestMessage } from "@/app/guestbook/actions";
+import { postGuestMessage, type GuestMessageActionState } from "@/app/guestbook/actions";
+import { useT } from "@/i18n/context";
 import { loadGsap } from "@/lib/gsap";
 
 export function CommentModal({
@@ -12,12 +13,19 @@ export function CommentModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [state, action, isPending] = useActionState(postGuestMessage, null);
+  const t = useT();
+  const [state, action, isPending] = useActionState<GuestMessageActionState, FormData>(
+    postGuestMessage,
+    null,
+  );
   const [mounted, setMounted] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const closingRef = useRef(false);
+
+  const errorMessage = state && "errorKey" in state ? t(state.errorKey) : null;
+  const isSuccess = Boolean(state && "success" in state);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -68,7 +76,7 @@ export function CommentModal({
     const panel = panelRef.current;
     if (!backdrop || !panel) return;
 
-    let tl: any = null;
+    let tl: { kill: () => void } | null = null;
     let mountedNow = true;
 
     void (async () => {
@@ -77,18 +85,19 @@ export function CommentModal({
 
       gsap.set(backdrop, { opacity: 0 });
       gsap.set(panel, { opacity: 0, y: 28, scale: 0.96 });
-      tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.to(backdrop, { opacity: 1, duration: 0.26 }).to(
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl = timeline;
+      timeline.to(backdrop, { opacity: 1, duration: 0.26 }).to(
         panel,
         { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.25)" },
         "<+0.04",
       );
     })();
 
-    const t = window.setTimeout(() => closeBtnRef.current?.focus(), 60);
+    const focusTimer = window.setTimeout(() => closeBtnRef.current?.focus(), 60);
     return () => {
       mountedNow = false;
-      window.clearTimeout(t);
+      window.clearTimeout(focusTimer);
       tl?.kill();
     };
   }, [isOpen, mounted]);
@@ -103,13 +112,13 @@ export function CommentModal({
   }, [isOpen, closeWithAnim]);
 
   useEffect(() => {
-    if (state?.success) {
+    if (isSuccess) {
       const timer = window.setTimeout(() => {
         closeWithAnim();
       }, 1000);
       return () => window.clearTimeout(timer);
     }
-  }, [state?.success, closeWithAnim]);
+  }, [isSuccess, closeWithAnim]);
 
   if (!isOpen || !mounted) return null;
 
@@ -135,60 +144,64 @@ export function CommentModal({
           type="button"
           onClick={closeWithAnim}
           className="ifs-comment-modal-close absolute top-4 right-4"
-          aria-label="Tutup formulir pesan"
+          aria-label={t("guestbook.modal.closeAria")}
         >
           {"\u2715"}
         </button>
 
         <h3 id="ifs-guestbook-modal-title" className="text-2xl font-bold mb-2 text-[var(--foreground)]">
-          Leave a Message
+          {t("guestbook.modal.title")}
         </h3>
         <p className="text-[var(--muted-foreground)] text-sm mb-6">
-          Your message will join the infinite field of drift.
+          {t("guestbook.modal.subtitle")}
         </p>
 
         <form action={action} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-1">
-              Your Name
+              {t("guestbook.modal.nameLabel")}
             </label>
             <input
               name="name"
               required
-              placeholder="e.g. Satoshi"
+              placeholder={t("guestbook.modal.namePlaceholder")}
               className="ifs-comment-modal-field w-full px-4 py-3 bg-[var(--muted)]/50 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)]"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-1">
-              Message
+              {t("guestbook.modal.messageLabel")}
             </label>
             <textarea
               name="message"
               required
               rows={4}
-              placeholder="What's on your mind?"
+              placeholder={t("guestbook.modal.messagePlaceholder")}
               className="ifs-comment-modal-field w-full px-4 py-3 bg-[var(--muted)]/50 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)] resize-none"
             />
           </div>
 
-          {state?.error ? (
-            <p className="text-red-500 text-xs font-medium">{state.error}</p>
+          {errorMessage ? (
+            <p className="text-red-500 text-xs font-medium">{errorMessage}</p>
           ) : null}
 
-          {state?.success ? (
+          {isSuccess ? (
             <p className="text-emerald-500 text-xs font-medium">
-              Pesan terkirim! Sampai jumpa di rute pelayaran.
+              {t("guestbook.modal.successMessage")}
             </p>
           ) : null}
 
           <button
             type="submit"
-            disabled={isPending || !!state?.success}
+            disabled={isPending || isSuccess}
             className="ifs-comment-modal-submit w-full py-4 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl font-bold hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
           >
-            {isPending ? "Sending..." : state?.success ? "Success!" : "Post Message"}
+            {isPending
+              ? t("guestbook.modal.sending")
+              : isSuccess
+                ? t("guestbook.modal.success")
+                : t("guestbook.modal.post")}
           </button>
         </form>
       </div>

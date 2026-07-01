@@ -34,7 +34,7 @@
   --pastel-contact-darker: color-mix(in srgb, var(--pastel-forest) 26%, var(--pastel-cream));
 }
 
-#main[data-landing-theme="ember-night"] {
+html[data-landing-theme="ember-night"] {
   --background: #12100e;
   --foreground: #f3ede6;
   --card: #1b1714;
@@ -61,7 +61,7 @@
   --ifs-modal-backdrop: rgb(10 8 7 / 0.68);
 }
 
-#main[data-landing-theme="forest-hearth"] {
+html[data-landing-theme="forest-hearth"] {
   --background: #101512;
   --foreground: #eaf2ec;
   --card: #18201b;
@@ -88,7 +88,7 @@
   --ifs-modal-backdrop: rgb(8 12 10 / 0.66);
 }
 
-#main[data-landing-theme="cocoa-slate"] {
+html[data-landing-theme="cocoa-slate"] {
   --background: #141217;
   --foreground: #f2edf7;
   --card: #1d1a21;
@@ -115,7 +115,7 @@
   --ifs-modal-backdrop: rgb(9 8 12 / 0.68);
 }
 
-#main[data-landing-theme="dusk-mocha"] {
+html[data-landing-theme="dusk-mocha"] {
   --background: #1b1715;
   --foreground: #f4ece5;
   --card: #26211e;
@@ -142,7 +142,7 @@
   --ifs-modal-backdrop: rgb(14 11 10 / 0.66);
 }
 
-#main[data-landing-theme="sage-mist"] {
+html[data-landing-theme="sage-mist"] {
   --background: #1a1f1d;
   --foreground: #edf3ef;
   --card: #242c28;
@@ -169,7 +169,7 @@
   --ifs-modal-backdrop: rgb(11 15 13 / 0.64);
 }
 
-#main[data-landing-theme="linen-dawn"] {
+html[data-landing-theme="linen-dawn"] {
   --background: #f5efe7;
   --foreground: #332a24;
   --card: #fff9f2;
@@ -196,7 +196,7 @@
   --ifs-modal-backdrop: rgb(88 72 60 / 0.3);
 }
 
-#main[data-landing-theme="rose-clay"] {
+html[data-landing-theme="rose-clay"] {
   --background: #201a1c;
   --foreground: #f4ecee;
   --card: #2b2326;
@@ -223,7 +223,7 @@
   --ifs-modal-backdrop: rgb(14 10 11 / 0.64);
 }
 
-#main[data-landing-theme="ocean-paper"] {
+html[data-landing-theme="ocean-paper"] {
   --background: #eef3f5;
   --foreground: #24323a;
   --card: #f8fbfc;
@@ -250,7 +250,7 @@
   --ifs-modal-backdrop: rgb(57 74 83 / 0.28);
 }
 
-#main[data-landing-theme="amber-fog"] {
+html[data-landing-theme="amber-fog"] {
   --background: #f2ede6;
   --foreground: #342c26;
   --card: #faf6f0;
@@ -277,7 +277,7 @@
   --ifs-modal-backdrop: rgb(84 67 52 / 0.28);
 }
 
-#main[data-landing-theme="pine-smoke"] {
+html[data-landing-theme="pine-smoke"] {
   --background: #161b19;
   --foreground: #e8efeb;
   --card: #212825;
@@ -304,7 +304,7 @@
   --ifs-modal-backdrop: rgb(10 13 12 / 0.66);
 }
 
-#main[data-landing-theme="tyrian-banana"] {
+html[data-landing-theme="tyrian-banana"] {
   --background: #700143;
   --foreground: #f8edad;
   --card: #5a0136;
@@ -331,7 +331,7 @@
   --ifs-modal-backdrop: rgb(32 0 20 / 0.68);
 }
 
-#main[data-landing-theme="moss-cloud"] {
+html[data-landing-theme="moss-cloud"] {
   --background: #385144;
   --foreground: #f8f5f2;
   --card: #2e4338;
@@ -358,7 +358,7 @@
   --ifs-modal-backdrop: rgb(20 30 25 / 0.66);
 }
 
-#main[data-landing-theme="golden-parchment"] {
+html[data-landing-theme="golden-parchment"] {
   --background: #faefd9;
   --foreground: #3a3018;
   --card: #fff7e4;
@@ -385,7 +385,7 @@
   --ifs-modal-backdrop: rgb(90 72 40 / 0.28);
 }
 
-#main[data-landing-theme="amber-mirage"] {
+html[data-landing-theme="amber-mirage"] {
   --background: #f2e0d0;
   --foreground: #3a4a62;
   --card: #faf3ea;
@@ -412,7 +412,7 @@
   --ifs-modal-backdrop: rgb(58 74 98 / 0.28);
 }
 
-#main[data-landing-theme="pistachio-espresso"] {
+html[data-landing-theme="pistachio-espresso"] {
   --background: #200f07;
   --foreground: #f4efe8;
   --card: #2a1610;
@@ -439,7 +439,7 @@
   --ifs-modal-backdrop: rgb(12 6 4 / 0.7);
 }
 
-#main[data-landing-theme="matcha-coal"] {
+html[data-landing-theme="matcha-coal"] {
   --background: #222222;
   --foreground: #dfece3;
   --card: #2c2c2c;

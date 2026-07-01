@@ -40,8 +40,25 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# supabase migrations
+# supabase migrations (local-only; apply via CLI/MCP)
 /supabase/migrations/
 
+# --- AI agent / IDE local (not for repo) ---
+.agents/
+.claude/
+.cursor/
+.kiro/
+.playwright-mcp/
 
-.env.local
+# Agent skills (local installs)
+/skills/
+skills-lock.json
+
+# Planning / AI-generated docs
+/tasks/
+/docs/
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+QA_E2E_TEST_CASES.md
+QA_E2E_TEST_REPORT.md

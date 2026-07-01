@@ -51,7 +51,7 @@ export default async function HomePage() {
     <main
       id="main"
       data-landing-theme={landingThemePreset}
-      className="min-h-screen w-full max-w-full overflow-x-clip bg-[var(--background)] text-[var(--foreground)]"
+      className="site-main min-h-screen w-full max-w-full overflow-x-clip text-[var(--foreground)]"
     >
       <a
         href="#hero-title"

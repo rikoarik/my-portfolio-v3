@@ -6,6 +6,7 @@ import { HeroContribution3D } from "@/components/portfolio/HeroContribution3D";
 import { Meteors } from "@/components/ui/meteors";
 import { useT } from "@/i18n/context";
 import { resolveSectionText } from "@/i18n/resolve";
+import { heroTitleClassName, heroTypographyFromMeta } from "@/lib/theme/hero-typography";
 import type { GitHubContributionSummary, SectionContent, SiteProfile } from "@/types/portfolio";
 
 const SCROLLER = typeof document !== "undefined" ? document.documentElement : null;
@@ -42,6 +43,11 @@ export function PastelHero({
   const roleText = section?.subtitle?.trim() ? section.subtitle : profile.title;
   const ctaLabel = resolveSectionText(section?.meta?.cta_label, t, "hero.ctaExploreWork");
   const ctaHref = typeof section?.meta?.cta_href === "string" ? section.meta.cta_href : "#projects";
+  const heroMeta =
+    section?.meta && typeof section.meta === "object" && !Array.isArray(section.meta)
+      ? (section.meta as Record<string, unknown>)
+      : null;
+  const typography = heroTypographyFromMeta(heroMeta);
   const sectionRef = useRef<HTMLElement>(null);
   const nameLine1Ref = useRef<HTMLSpanElement>(null);
   const nameLine2Ref = useRef<HTMLSpanElement>(null);
@@ -171,7 +177,7 @@ export function PastelHero({
       <div className="ifs-content-pad relative z-10 flex min-h-0 flex-1 flex-col pb-10 pt-[max(4.5rem,env(safe-area-inset-top))]">
         <div className="grid min-h-0 flex-1 grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
           <div className="w-full min-w-0 max-w-[min(100%,520px)]">
-            <h1 className="text-left text-[clamp(2rem,9vw+0.5rem,3.5rem)] font-bold leading-[1.02] tracking-[-0.03em] text-[var(--foreground)] sm:text-[clamp(3rem,8vw,5.5rem)]">
+            <h1 className={heroTitleClassName()} style={{ fontSize: typography.titleSize }}>
               <span ref={nameLine1Ref} className="block">
                 {firstLine}
               </span>
@@ -185,7 +191,7 @@ export function PastelHero({
               className="mt-4 uppercase"
               style={{
                 fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
-                fontSize: "0.65rem",
+                fontSize: typography.roleSize,
                 letterSpacing: "0.2em",
                 color: "color-mix(in srgb, var(--muted-foreground) 60%, transparent)",
               }}
@@ -196,11 +202,16 @@ export function PastelHero({
             <div className="mt-6 w-full min-w-0 max-w-[min(340px,100%)] space-y-1">
               <p
                 ref={taglineLine1Ref}
-                className="text-[0.9rem] italic text-[var(--muted-foreground)]"
+                className="italic text-[var(--muted-foreground)]"
+                style={{ fontSize: typography.taglineSize }}
               >
                 {taglineLines[0] ?? ""}
               </p>
-              <p ref={taglineLine2Ref} className="text-[0.9rem] font-medium text-[var(--foreground)]">
+              <p
+                ref={taglineLine2Ref}
+                className="font-medium text-[var(--foreground)]"
+                style={{ fontSize: typography.taglineSize }}
+              >
                 {taglineLines[1] ?? profile.tagline}
               </p>
             </div>
@@ -219,7 +230,7 @@ export function PastelHero({
               color: "var(--background)",
               borderRadius: 999,
               padding: "10px 22px",
-              fontSize: "0.68rem",
+              fontSize: typography.ctaSize,
               letterSpacing: "0.07em",
               fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
             }}

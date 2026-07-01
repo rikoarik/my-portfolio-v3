@@ -1,6 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { SeoPagesList } from "@/components/admin/SeoPagesList";
 import { SeoPageCreateForm, SeoSettingsForm } from "@/components/admin/forms/SeoForm";
+import { parseSiteBackgroundConfig } from "@/lib/theme/site-background";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -49,12 +50,17 @@ export default async function AdminSeoPage() {
     (typeof settingMetadata.landing_theme_preset === "string"
       ? settingMetadata.landing_theme_preset
       : "ember-night");
+  const siteBackground = parseSiteBackgroundConfig(setting?.metadata ?? settingMetadata);
   const rows = (pages as SeoPageRow[]) ?? [];
 
   return (
     <div className="space-y-3">
-      <AdminPageHeader title="SEO" description="Global metadata dan override per halaman." />
-      <SeoSettingsForm setting={setting} currentLandingThemePreset={currentLandingThemePreset} />
+      <AdminPageHeader title="SEO" description="Global metadata, background situs, dan override per halaman." />
+      <SeoSettingsForm
+        setting={setting}
+        currentLandingThemePreset={currentLandingThemePreset}
+        siteBackground={siteBackground}
+      />
       <SeoPageCreateForm />
       <SeoPagesList rows={rows} />
     </div>

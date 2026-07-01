@@ -505,7 +505,25 @@ export const PORTFOLIO_SEED: PortfolioPayload = {
         "Mobile Developer focused on fintech, payment, and multi-tenant mobile apps — Kotlin, React Native, Flutter, Laravel, REST API, and CI/CD.",
       default_og_image_url: null,
       default_robots: "index,follow",
-      metadata: {},
+      metadata: {
+        background: {
+          type: "dot-field",
+          dotField: {
+            dotRadius: 1.5,
+            dotSpacing: 14,
+            bulgeStrength: 67,
+            glowRadius: 160,
+            sparkle: false,
+            waveAmplitude: 0,
+            cursorRadius: 500,
+            cursorForce: 0.1,
+            bulgeOnly: true,
+            gradientFrom: "#A855F7",
+            gradientTo: "#B497CF",
+            glowColor: "#120F17",
+          },
+        },
+      },
       status: "published",
     },
     pages: [

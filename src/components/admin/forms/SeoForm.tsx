@@ -3,6 +3,7 @@
 import { upsertSeoPage, upsertSeoSettings } from "@/app/admin/actions";
 import { AdminField } from "@/components/admin/AdminField";
 import { AdminFormCard } from "@/components/admin/AdminFormCard";
+import { BackgroundSettingsFields } from "@/components/admin/forms/BackgroundSettingsFields";
 import {
   EditorForm,
   getFieldErrors,
@@ -12,6 +13,8 @@ import {
 import { FieldError } from "@/components/admin/FieldError";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { UnsavedChangesGuard } from "@/components/admin/UnsavedChangesGuard";
+import type { SiteBackgroundConfig } from "@/lib/theme/site-background";
+import { DEFAULT_SITE_BACKGROUND_CONFIG } from "@/lib/theme/site-background";
 
 const SETTINGS_FORM_ID = "seo-settings-form";
 const CREATE_FORM_ID = "seo-page-create-form";
@@ -19,6 +22,7 @@ const CREATE_FORM_ID = "seo-page-create-form";
 function SeoSettingsFields({
   setting,
   currentLandingThemePreset,
+  siteBackground,
 }: {
   setting: {
     id?: string;
@@ -31,6 +35,7 @@ function SeoSettingsFields({
     status?: string;
   } | null;
   currentLandingThemePreset: string;
+  siteBackground: SiteBackgroundConfig;
 }) {
   const ctx = useEditorFormState();
   const state = ctx?.state ?? null;
@@ -63,6 +68,7 @@ function SeoSettingsFields({
           <option value="matcha-coal">Matcha Mist + Dusty Coal</option>
         </select>
       </AdminField>
+      <BackgroundSettingsFields background={siteBackground} />
       <AdminField label="Site title" htmlFor="site_title">
         <input
           id="site_title"
@@ -139,6 +145,7 @@ function SeoSettingsFields({
 export function SeoSettingsForm({
   setting,
   currentLandingThemePreset,
+  siteBackground = DEFAULT_SITE_BACKGROUND_CONFIG,
 }: {
   setting: {
     id?: string;
@@ -151,12 +158,17 @@ export function SeoSettingsForm({
     status?: string;
   } | null;
   currentLandingThemePreset: string;
+  siteBackground?: SiteBackgroundConfig;
 }) {
   return (
     <AdminFormCard title="SEO global">
       <EditorForm action={upsertSeoSettings} formId={SETTINGS_FORM_ID} className="grid gap-3 sm:grid-cols-2">
         <UnsavedChangesGuard formId={SETTINGS_FORM_ID} />
-        <SeoSettingsFields setting={setting} currentLandingThemePreset={currentLandingThemePreset} />
+        <SeoSettingsFields
+          setting={setting}
+          currentLandingThemePreset={currentLandingThemePreset}
+          siteBackground={siteBackground}
+        />
         <SubmitButton pendingText="Menyimpan SEO...">Simpan global SEO</SubmitButton>
       </EditorForm>
     </AdminFormCard>

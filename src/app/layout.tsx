@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { DM_Sans, Geist_Mono, Orbitron, Syne } from "next/font/google";
 
 import { AppProviders } from "@/components/providers/app-providers";
-import { PastelMeshBackground } from "@/components/ui/PastelMeshBackground";
+import { SiteBackground } from "@/components/ui/SiteBackground";
 import { getPortfolio } from "@/lib/portfolio";
 import { parseLandingThemePreset } from "@/lib/theme/landing-theme";
+import { parseSiteBackgroundConfig } from "@/lib/theme/site-background";
 import { parseLocale } from "@/i18n/locales";
 
 import "./globals.css";
@@ -70,21 +71,23 @@ export default async function RootLayout({
     data.seo?.settings?.landing_theme_preset,
   );
   const locale = parseLocale(data.profile.locale_ui);
+  const siteBackground = parseSiteBackgroundConfig(data.seo?.settings?.metadata);
 
   return (
     <html
       lang={locale}
       data-scroll-behavior="smooth"
       data-landing-theme={landingThemePreset}
+      data-site-background={siteBackground.type}
       className={`${syne.variable} ${geistMono.variable} ${ifDisplay.variable} ${ifBody.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       {/* overflow-x-hidden di body memotong strip career (transform) + bayangan di tepi kiri/kanan */}
       <body
-        className="min-h-full min-w-0 bg-[var(--background)] text-[var(--foreground)]"
+        className="site-body min-h-full min-w-0 text-[var(--foreground)]"
         suppressHydrationWarning
       >
-        <PastelMeshBackground />
+        <SiteBackground config={siteBackground} />
         {/* Film Grain Overlay */}
         <div className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.04] mix-blend-multiply">
           <svg className="absolute inset-0 h-full w-full">

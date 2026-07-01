@@ -254,12 +254,7 @@ function MetaTab({
   }
 
   if (sectionKey === "hero") {
-    return (
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted-foreground)]">
-        Hero memakai field Utama (title, subtitle, body). Meta tambahan seperti brand/CTA bisa di
-        tab Lanjutan.
-      </div>
-    );
+    return <HeroMetaFields meta={meta} />;
   }
 
   if (sectionKey === "about") {
@@ -279,6 +274,132 @@ function MetaTab({
     <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted-foreground)]">
       Tidak ada field meta khusus untuk section_key &quot;{sectionKey}&quot;. Pakai tab Lanjutan
       untuk JSON.
+    </div>
+  );
+}
+
+function HeroMetaFields({ meta }: { meta: Record<string, unknown> }) {
+  const ctx = useEditorFormState();
+  const state = ctx?.state ?? null;
+
+  return (
+    <div className="space-y-3">
+      <AdminField
+        label="Brand nav"
+        hint="Teks brand di pill nav. Kosongkan untuk default i18n."
+        htmlFor="hero_brand"
+      >
+        <Input
+          id="hero_brand"
+          name="hero_brand"
+          defaultValue={getFieldValue(
+            state,
+            "hero_brand",
+            typeof meta.brand === "string" ? meta.brand : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="CTA label" hint="Teks tombol hero." htmlFor="hero_cta_label">
+        <Input
+          id="hero_cta_label"
+          name="hero_cta_label"
+          defaultValue={getFieldValue(
+            state,
+            "hero_cta_label",
+            typeof meta.cta_label === "string" ? meta.cta_label : "",
+          )}
+        />
+      </AdminField>
+      <AdminField label="CTA href" hint="Link tombol, mis. #projects." htmlFor="hero_cta_href">
+        <Input
+          id="hero_cta_href"
+          name="hero_cta_href"
+          defaultValue={getFieldValue(
+            state,
+            "hero_cta_href",
+            typeof meta.cta_href === "string" ? meta.cta_href : "",
+          )}
+        />
+      </AdminField>
+
+      <div className="rounded-lg border border-[var(--border)] p-3 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+          Ukuran teks
+        </p>
+        <p className="text-xs text-[var(--muted-foreground)]">
+          Pakai rem atau px. Angka saja dianggap rem (contoh: 2 → 2rem).
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <AdminField
+            label="Title min (mobile)"
+            hint="Default: 2rem"
+            htmlFor="hero_title_size_mobile"
+          >
+            <Input
+              id="hero_title_size_mobile"
+              name="hero_title_size_mobile"
+              placeholder="2rem"
+              defaultValue={getFieldValue(
+                state,
+                "hero_title_size_mobile",
+                typeof meta.hero_title_size_mobile === "string" ? meta.hero_title_size_mobile : "",
+              )}
+            />
+          </AdminField>
+          <AdminField
+            label="Title max (desktop)"
+            hint="Default: 5.5rem"
+            htmlFor="hero_title_size_desktop"
+          >
+            <Input
+              id="hero_title_size_desktop"
+              name="hero_title_size_desktop"
+              placeholder="5.5rem"
+              defaultValue={getFieldValue(
+                state,
+                "hero_title_size_desktop",
+                typeof meta.hero_title_size_desktop === "string" ? meta.hero_title_size_desktop : "",
+              )}
+            />
+          </AdminField>
+          <AdminField label="Role / subtitle" hint="Default: 0.65rem" htmlFor="hero_role_size">
+            <Input
+              id="hero_role_size"
+              name="hero_role_size"
+              placeholder="0.65rem"
+              defaultValue={getFieldValue(
+                state,
+                "hero_role_size",
+                typeof meta.hero_role_size === "string" ? meta.hero_role_size : "",
+              )}
+            />
+          </AdminField>
+          <AdminField label="Tagline" hint="Default: 0.9rem" htmlFor="hero_tagline_size">
+            <Input
+              id="hero_tagline_size"
+              name="hero_tagline_size"
+              placeholder="0.9rem"
+              defaultValue={getFieldValue(
+                state,
+                "hero_tagline_size",
+                typeof meta.hero_tagline_size === "string" ? meta.hero_tagline_size : "",
+              )}
+            />
+          </AdminField>
+          <AdminField label="CTA button" hint="Default: 0.68rem" htmlFor="hero_cta_size">
+            <Input
+              id="hero_cta_size"
+              name="hero_cta_size"
+              placeholder="0.68rem"
+              defaultValue={getFieldValue(
+                state,
+                "hero_cta_size",
+                typeof meta.hero_cta_size === "string" ? meta.hero_cta_size : "",
+              )}
+            />
+          </AdminField>
+        </div>
+      </div>
     </div>
   );
 }

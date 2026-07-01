@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { updateTag, revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
@@ -42,9 +42,15 @@ import {
 } from "@/lib/admin/validation";
 import { parseLocale } from "@/i18n/locales";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  parseSiteBackgroundConfig,
+  serializeSiteBackgroundConfig,
+  siteBackgroundConfigFromFormData,
+} from "@/lib/theme/site-background";
 
 export async function revalidatePortfolio() {
   updateTag("portfolio");
+  revalidatePath("/", "layout");
 }
 
 async function requireAdmin() {
@@ -414,6 +420,14 @@ export async function upsertSectionContent(
     setOrDelete("cv_label", input.cv_label);
     setOrDelete("craft_title", input.craft_title);
     setOrDelete("craft_body", input.craft_body);
+    setOrDelete("brand", input.hero_brand);
+    setOrDelete("cta_label", input.hero_cta_label);
+    setOrDelete("cta_href", input.hero_cta_href);
+    setOrDelete("hero_title_size_mobile", input.hero_title_size_mobile);
+    setOrDelete("hero_title_size_desktop", input.hero_title_size_desktop);
+    setOrDelete("hero_role_size", input.hero_role_size);
+    setOrDelete("hero_tagline_size", input.hero_tagline_size);
+    setOrDelete("hero_cta_size", input.hero_cta_size);
 
     if (input.marquee_items?.trim()) meta.marquee_items = parseJsonOrLines(input.marquee_items);
     else delete meta.marquee_items;
@@ -570,6 +584,13 @@ export async function upsertSeoSettings(
         return zodValidationResult({ metadata: ["Metadata: JSON tidak valid"] }, formData);
       }
     }
+
+    const existingBackground = parseSiteBackgroundConfig(parsedMetadata);
+    const backgroundConfig = siteBackgroundConfigFromFormData(formData, existingBackground);
+    parsedMetadata = {
+      ...parsedMetadata,
+      background: serializeSiteBackgroundConfig(backgroundConfig),
+    };
 
     const payload = {
       landing_theme_preset: input.landing_theme_preset,

@@ -501,6 +501,17 @@ body {
   font-family: var(--font-syne), system-ui, sans-serif;
 }
 
+/* Custom CMS backgrounds must show through page layers */
+html[data-site-background]:not([data-site-background="pastel-mesh"]) body,
+html[data-site-background]:not([data-site-background="pastel-mesh"]) .site-main {
+  background: transparent;
+}
+
+html[data-site-background]:not([data-site-background="pastel-mesh"]) .ifs-section--flush-y,
+html[data-site-background]:not([data-site-background="pastel-mesh"]) .ifs-guestbook-section {
+  background: transparent;
+}
+
 /* ── Mouse-Following Spotlight ───────────────────────────── */
 .mouse-spotlight {
   position: fixed;

@@ -207,7 +207,7 @@ MagneticButton.displayName = "MagneticButton";
 
 function chunkMarquee(items: string[]) {
   const cleaned = items.map((s) => s.trim()).filter(Boolean);
-  return cleaned.length ? cleaned : ["Open to work", "Software engineering", "Mari berhubung", "Create impact", "Creative development"];
+  return cleaned.length ? cleaned : ["Kotlin Android", "React Native Expo", "Flutter", "Fintech", "Payment", "API Integration"];
 }
 
 const MarqueeItem = ({ items }: { items: string[] }) => (
@@ -226,12 +226,12 @@ export function CinematicFooter({ profile, section }: { profile: SiteProfile; se
   const giantTextRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
-  const kicker = typeof section?.meta?.kicker === "string" ? section.meta.kicker : "Closing chapter";
-  const heading = section?.title?.trim() || "Let's build something.";
-  const lead = section?.subtitle?.trim() || "Unduh CV atau kirim email — respons cepat.";
+  const kicker = typeof section?.meta?.kicker === "string" ? section.meta.kicker : "Contact";
+  const heading = section?.title?.trim() || "Let's build reliable mobile apps.";
+  const lead = section?.subtitle?.trim() || "Available for mobile roles, fintech/payment projects, and production app maintenance.";
   const body =
     typeof section?.body === "string" && section.body.trim() ? section.body.trim() : null;
-  const primaryLabel = typeof section?.meta?.talk_label === "string" ? section.meta.talk_label : "Get in touch";
+  const primaryLabel = typeof section?.meta?.talk_label === "string" ? section.meta.talk_label : "Email me";
   const cvLabel = typeof section?.meta?.cv_label === "string" ? section.meta.cv_label : "Download CV";
   const marqueeItems = Array.isArray(section?.meta?.marquee_items)
     ? (section?.meta?.marquee_items as unknown[]).filter((x): x is string => typeof x === "string")

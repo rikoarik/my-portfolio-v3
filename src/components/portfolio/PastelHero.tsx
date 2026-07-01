@@ -29,7 +29,7 @@ export function PastelHero({
     section?.title?.split(" ").slice(2).join(" ") ||
     parts.slice(2).join(" ") ||
     profile.title;
-  const taglineLines = (section?.body ?? "He didn't wait to be taught.\nHe just started building.")
+  const taglineLines = (section?.body ?? "Mobile Developer focused on fintech, payment, and multi-tenant mobile applications.\nI build production-ready mobile apps using Kotlin, React Native, Flutter, and backend integrations.")
     .split("\n")
     .filter(Boolean);
   const roleText = section?.subtitle ?? profile.title;

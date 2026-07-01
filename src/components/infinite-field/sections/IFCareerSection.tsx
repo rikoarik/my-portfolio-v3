@@ -7,9 +7,9 @@ import { TextReveal } from "@/components/interactions/TextReveal";
 import { InteractiveGridBackground } from "@/components/visual/InteractiveGridBackground";
 
 function fmtPeriod(e: { start_date: string | null; end_date: string | null }) {
-  const s = e.start_date ?? "";
-  const end = e.end_date ? e.end_date : "Present";
-  return `${s} — ${end}`;
+  const start = e.start_date?.trim() ?? "";
+  const end = e.end_date?.trim() || "Present";
+  return start ? `${start} — ${end}` : end;
 }
 
 export function IFCareerSection({

@@ -56,7 +56,7 @@ function StatBlock({
           data-stat-value={value}
           className="ifs-stat-num font-black text-[clamp(2.25rem,12vw,3.75rem)] leading-none tracking-tighter text-[var(--foreground)] sm:text-7xl md:text-8xl lg:text-[6.5rem]"
         >
-          0
+          {value}
         </span>
         <span className="text-[var(--primary)] font-bold text-3xl sm:text-4xl md:text-5xl">
           {suffix}
@@ -81,31 +81,31 @@ export function IFAboutSection({
   const headline =
     typeof section?.meta?.about_headline === "string" && section.meta.about_headline.trim()
       ? section.meta.about_headline
-      : "Build products that feel clear, fast, and human.";
+      : "Reliable mobile apps for fintech and payments.";
   const subline =
     typeof section?.meta?.about_intro === "string" && section.meta.about_intro.trim()
       ? section.meta.about_intro
-      : "I turn ambitious product goals into production-ready interfaces — balancing clean architecture, sharp UX details, and smooth physics-based interactions that help users trust what they use.";
+      : "I build production mobile apps with clean architecture, reliable user flows, API integrations, and maintainable code that holds up in real user conditions.";
   const philosophyTitle =
     typeof section?.subtitle === "string" && section.subtitle.trim()
       ? section.subtitle
-      : "Philosophy";
+      : "Engineering Approach";
   const philosophyBody =
     typeof section?.body === "string" && section.body.trim()
       ? section.body
-      : "I believe digital experiences should evoke emotion. Every pixel is an opportunity to tell a story and create a profound human connection.";
+      : "I focus on mobile flows that users and operators can trust: clear states, predictable validation, resilient API handling, and careful edge-case coverage.";
   const focusTitle =
-    typeof section?.meta?.focus_title === "string" ? section.meta.focus_title : "Focus";
+    typeof section?.meta?.focus_title === "string" ? section.meta.focus_title : "Domain Focus";
   const focusBody =
     typeof section?.meta?.focus_body === "string"
       ? section.meta.focus_body
-      : "Specializing in high-end interactive frontend. I combine brutalist editorial aesthetics with creative engineering to craft award-winning, immersive digital products.";
+      : "Fintech, payment, merchant and member apps, PPOB, QRIS, NFC, and multi-tenant mobile architecture.";
 
   type AboutStat = { value: number; suffix: string; label: string };
   const defaultAboutStats: AboutStat[] = [
-    { value: 2, suffix: "+", label: "Years Experience" },
+    { value: 2, suffix: "+", label: "Years Mobile" },
     { value: 15, suffix: "+", label: "Production Apps" },
-    { value: 100, suffix: "%", label: "Passion Driven" },
+    { value: 3, suffix: "", label: "Core Stacks" },
   ];
   const aboutStats = Array.isArray(section?.meta?.stats)
     ? (section.meta.stats as unknown[])
@@ -123,11 +123,11 @@ export function IFAboutSection({
   const craftTitle =
     typeof section?.meta?.craft_title === "string" && section.meta.craft_title.trim()
       ? section.meta.craft_title
-      : "Craft";
+      : "Delivery";
   const craftBody =
     typeof section?.meta?.craft_body === "string" && section.meta.craft_body.trim()
       ? section.meta.craft_body
-      : "Every project is an opportunity to push the boundaries of what's possible on the web. I obsess over the details that make experiences feel magical.";
+      : "I keep features maintainable from development to release: reusable modules, GitLab CI/CD, store deployment, and production issue triage.";
 
   useEffect(() => {
     const root = rootRef.current;

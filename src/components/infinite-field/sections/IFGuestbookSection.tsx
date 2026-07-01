@@ -370,7 +370,7 @@ export function IFGuestbookSection({ messages }: { messages: GuestMessage[] }) {
         />
         <div className="mb-10 max-w-sm mx-auto space-y-4">
           <p className="text-[var(--muted-foreground)] text-base font-medium leading-relaxed">
-            Leave a mark on this infinite field. No login, just raw vibes.
+            Messages from collaborators and visitors appear here after review. Keep it relevant and professional.
           </p>
           {hiddenCount > 0 && (
             <p className="text-[var(--muted-foreground)]/60 font-mono text-xs tracking-wide">

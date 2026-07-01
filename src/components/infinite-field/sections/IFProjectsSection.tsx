@@ -543,8 +543,8 @@ export function IFProjectsSection({ projects }: { projects: Project[] }) {
                 className="ifs-heading !mb-0 text-left"
               />
               <p className="ifs-projects-lead mt-3 max-w-xl text-base leading-relaxed text-[var(--muted-foreground)] sm:mt-4 sm:text-lg">
-                Production apps across mobile and cross-platform — curated case studies with
-                measurable impact.
+                Fintech, payment, merchant/member, and operational mobile apps — selected work
+                focused on real production flows.
               </p>
             </div>
             <p className="font-mono-meta shrink-0 text-xs uppercase tracking-[0.22em] text-[var(--muted-foreground)] lg:text-right">
